@@ -67,11 +67,11 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary">Nytt lead</Button>
+        <Button variant="secondary">Ny lead</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nytt lead</DialogTitle>
+          <DialogTitle>Ny lead</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
