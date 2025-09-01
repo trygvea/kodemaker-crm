@@ -19,7 +19,7 @@ export function AppHeader() {
           <Link href="/customers" className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm">Kundeliste</Link>
           <NewCompanyDialog />
           <NewContactDialog />
-          {/* Default lead dialog needs company context; leave for company pages */}
+          <NewLeadDialog />
         </nav>
       </div>
     </header>

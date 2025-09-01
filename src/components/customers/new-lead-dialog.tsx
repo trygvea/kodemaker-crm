@@ -26,6 +26,7 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
 
   const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { description: '', companyId } })
 
+  const [open, setOpen] = useState(false)
   const [cOpen, setCOpen] = useState(false)
   const [kOpen, setKOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
@@ -46,9 +47,10 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
     const res = await fetch('/api/leads', { method: 'POST', body: JSON.stringify(values) })
     if (!res.ok) return toast.error('Kunne ikke opprette lead')
     toast.success('Lead opprettet')
+    setOpen(false)
   }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Nytt lead</Button>
       </DialogTrigger>
