@@ -62,10 +62,14 @@ export default function ContactDetailPage() {
         <h2 className="text-lg font-medium mb-2">Leads</h2>
         <div className="border rounded divide-y">
           {leads.length ? leads.map((l) => (
-            <div key={l.id} className="p-3 flex items-center justify-between">
-              <a href={`/leads/${l.id}`} className="font-medium underline-offset-4 hover:underline">{l.description}</a>
-              <div className="text-sm text-muted-foreground">{l.status}</div>
-            </div>
+            <a key={l.id} href={`/leads/${l.id}`} className="block p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm">
+                  {l.description.length > 100 ? `${l.description.slice(0, 100)}…` : l.description}
+                </div>
+                <div className="text-sm text-muted-foreground">{l.status}</div>
+              </div>
+            </a>
           )) : (
             <div className="p-3 text-sm text-muted-foreground">Ingen</div>
           )}
