@@ -1,6 +1,7 @@
 "use client"
 import useSWR, { useSWRConfig } from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
+import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
@@ -18,6 +19,7 @@ export default function LeadDetailPage() {
   const id = Number(params.id)
   const { data } = useSWR<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'; company?: { id: number; name: string } | null; contact?: { id: number; firstName: string; lastName: string } | null }>(id ? `/api/leads/${id}` : null)
   const { mutate } = useSWRConfig()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -29,6 +31,8 @@ export default function LeadDetailPage() {
     if (!res.ok) return toast.error('Kunne ikke oppdatere lead')
     toast.success('Lead oppdatert')
     await mutate(`/api/leads/${id}`)
+    const target = data?.contact ? `/contacts/${data.contact.id}` : (data?.company ? `/customers/${data.company.id}` : '/customers')
+    router.push(target)
   }
 
   if (!data) return <div className="p-6">Laster...</div>
