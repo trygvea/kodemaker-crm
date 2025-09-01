@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 type Company = { id: number; name: string }
 type Contact = { id: number; firstName: string; lastName: string }
 
-export function NewLeadDialog({ companyId }: { companyId?: number }) {
+export function NewLeadDialog({ companyId, companyName }: { companyId?: number; companyName?: string }) {
   const schema = z
     .object({
       description: z.string().min(1),
@@ -39,9 +39,13 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
   useEffect(() => {
     if (companyId) {
       form.setValue('companyId', companyId)
+      setSelectedCompany({ id: companyId, name: companyName || '' })
+    } else {
+      form.setValue('companyId', undefined)
+      setSelectedCompany(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId])
+  }, [companyId, companyName])
 
   async function onSubmit(values: z.infer<typeof schema>) {
     const res = await fetch('/api/leads', { method: 'POST', body: JSON.stringify(values) })
@@ -52,7 +56,7 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Nytt lead</Button>
+        <Button variant="secondary">Nytt lead</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -77,7 +81,7 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
                   <Popover open={cOpen} onOpenChange={setCOpen}>
                     <PopoverTrigger asChild>
                       <Button type="button" variant="outline" className="justify-between w-full">
-                        {selectedCompany?.name || 'Velg firma'}
+                        {selectedCompany?.name || companyName || 'Velg firma'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">

@@ -36,6 +36,9 @@ export default function CompanyDetailPage() {
             {company.contactEmail ? <div>{company.contactEmail}</div> : null}
           </div>
         </div>
+        <div>
+          <NewLeadDialog companyId={company.id} companyName={company.name} />
+        </div>
       </div>
 
       <section>
