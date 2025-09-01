@@ -31,6 +31,18 @@ export default function CompanyDetailPage() {
     return c
   }, [leadsList])
 
+  const contactLeadCounts = useMemo(() => {
+    const map: Record<number, { NEW: number; IN_PROGRESS: number; LOST: number; WON: number }> = {}
+    for (const l of leadsList) {
+      const cid = l.contactId as number | null | undefined
+      const status = l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | undefined
+      if (!cid || !status) continue
+      if (!map[cid]) map[cid] = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 }
+      if (map[cid][status] !== undefined) map[cid][status] += 1
+    }
+    return map
+  }, [leadsList])
+
   if (!data) return <div className="p-6">Laster...</div>
   const { company, contacts, leads } = data
 
@@ -62,7 +74,23 @@ export default function CompanyDetailPage() {
                 <a href={`/contacts/${c.id}`} className="font-medium underline-offset-4 hover:underline">{c.firstName} {c.lastName}</a>
                 <div className="text-sm text-muted-foreground">{c.email}</div>
               </div>
-              <div className="space-x-2">
+              <div className="space-x-2 flex items-center">
+                {contactLeadCounts[c.id] ? (
+                  <div className="flex items-center gap-1 mr-2">
+                    {contactLeadCounts[c.id].NEW > 0 ? (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">Ny {contactLeadCounts[c.id].NEW}</span>
+                    ) : null}
+                    {contactLeadCounts[c.id].IN_PROGRESS > 0 ? (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">Under arbeid {contactLeadCounts[c.id].IN_PROGRESS}</span>
+                    ) : null}
+                    {contactLeadCounts[c.id].LOST > 0 ? (
+                      <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">Tapt {contactLeadCounts[c.id].LOST}</span>
+                    ) : null}
+                    {contactLeadCounts[c.id].WON > 0 ? (
+                      <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">Vunnet {contactLeadCounts[c.id].WON}</span>
+                    ) : null}
+                  </div>
+                ) : null}
                 <NewLeadDialog companyId={company.id} companyName={company.name} contactId={c.id} contactName={`${c.firstName} ${c.lastName}`} />
               </div>
             </div>
