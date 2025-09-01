@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 type Company = { id: number; name: string }
 type Contact = { id: number; firstName: string; lastName: string }
 
-export function NewLeadDialog({ companyId, companyName }: { companyId?: number; companyName?: string }) {
+export function NewLeadDialog({ companyId, companyName, contactId, contactName }: { companyId?: number; companyName?: string; contactId?: number; contactName?: string }) {
   const schema = z
     .object({
       description: z.string().min(1),
@@ -46,6 +46,17 @@ export function NewLeadDialog({ companyId, companyName }: { companyId?: number; 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId, companyName])
+
+  useEffect(() => {
+    if (contactId) {
+      form.setValue('contactId', contactId)
+      setSelectedContact({ id: contactId, firstName: contactName?.split(' ')?.[0] || '', lastName: contactName?.split(' ').slice(1).join(' ') || '' })
+    } else {
+      form.setValue('contactId', undefined)
+      setSelectedContact(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contactId, contactName])
 
   async function onSubmit(values: z.infer<typeof schema>) {
     const res = await fetch('/api/leads', { method: 'POST', body: JSON.stringify(values) })

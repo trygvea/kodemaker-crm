@@ -36,9 +36,6 @@ export default function CompanyDetailPage() {
             {company.contactEmail ? <div>{company.contactEmail}</div> : null}
           </div>
         </div>
-        <div>
-          <NewLeadDialog companyId={company.id} companyName={company.name} />
-        </div>
       </div>
 
       <section>
@@ -51,6 +48,9 @@ export default function CompanyDetailPage() {
               <div>
                 <a href={`/contacts/${c.id}`} className="font-medium underline-offset-4 hover:underline">{c.firstName} {c.lastName}</a>
                 <div className="text-sm text-muted-foreground">{c.email}</div>
+              </div>
+              <div className="space-x-2">
+                <NewLeadDialog companyId={company.id} companyName={company.name} contactId={c.id} contactName={`${c.firstName} ${c.lastName}`} />
               </div>
             </div>
           ))}
