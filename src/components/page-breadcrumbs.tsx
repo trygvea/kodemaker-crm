@@ -1,6 +1,7 @@
 "use client"
 import Link from 'next/link'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import {Fragment} from 'react';
 
 type Crumb = { label: string; href?: string }
 
@@ -11,7 +12,7 @@ export function PageBreadcrumbs({ items }: { items: Crumb[] }) {
       <Breadcrumb>
         <BreadcrumbList>
           {items.map((c, idx) => (
-            <>
+            <Fragment key={`${c.label}-${idx}`}>
               <BreadcrumbItem key={`${c.label}-${idx}`}>
                 {c.href ? (
                   <BreadcrumbLink asChild>
@@ -22,7 +23,7 @@ export function PageBreadcrumbs({ items }: { items: Crumb[] }) {
                 )}
               </BreadcrumbItem>
               {idx < items.length - 1 ? <BreadcrumbSeparator /> : null}
-            </>
+            </Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
