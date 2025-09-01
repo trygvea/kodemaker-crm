@@ -34,7 +34,7 @@ export function AppHeader() {
         <nav className="flex items-center gap-2">
           <Link href="/customers" className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm">Kundeliste</Link>
           <NewCompanyDialog />
-          <NewContactDialog />
+          <NewContactDialog companyId={headerCompanyId} companyName={headerCompanyName} />
           <NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} />
         </nav>
       </div>
