@@ -34,10 +34,6 @@ export default function CompanyDetailPage() {
             {company.contactEmail ? <div>{company.contactEmail}</div> : null}
           </div>
         </div>
-        <div className="space-x-2">
-          <NewContactDialog companyId={company.id} companyName={company.name} />
-          <NewLeadDialog companyId={company.id} />
-        </div>
       </div>
 
       <section>

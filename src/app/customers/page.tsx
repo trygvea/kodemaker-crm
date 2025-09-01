@@ -55,15 +55,8 @@ export default function CustomersPage() {
 
   return (
     <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Kunder</h1>
-      </div>
       <div className="flex gap-2 items-center justify-between">
         <Input className="max-w-sm" placeholder="Søk i kunder" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <div className="space-x-2">
-          <NewCompanyDialog form={form} onSubmit={onSubmit} />
-          <NewContactDialogComponent />
-        </div>
       </div>
       <div className="divide-y border rounded">
         {filtered.map((c) => (
