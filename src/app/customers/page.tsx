@@ -1,6 +1,7 @@
 "use client"
 import useSWR from 'swr'
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -37,6 +38,7 @@ export default function CustomersPage() {
     () => (data || []).filter((c) => c.name.toLowerCase().includes(search.toLowerCase())),
     [data, search]
   )
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -62,18 +64,23 @@ export default function CustomersPage() {
       </div>
       <div className="divide-y border rounded">
         {filtered.map((c) => (
-          <div key={c.id} className="p-3 flex items-center justify-between">
+          <div
+            key={c.id}
+            className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/30"
+            onClick={() => router.push(`/customers/${c.id}`)}
+            role="button"
+          >
             <div>
-              <a href={`/customers/${c.id}`} className="font-medium underline-offset-4 hover:underline">
+              <div className="font-medium">
                 {c.name}
-              </a>
+              </div>
               {c.websiteUrl ? (
-                <a className="block text-sm text-muted-foreground" href={c.websiteUrl} target="_blank" rel="noreferrer">
+                <a className="block text-sm text-muted-foreground" href={c.websiteUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
                   {c.websiteUrl}
                 </a>
               ) : null}
             </div>
-            <div className="space-x-2">
+            <div className="space-x-2" onClick={(e) => e.stopPropagation()}>
               <NewContactDialogComponent companyId={c.id} companyName={c.name} />
               <NewLeadDialog companyId={c.id} companyName={c.name} />
             </div>
