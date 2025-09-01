@@ -1,6 +1,7 @@
 "use client"
 import useSWR from 'swr'
 import { useParams } from 'next/navigation'
+import { useMemo } from 'react'
 import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
@@ -20,6 +21,15 @@ export default function CompanyDetailPage() {
 
   if (!data) return <div className="p-6">Laster...</div>
   const { company, contacts, leads } = data
+  const leadCounts = useMemo(() => {
+    const c = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 } as Record<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON', number>
+    for (const l of leads) {
+      if (l.status && c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'] !== undefined) {
+        c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'] += 1
+      }
+    }
+    return c
+  }, [leads])
 
   return (
     <div className="p-6 space-y-6">
@@ -60,6 +70,12 @@ export default function CompanyDetailPage() {
       <section>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-medium">Leads</h2>
+        </div>
+        <div className="flex items-center gap-1 mb-2">
+          <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">Ny {leadCounts.NEW}</span>
+          <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">Under arbeid {leadCounts.IN_PROGRESS}</span>
+          <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">Tapt {leadCounts.LOST}</span>
+          <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">Vunnet {leadCounts.WON}</span>
         </div>
         <div className="border rounded divide-y">
           {leads.map((l) => (
