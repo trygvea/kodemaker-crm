@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { contacts, contactCompanyHistory } from '@/db/schema'
 import { z } from 'zod'
-import { ilike, desc } from 'drizzle-orm'
+import { ilike, desc, or } from 'drizzle-orm'
 
 const createContactSchema = z.object({
   firstName: z.string().min(1),
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const data = await db
       .select()
       .from(contacts)
-      .where(ilike(contacts.lastName, `%${q}%`))
+      .where(or(ilike(contacts.firstName, `%${q}%`), ilike(contacts.lastName, `%${q}%`)))
       .limit(50)
     return NextResponse.json(data)
   }
