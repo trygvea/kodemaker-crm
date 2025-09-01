@@ -37,8 +37,8 @@ export async function GET(req: NextRequest) {
     byCompany[id] = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 }
   }
   for (const c of counts) {
-    // @ts-expect-error enum narrow
-    byCompany[c.companyId][c.status] = c.count
+    const status = c.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
+    byCompany[c.companyId][status] = c.count
   }
 
   const data = rows.map((r) => ({ ...r, leadCounts: byCompany[r.id] }))

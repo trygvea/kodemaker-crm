@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, leads, leadStatusEnum } from '@/db/schema'
+import { companies, contacts, leads } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id)
+  const { id: idStr } = await params
+  const id = Number(idStr)
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
 
   const rows = await db
@@ -44,9 +45,10 @@ const updateLeadSchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id)
+  const { id: idStr } = await params
+  const id = Number(idStr)
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
   const json = await req.json()
   const parsed = updateLeadSchema.safeParse(json)

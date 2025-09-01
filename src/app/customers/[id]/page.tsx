@@ -2,7 +2,7 @@
 import useSWR from 'swr'
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
-import { NewContactDialog } from '@/components/customers/new-contact-dialog'
+// import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
@@ -17,10 +17,10 @@ type Company = {
 export default function CompanyDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
-  const { data } = useSWR<{ company: Company; contacts: any[]; leads: any[] }>(id ? `/api/companies/${id}` : null)
+  const { data } = useSWR<{ company: Company; contacts: Array<{ id: number; firstName: string; lastName: string; email?: string | null }>; leads: Array<{ id: number; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'; description: string; contactId?: number | null }> }>(id ? `/api/companies/${id}` : null)
 
   // Ensure hooks run consistently on every render
-  const leadsList = data?.leads ?? []
+  const leadsList = useMemo(() => data?.leads ?? [], [data])
   const leadCounts = useMemo(() => {
     const c = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 } as Record<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON', number>
     for (const l of leadsList) {

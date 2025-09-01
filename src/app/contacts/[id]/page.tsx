@@ -9,7 +9,7 @@ type CompanyBrief = { id: number; name: string; startDate?: string | null; endDa
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
-  const { data } = useSWR<{ contact: Contact; currentCompany: CompanyBrief | null; previousCompanies: CompanyBrief[]; leads: any[] }>(id ? `/api/contacts/${id}` : null)
+  const { data } = useSWR<{ contact: Contact; currentCompany: CompanyBrief | null; previousCompanies: CompanyBrief[]; leads: Array<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' }> }>(id ? `/api/contacts/${id}` : null)
 
   if (!data) return <div className="p-6">Laster...</div>
   const { contact, currentCompany, previousCompanies, leads } = data

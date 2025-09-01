@@ -5,9 +5,10 @@ import { and, desc, eq, isNull, isNotNull } from 'drizzle-orm'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id)
+  const { id: idStr } = await params
+  const id = Number(idStr)
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
 
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1)

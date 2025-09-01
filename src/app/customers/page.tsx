@@ -46,6 +46,7 @@ export default function CustomersPage() {
     defaultValues: { name: '', websiteUrl: '', emailDomain: '', contactEmail: '' },
   })
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function onSubmit(values: z.infer<typeof companySchema>) {
     const res = await fetch('/api/companies', { method: 'POST', body: JSON.stringify(values) })
     if (!res.ok) {
@@ -100,6 +101,7 @@ export default function CustomersPage() {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function NewCompanyDialog({
   form,
   onSubmit,
@@ -180,6 +182,7 @@ function NewCompanyDialog({
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function NewContactDialog({ companyId, companyName }: { companyId?: number; companyName?: string }) {
   const schema = z
     .object({
