@@ -19,17 +19,20 @@ export default function CompanyDetailPage() {
   const id = Number(params.id)
   const { data } = useSWR<{ company: Company; contacts: any[]; leads: any[] }>(id ? `/api/companies/${id}` : null)
 
-  if (!data) return <div className="p-6">Laster...</div>
-  const { company, contacts, leads } = data
+  // Ensure hooks run consistently on every render
+  const leadsList = data?.leads ?? []
   const leadCounts = useMemo(() => {
     const c = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 } as Record<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON', number>
-    for (const l of leads) {
+    for (const l of leadsList) {
       if (l.status && c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'] !== undefined) {
         c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'] += 1
       }
     }
     return c
-  }, [leads])
+  }, [leadsList])
+
+  if (!data) return <div className="p-6">Laster...</div>
+  const { company, contacts, leads } = data
 
   return (
     <div className="p-6 space-y-6">
