@@ -1,5 +1,6 @@
 "use client"
 import useSWR, { useSWRConfig } from 'swr'
+import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams } from 'next/navigation'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -31,8 +32,15 @@ export default function LeadDetailPage() {
   }
 
   if (!data) return <div className="p-6">Laster...</div>
+  const crumbs = [
+    { label: 'Kundeliste', href: '/customers' },
+    ...(data.company ? [{ label: data.company.name, href: `/customers/${data.company.id}` }] : []),
+    ...(data.contact ? [{ label: `${data.contact.firstName} ${data.contact.lastName}`, href: `/contacts/${data.contact.id}` }] : []),
+    { label: 'Lead' },
+  ]
   return (
     <div className="p-6 space-y-6">
+      <PageBreadcrumbs items={crumbs} />
       <section>
         <h1 className="text-2xl font-semibold">Lead</h1>
         <div className="text-sm text-muted-foreground space-y-1">

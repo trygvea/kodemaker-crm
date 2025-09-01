@@ -1,5 +1,6 @@
 "use client"
 import useSWR from 'swr'
+import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams } from 'next/navigation'
 
 type Contact = { id: number; firstName: string; lastName: string; email?: string | null; phone?: string | null; linkedInUrl?: string | null }
@@ -13,8 +14,15 @@ export default function ContactDetailPage() {
   if (!data) return <div className="p-6">Laster...</div>
   const { contact, currentCompany, previousCompanies, leads } = data
 
+  const crumbs = [
+    { label: 'Kundeliste', href: '/customers' },
+    ...(currentCompany ? [{ label: currentCompany.name, href: `/customers/${currentCompany.id}` }] : []),
+    { label: `${contact.firstName} ${contact.lastName}` },
+  ]
+
   return (
     <div className="p-6 space-y-6">
+      <PageBreadcrumbs items={crumbs} />
       <section>
         <h1 className="text-2xl font-semibold">{contact.firstName} {contact.lastName}</h1>
         <div className="text-sm text-muted-foreground space-y-1">

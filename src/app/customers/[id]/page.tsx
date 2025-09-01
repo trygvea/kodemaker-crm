@@ -3,6 +3,7 @@ import useSWR from 'swr'
 import { useParams } from 'next/navigation'
 import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
+import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
 type Company = {
   id: number
@@ -22,6 +23,7 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="p-6 space-y-6">
+      <PageBreadcrumbs items={[{ label: 'Kundeliste', href: '/customers' }, { label: company.name }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{company.name}</h1>

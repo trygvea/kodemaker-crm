@@ -13,6 +13,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
 type Company = {
   id: number
@@ -55,6 +56,7 @@ export default function CustomersPage() {
 
   return (
     <div className="p-6 space-y-4">
+      <PageBreadcrumbs items={[{ label: 'Kundeliste' }]} />
       <div className="flex gap-2 items-center justify-between">
         <Input className="max-w-sm" placeholder="Søk i kunder" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
