@@ -7,7 +7,18 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "test": "jest"
+    "test": "jest",
+    "db:up": "docker compose up -d db",
+    "db:stop": "docker compose stop db",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f db",
+    "db:ps": "docker compose ps",
+    "db:reset": "docker compose down -v && docker compose up -d db",
+    "db:migrate:generate": "cp .env.local .env 2>/dev/null || true && drizzle-kit generate",
+    "db:migrate:push": "cp .env.local .env 2>/dev/null || true && drizzle-kit push",
+    "db:migrate": "npm run db:migrate:generate && npm run db:migrate:push",
+    "db:studio": "cp .env.local .env 2>/dev/null || true && drizzle-kit studio",
+    "db:psql": "docker compose exec -T db psql -U postgres -d crm3"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
