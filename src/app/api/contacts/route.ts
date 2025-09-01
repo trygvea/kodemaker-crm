@@ -7,9 +7,9 @@ import { ilike, desc } from 'drizzle-orm'
 const createContactSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  email: z.string().email().optional(),
+  email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
-  linkedInUrl: z.string().url().optional(),
+  linkedInUrl: z.string().url().optional().or(z.literal('')),
   companyId: z.number().int().optional(),
   startDate: z.string().optional(),
 })

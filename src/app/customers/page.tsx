@@ -1,9 +1,13 @@
 "use client"
 import useSWR from 'swr'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
+import { NewContactDialog as NewContactDialogComponent } from '@/components/customers/new-contact-dialog'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -56,13 +60,18 @@ export default function CustomersPage() {
       </div>
       <div className="flex gap-2 items-center justify-between">
         <Input className="max-w-sm" placeholder="Søk i kunder" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <NewCompanyDialog form={form} onSubmit={onSubmit} />
+        <div className="space-x-2">
+          <NewCompanyDialog form={form} onSubmit={onSubmit} />
+          <NewContactDialogComponent />
+        </div>
       </div>
       <div className="divide-y border rounded">
         {filtered.map((c) => (
           <div key={c.id} className="p-3 flex items-center justify-between">
             <div>
-              <div className="font-medium">{c.name}</div>
+              <a href={`/customers/${c.id}`} className="font-medium underline-offset-4 hover:underline">
+                {c.name}
+              </a>
               {c.websiteUrl ? (
                 <a className="text-sm text-muted-foreground" href={c.websiteUrl} target="_blank" rel="noreferrer">
                   {c.websiteUrl}
@@ -70,7 +79,7 @@ export default function CustomersPage() {
               ) : null}
             </div>
             <div className="space-x-2">
-              <NewContactDialog companyId={c.id} />
+              <NewContactDialogComponent companyId={c.id} companyName={c.name} />
               <NewLeadDialog companyId={c.id} />
             </div>
           </div>
@@ -160,20 +169,38 @@ function NewCompanyDialog({
   )
 }
 
-function NewContactDialog({ companyId }: { companyId: number }) {
-  const schema = z.object({
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-    linkedInUrl: z.string().url().optional(),
-    companyId: z.number(),
-    startDate: z.string(),
-  })
+function NewContactDialog({ companyId, companyName }: { companyId?: number; companyName?: string }) {
+  const schema = z
+    .object({
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      email: z.string().email().optional().or(z.literal('')),
+      phone: z.string().optional(),
+      linkedInUrl: z.string().url().optional().or(z.literal('')),
+      companyId: z.number().optional(),
+      startDate: z.string().optional(),
+    })
+    .refine((data) => !(data.companyId && !data.startDate), {
+      path: ['startDate'],
+      message: 'Startdato kreves når kunde er valgt',
+    })
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { firstName: '', lastName: '', email: '', phone: '', linkedInUrl: '', companyId, startDate: new Date().toISOString().slice(0, 10) },
+    defaultValues: { firstName: '', lastName: '', email: '', phone: '', linkedInUrl: '', companyId, startDate: companyId ? new Date().toISOString().slice(0, 10) : undefined },
   })
+  const [open, setOpen] = useState(false)
+  const [companyQuery, setCompanyQuery] = useState('')
+  const [selectedCompany, setSelectedCompany] = useState<{ id: number; name: string } | null>(null)
+  const { data: companyOptions } = useSWR<Company[]>(companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null)
+
+  useEffect(() => {
+    if (companyId) {
+      setSelectedCompany({ id: companyId, name: companyName || '' })
+      form.setValue('companyId', companyId)
+      form.setValue('startDate', new Date().toISOString().slice(0, 10))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId])
   async function onSubmit(values: z.infer<typeof schema>) {
     const res = await fetch('/api/contacts', { method: 'POST', body: JSON.stringify(values) })
     if (!res.ok) return toast.error('Kunne ikke opprette kontakt')
@@ -202,6 +229,51 @@ function NewContactDialog({ companyId }: { companyId: number }) {
               <FormItem>
                 <FormLabel>Etternavn</FormLabel>
                 <FormControl><Input {...field} /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField
+              control={form.control}
+              name="companyId"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Kunde</FormLabel>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button type="button" variant="outline" className="justify-between w-full">
+                        {selectedCompany?.name || 'Velg kunde'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
+                      <Command>
+                        <CommandInput placeholder="Søk etter kunde..." value={companyQuery} onValueChange={setCompanyQuery} />
+                        <CommandList>
+                          <CommandEmpty>Ingen treff</CommandEmpty>
+                          {companyOptions?.map((c) => (
+                            <CommandItem
+                              key={c.id}
+                              value={c.name}
+                              onSelect={() => {
+                                setSelectedCompany({ id: c.id, name: c.name })
+                                form.setValue('companyId', c.id)
+                                setOpen(false)
+                              }}
+                            >
+                              {c.name}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField control={form.control} name="startDate" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ansatt dato</FormLabel>
+                <FormControl><Input type="date" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -243,41 +315,6 @@ function NewContactDialog({ companyId }: { companyId: number }) {
   )
 }
 
-function NewLeadDialog({ companyId }: { companyId: number }) {
-  const schema = z.object({ description: z.string().min(1), companyId: z.number() })
-  const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { description: '', companyId } })
-  async function onSubmit(values: z.infer<typeof schema>) {
-    const res = await fetch('/api/leads', { method: 'POST', body: JSON.stringify(values) })
-    if (!res.ok) return toast.error('Kunne ikke opprette lead')
-    toast.success('Lead opprettet')
-    form.reset()
-  }
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Nytt lead</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Nytt lead</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Beskrivelse</FormLabel>
-                <FormControl><Input placeholder="Kort beskrivelse" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <div className="flex justify-end">
-              <Button type="submit">Lagre</Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+// moved to components
 
 
