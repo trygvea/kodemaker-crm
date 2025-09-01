@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { toast } from 'sonner'
@@ -52,7 +52,7 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
       <DialogTrigger asChild>
         <Button variant="outline">Nytt lead</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nytt lead</DialogTitle>
         </DialogHeader>
@@ -61,7 +61,9 @@ export function NewLeadDialog({ companyId }: { companyId?: number }) {
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>Beskrivelse</FormLabel>
-                <FormControl><Input placeholder="Kort beskrivelse" {...field} /></FormControl>
+                <FormControl>
+                  <Textarea rows={5} className="resize-none max-h-[40vh] overflow-auto" placeholder="Kort beskrivelse" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />

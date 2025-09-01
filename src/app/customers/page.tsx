@@ -68,7 +68,7 @@ export default function CustomersPage() {
                 {c.name}
               </a>
               {c.websiteUrl ? (
-                <a className="text-sm text-muted-foreground" href={c.websiteUrl} target="_blank" rel="noreferrer">
+                <a className="block text-sm text-muted-foreground" href={c.websiteUrl} target="_blank" rel="noreferrer">
                   {c.websiteUrl}
                 </a>
               ) : null}

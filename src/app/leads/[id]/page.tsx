@@ -3,7 +3,7 @@ import useSWR, { useSWRConfig } from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams } from 'next/navigation'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -63,7 +63,9 @@ export default function LeadDetailPage() {
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem className="col-span-2">
                 <FormLabel>Beskrivelse</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
+                <FormControl>
+                  <Textarea rows={10} className="resize-y" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
