@@ -75,7 +75,7 @@ export default function CustomersPage() {
             </div>
             <div className="space-x-2">
               <NewContactDialogComponent companyId={c.id} companyName={c.name} />
-              <NewLeadDialog companyId={c.id} />
+              <NewLeadDialog companyId={c.id} companyName={c.name} />
             </div>
           </div>
         ))}

@@ -13,6 +13,15 @@ export function AppHeader() {
   const companyId = match ? Number(match[1]) : undefined
   const { data: companyData } = useSWR<{ company: { id: number; name: string } }>(companyId ? `/api/companies/${companyId}` : null)
   const companyName = companyData?.company?.name
+  const contactMatch = pathname?.match(/^\/contacts\/(\d+)$/)
+  const contactId = contactMatch ? Number(contactMatch[1]) : undefined
+  const { data: contactData } = useSWR<{ contact: { id: number; firstName: string; lastName: string }; currentCompany: { id: number; name: string } | null }>(
+    contactId ? `/api/contacts/${contactId}` : null
+  )
+  const headerCompanyId = companyId ?? contactData?.currentCompany?.id
+  const headerCompanyName = companyName ?? contactData?.currentCompany?.name
+  const headerContactId = contactId ?? undefined
+  const headerContactName = contactData ? `${contactData.contact.firstName} ${contactData.contact.lastName}` : undefined
   return (
     <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
@@ -26,7 +35,7 @@ export function AppHeader() {
           <Link href="/customers" className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm">Kundeliste</Link>
           <NewCompanyDialog />
           <NewContactDialog />
-          <NewLeadDialog companyId={companyId} companyName={companyName} />
+          <NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} />
         </nav>
       </div>
     </header>
