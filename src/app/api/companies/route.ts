@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies } from '@/db/schema'
+import { companies, leads } from '@/db/schema'
 import { z } from 'zod'
-import { ilike } from 'drizzle-orm'
+import { ilike, inArray, sql } from 'drizzle-orm'
 
 const createCompanySchema = z.object({
   name: z.string().min(1),
@@ -14,15 +14,34 @@ const createCompanySchema = z.object({
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q')?.trim()
-  if (q) {
-    const data = await db
-      .select()
-      .from(companies)
-      .where(ilike(companies.name, `%${q}%`))
-      .limit(50)
-    return NextResponse.json(data)
+  const baseQuery = db.select().from(companies)
+  const rows = q
+    ? await baseQuery.where(ilike(companies.name, `%${q}%`)).limit(50)
+    : await baseQuery.limit(100)
+
+  const ids = rows.map((r) => r.id)
+  if (ids.length === 0) return NextResponse.json(rows)
+
+  const counts = await db
+    .select({
+      companyId: leads.companyId,
+      status: leads.status,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(leads)
+    .where(inArray(leads.companyId, ids))
+    .groupBy(leads.companyId, leads.status)
+
+  const byCompany: Record<number, { NEW: number; IN_PROGRESS: number; LOST: number; WON: number }> = {}
+  for (const id of ids) {
+    byCompany[id] = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 }
   }
-  const data = await db.select().from(companies).limit(100)
+  for (const c of counts) {
+    // @ts-expect-error enum narrow
+    byCompany[c.companyId][c.status] = c.count
+  }
+
+  const data = rows.map((r) => ({ ...r, leadCounts: byCompany[r.id] }))
   return NextResponse.json(data)
 }
 

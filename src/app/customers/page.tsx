@@ -22,6 +22,7 @@ type Company = {
   websiteUrl?: string | null
   emailDomain?: string | null
   contactEmail?: string | null
+  leadCounts?: { NEW: number; IN_PROGRESS: number; LOST: number; WON: number }
 }
 
 const companySchema = z.object({
@@ -80,7 +81,15 @@ export default function CustomersPage() {
                 </a>
               ) : null}
             </div>
-            <div className="space-x-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              {c.leadCounts ? (
+                <div className="flex items-center gap-1 mr-2">
+                  <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">Ny {c.leadCounts.NEW}</span>
+                  <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">Under arbeid {c.leadCounts.IN_PROGRESS}</span>
+                  <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">Tapt {c.leadCounts.LOST}</span>
+                  <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">Vunnet {c.leadCounts.WON}</span>
+                </div>
+              ) : null}
               <NewContactDialogComponent companyId={c.id} companyName={c.name} />
               <NewLeadDialog companyId={c.id} companyName={c.name} />
             </div>
