@@ -44,7 +44,7 @@ export default function CompanyDetailPage() {
           {contacts.map((c) => (
             <div key={c.id} className="p-3 flex items-center justify-between">
               <div>
-                <div className="font-medium">{c.firstName} {c.lastName}</div>
+                <a href={`/contacts/${c.id}`} className="font-medium underline-offset-4 hover:underline">{c.firstName} {c.lastName}</a>
                 <div className="text-sm text-muted-foreground">{c.email}</div>
               </div>
             </div>
@@ -59,7 +59,7 @@ export default function CompanyDetailPage() {
         <div className="border rounded divide-y">
           {leads.map((l) => (
             <div key={l.id} className="p-3 flex items-center justify-between">
-              <div className="font-medium">{l.description}</div>
+              <a href={`/leads/${l.id}`} className="font-medium underline-offset-4 hover:underline">{l.description}</a>
               <div className="text-sm text-muted-foreground">{l.status}</div>
             </div>
           ))}
