@@ -6,7 +6,7 @@ import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { usePathname } from 'next/navigation'
 import useSWR from 'swr'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession, signOut, signIn } from 'next-auth/react'
 
 export function AppHeader() {
   const { data: session } = useSession()
@@ -33,22 +33,32 @@ export function AppHeader() {
           </div>
           <Link href="/" className="font-semibold tracking-wide">Kodemaker CReMa</Link>
         </div>
-        <nav className="flex items-center gap-2">
-          <Link href="/customers" className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm">Kundeliste</Link>
-          <NewCompanyDialog />
-          <NewContactDialog companyId={headerCompanyId} companyName={headerCompanyName} />
-          <NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} />
-          {session?.user?.email ? (
+        {session?.user ? (
+          <nav className="flex items-center gap-2">
+            <Link href="/customers" className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm">Kundeliste</Link>
+            <NewCompanyDialog />
+            <NewContactDialog companyId={headerCompanyId} companyName={headerCompanyName} />
+            <NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} />
             <span className="hidden sm:inline text-xs bg-white/20 px-2 py-0.5 rounded-full">{session.user.email}</span>
-          ) : null}
-          <button
-            type="button"
-            className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
-            onClick={() => signOut({ callbackUrl: '/login' })}
-          >
-            Logg ut
-          </button>
-        </nav>
+            <button
+              type="button"
+              className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
+              onClick={() => signOut({ callbackUrl: '/login' })}
+            >
+              Logg ut
+            </button>
+          </nav>
+        ) : (
+          <nav className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
+              onClick={() => signIn('google', { callbackUrl: '/' })}
+            >
+              Logg inn
+            </button>
+          </nav>
+        )}
       </div>
     </header>
   )
