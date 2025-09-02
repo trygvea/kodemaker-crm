@@ -14,11 +14,11 @@
     "db:logs": "docker compose logs -f db",
     "db:ps": "docker compose ps",
     "db:reset": "docker compose down -v && docker compose up -d db",
-    "db:migrate:generate": "cp .env.local .env 2>/dev/null || true && drizzle-kit generate",
-    "db:migrate:push": "cp .env.local .env 2>/dev/null || true && drizzle-kit push",
-    "db:migrate": "npm run db:migrate:generate && npm run db:migrate:push",
-    "db:studio": "cp .env.local .env 2>/dev/null || true && drizzle-kit studio",
-    "db:psql": "docker compose exec -T db psql -U postgres -d crm3"
+    "db:generate-migrations": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:psql": "docker compose exec -T db psql -U postgres -d crm3",
+    "db:psql:scalingo": "scalingo -a kodemaker-crm pgsql-console"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
