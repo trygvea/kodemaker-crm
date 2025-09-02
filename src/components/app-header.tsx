@@ -6,8 +6,10 @@ import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { usePathname } from 'next/navigation'
 import useSWR from 'swr'
+import { useSession, signOut } from 'next-auth/react'
 
 export function AppHeader() {
+  const { data: session } = useSession()
   const pathname = usePathname()
   const match = pathname?.match(/^\/customers\/(\d+)$/)
   const companyId = match ? Number(match[1]) : undefined
@@ -36,6 +38,16 @@ export function AppHeader() {
           <NewCompanyDialog />
           <NewContactDialog companyId={headerCompanyId} companyName={headerCompanyName} />
           <NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} />
+          {session?.user?.email ? (
+            <span className="hidden sm:inline text-xs bg-white/20 px-2 py-0.5 rounded-full">{session.user.email}</span>
+          ) : null}
+          <button
+            type="button"
+            className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
+            onClick={() => signOut({ callbackUrl: '/login' })}
+          >
+            Logg ut
+          </button>
         </nav>
       </div>
     </header>
