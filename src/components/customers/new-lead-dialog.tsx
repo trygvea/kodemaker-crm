@@ -1,5 +1,5 @@
 "use client"
-import useSWR from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -35,6 +35,7 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName }
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const { data: companies } = useSWR<Company[]>(companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null)
   const { data: contacts } = useSWR<Contact[]>(contactQuery ? `/api/contacts?q=${encodeURIComponent(contactQuery)}` : null)
+  const { mutate: globalMutate } = useSWRConfig()
 
   useEffect(() => {
     if (companyId) {
@@ -62,6 +63,14 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName }
     const res = await fetch('/api/leads', { method: 'POST', body: JSON.stringify(values) })
     if (!res.ok) return toast.error('Kunne ikke opprette lead')
     toast.success('Lead opprettet')
+    // Refresh relevant lists so the new lead appears immediately
+    const refreshCompanyId = selectedCompany?.id ?? companyId
+    const refreshContactId = selectedContact?.id ?? contactId
+    await Promise.all([
+      globalMutate('/api/companies'),
+      refreshCompanyId ? globalMutate(`/api/companies/${refreshCompanyId}`) : Promise.resolve(),
+      refreshContactId ? globalMutate(`/api/contacts/${refreshContactId}`) : Promise.resolve(),
+    ])
     setOpen(false)
   }
   return (
