@@ -5,11 +5,12 @@ import useSWR from 'swr'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
 import { Building2, Users2, BadgePercent, Mail, List } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { NewCompanyDialog } from '@/components/customers/new-company-dialog'
 import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
-function NavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: any; active: boolean }) {
+function NavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: LucideIcon; active: boolean }) {
   return (
     <Link
       href={href}
@@ -85,7 +86,7 @@ export function Sidebar() {
   )
 }
 
-export function MobileSidebar({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+export function MobileSidebar() {
   const pathname = usePathname()
   return (
     <TooltipProvider>
