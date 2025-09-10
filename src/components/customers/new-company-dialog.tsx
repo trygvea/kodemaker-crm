@@ -1,6 +1,6 @@
 "use client"
 import { useSWRConfig } from 'swr'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -23,6 +23,77 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
     resolver: zodResolver(companySchema),
     defaultValues: { name: '', websiteUrl: '', emailDomain: '', contactEmail: '' },
   })
+
+  const [websiteEdited, setWebsiteEdited] = useState(false)
+  const [domainEdited, setDomainEdited] = useState(false)
+  const [contactEdited, setContactEdited] = useState(false)
+
+  const nameValue = form.watch('name')
+  const websiteUrlValue = form.watch('websiteUrl')
+  const emailDomainValue = form.watch('emailDomain')
+
+  function normalizeForHost(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase()
+  }
+
+  function ensureUrl(value: string): string | undefined {
+    if (!value) return undefined
+    try {
+      return new URL(value).toString()
+    } catch {
+      try {
+        return new URL(`https://${value}`).toString()
+      } catch {
+        return undefined
+      }
+    }
+  }
+
+  function extractDomainFromUrl(value: string): string | undefined {
+    const url = ensureUrl(value)
+    if (!url) return undefined
+    try {
+      const u = new URL(url)
+      const host = u.hostname.replace(/^www\./, '')
+      return host || undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  // Suggest website from name
+  useEffect(() => {
+    if (!websiteEdited) {
+      const host = normalizeForHost(nameValue || '')
+      const suggested = host ? `https://${host}.no` : ''
+      form.setValue('websiteUrl', suggested, { shouldDirty: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nameValue])
+
+  // Suggest email domain from website
+  useEffect(() => {
+    if (domainEdited) return
+    const domain = extractDomainFromUrl(websiteUrlValue || '')
+    if (domain) {
+      form.setValue('emailDomain', domain, { shouldDirty: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [websiteUrlValue, domainEdited])
+
+  // Suggest contact email from email domain
+  useEffect(() => {
+    if (contactEdited) return
+    const domain = (emailDomainValue || '').replace(/^@/, '')
+    if (domain) {
+      form.setValue('contactEmail', `kontakt@${domain}`, { shouldDirty: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [emailDomainValue, contactEdited])
 
   async function onSubmit(values: z.infer<typeof companySchema>) {
     const res = await fetch('/api/companies', { method: 'POST', body: JSON.stringify(values) })
@@ -67,7 +138,14 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
                 <FormItem>
                   <FormLabel>Webadresse</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://example.com" {...field} />
+                    <Input
+                      placeholder="https://example.com"
+                      {...field}
+                      onChange={(e) => {
+                        setWebsiteEdited(true)
+                        field.onChange(e)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -80,7 +158,14 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
                 <FormItem>
                   <FormLabel>E-post-domene</FormLabel>
                   <FormControl>
-                    <Input placeholder="example.com" {...field} />
+                    <Input
+                      placeholder="example.com"
+                      {...field}
+                      onChange={(e) => {
+                        setDomainEdited(true)
+                        field.onChange(e)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,7 +178,14 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
                 <FormItem>
                   <FormLabel>Kontakt-epost</FormLabel>
                   <FormControl>
-                    <Input placeholder="kontakt@example.com" {...field} />
+                    <Input
+                      placeholder="kontakt@example.com"
+                      {...field}
+                      onChange={(e) => {
+                        setContactEdited(true)
+                        field.onChange(e)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
