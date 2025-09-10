@@ -7,6 +7,9 @@ import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { usePathname } from 'next/navigation'
 import useSWR from 'swr'
 import { useSession, signOut, signIn } from 'next-auth/react'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { SidebarSheetContent } from '@/components/sidebar'
+import { Menu } from 'lucide-react'
 
 export function AppHeader() {
   const { data: session } = useSession()
@@ -28,6 +31,16 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="p-2 rounded bg-white/15 hover:bg-white/25" aria-label="Open Menu"><Menu className="h-5 w-5" /></button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-72">
+                <SidebarSheetContent />
+              </SheetContent>
+            </Sheet>
+          </div>
           <div className="relative h-8 w-8">
             <Image src="/next.svg" alt="Logo" fill className="invert drop-shadow" />
           </div>
