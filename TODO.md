@@ -1,6 +1,7 @@
 
 Bugs
 * Ask for contact before company (and fill out company)
+* Velg kunde/kontakt: La cursor stoppe i søkefelt, ikke vent på klikk
 
 Features
 * Fix Contact hydration error

@@ -43,6 +43,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex lg:flex-col lg:w-64 shrink-0 border-r bg-card">
       <div className="p-3">
         <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
+        <NavLink href="/leads/active" label="Aktive leads" icon={BadgePercent} active={pathname === '/leads/active'} />
         <div className="py-1">
           <NewCompanyDialog
             trigger={
@@ -148,6 +149,7 @@ export function SidebarSheetContent() {
   return (
     <div className="p-3">
       <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
+      <NavLink href="/leads/active" label="Aktive leads" icon={BadgePercent} active={pathname === '/leads/active'} />
       <div className="py-1">
         <NewCompanyDialog
           trigger={

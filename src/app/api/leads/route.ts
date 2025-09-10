@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { leads } from '@/db/schema'
 import { z } from 'zod'
-import { desc } from 'drizzle-orm'
+import { and, desc, inArray } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
@@ -12,8 +12,28 @@ const createLeadSchema = z.object({
   description: z.string().min(1),
 })
 
-export async function GET() {
-  const data = await db.select().from(leads).orderBy(desc(leads.id)).limit(100)
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const statusParam = searchParams.get('status')
+  const allowedStatuses = new Set(['NEW', 'IN_PROGRESS', 'LOST', 'WON'])
+
+  const filters: Array<ReturnType<typeof inArray>> = []
+  if (statusParam) {
+    const statuses = statusParam
+      .split(',')
+      .map((s) => s.trim().toUpperCase())
+      .filter((s) => allowedStatuses.has(s)) as Array<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'>
+    if (statuses.length > 0) {
+      filters.push(inArray(leads.status, statuses))
+    }
+  }
+
+  const data = await db
+    .select()
+    .from(leads)
+    .where(filters.length ? and(...filters) : undefined)
+    .orderBy(desc(leads.id))
+    .limit(100)
   return NextResponse.json(data)
 }
 
