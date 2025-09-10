@@ -96,13 +96,38 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
                   <FormLabel>Kunde</FormLabel>
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
-                      <Button type="button" variant="outline" className="justify-between w-full">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="justify-between w-full"
+                        onKeyDown={(e) => {
+                          if (open) return
+                          if (e.metaKey || e.ctrlKey || e.altKey) return
+                          if (e.key.length === 1) {
+                            setOpen(true)
+                            setCompanyQuery(e.key)
+                          } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                            setOpen(true)
+                            setCompanyQuery('')
+                          }
+                        }}
+                      >
                         {selectedCompany?.name || 'Velg kunde'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
                       <Command>
-                        <CommandInput placeholder="Søk etter kunde..." value={companyQuery} onValueChange={setCompanyQuery} />
+                        <CommandInput
+                          autoFocus
+                          placeholder="Søk etter kunde..."
+                          value={companyQuery}
+                          onValueChange={setCompanyQuery}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape' || e.key === 'Tab') {
+                              setOpen(false)
+                            }
+                          }}
+                        />
                         <CommandList>
                           <CommandEmpty>Ingen treff</CommandEmpty>
                           {companyOptions?.map((c) => (

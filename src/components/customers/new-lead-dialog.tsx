@@ -100,13 +100,38 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName, 
                   <FormLabel>Kunde</FormLabel>
                   <Popover open={cOpen} onOpenChange={setCOpen}>
                     <PopoverTrigger asChild>
-                      <Button type="button" variant="outline" className="justify-between w-full">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="justify-between w-full"
+                        onKeyDown={(e) => {
+                          if (cOpen) return
+                          if (e.metaKey || e.ctrlKey || e.altKey) return
+                          if (e.key.length === 1) {
+                            setCOpen(true)
+                            setCompanyQuery(e.key)
+                          } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                            setCOpen(true)
+                            setCompanyQuery('')
+                          }
+                        }}
+                      >
                         {selectedCompany?.name || companyName || 'Velg kunde'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
                       <Command>
-                        <CommandInput placeholder="Søk kunde..." value={companyQuery} onValueChange={setCompanyQuery} />
+                        <CommandInput
+                          autoFocus
+                          placeholder="Søk kunde..."
+                          value={companyQuery}
+                          onValueChange={setCompanyQuery}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape' || e.key === 'Tab') {
+                              setCOpen(false)
+                            }
+                          }}
+                        />
                         <CommandList>
                           <CommandEmpty>Ingen treff</CommandEmpty>
                           {companies?.map((c) => (
@@ -127,13 +152,38 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName, 
                   <FormLabel>Kontakt</FormLabel>
                   <Popover open={kOpen} onOpenChange={setKOpen}>
                     <PopoverTrigger asChild>
-                      <Button type="button" variant="outline" className="justify-between w-full">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="justify-between w-full"
+                        onKeyDown={(e) => {
+                          if (kOpen) return
+                          if (e.metaKey || e.ctrlKey || e.altKey) return
+                          if (e.key.length === 1) {
+                            setKOpen(true)
+                            setContactQuery(e.key)
+                          } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                            setKOpen(true)
+                            setContactQuery('')
+                          }
+                        }}
+                      >
                         {selectedContact ? `${selectedContact.firstName} ${selectedContact.lastName}` : 'Velg kontakt'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
                       <Command>
-                        <CommandInput placeholder="Søk kontakt..." value={contactQuery} onValueChange={setContactQuery} />
+                        <CommandInput
+                          autoFocus
+                          placeholder="Søk kontakt..."
+                          value={contactQuery}
+                          onValueChange={setContactQuery}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape' || e.key === 'Tab') {
+                              setKOpen(false)
+                            }
+                          }}
+                        />
                         <CommandList>
                           <CommandEmpty>Ingen treff</CommandEmpty>
                           {contacts?.map((p) => (
