@@ -62,7 +62,7 @@ export default function CustomersPage() {
     <div className="p-6 space-y-4">
       <PageBreadcrumbs items={[{ label: 'Kundeliste' }]} />
       <div className="flex gap-2 items-center justify-between">
-        <Input className="max-w-sm" placeholder="Søk i kunder" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input autoFocus className="max-w-sm" placeholder="Søk i kunder" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
       <div className="divide-y border rounded">
         {filtered.map((c) => (
