@@ -45,3 +45,51 @@ Manually migrate database
     scalingo -a kodemaker-crm env-set DATABASE_URL="$URL"
     scalingo -a kodemaker-crm run 'npx -y drizzle-kit migrate'
 ```
+
+# LLM prompts
+
+## Initial prompt
+
+### Techstack
+Techstack: Bruk next.js, Typescript, Postgres, drizzle, NextAuth, Tailwind, shadcn/ui, jest.
+Sett opp postgres i docker-compose, og lag opplegg for migrering. 
+Bruk SWR for spørringer og muteringer. 
+
+### Domain description
+(By Kolbjørn)
+
+Ønsker å få laget et eget veldig enkelt CRM system for konsulentselskap innen systemutvikling. 
+
+Egenskaper.
+Brukere - Mennesker med fornavn, etternavn, epost, telefon
+Det må kunne lages nye brukere med passord.
+Rettigheter kan være admin eller vanlig bruker.
+
+
+Kontakter - Mennesker med fornavn, etternavn, epost, telefon, LinkedIn-profil og firma
+Kontakter vil ha en historikk med firmaer, og vil være knyttet til dette for en periode. Eventuelt ingen firmaknytning.
+
+Firma - Firmanavn, webadresse, e-post-domene, kontakt-e-post
+Firma kan ha mange kontakter knyttet til seg for gitte perioder.
+
+Leads - En konkret mulighet for salg. 
+Knyttet til et firma eller en kontakt må det kunne lages ‘leads’
+Leads skal inneholde firma, (evt. kontakt), pluss en beskrivelse
+Leads må ha en status: Ny, Under arbeid, Tapt eller Vunnet
+
+Kommentarer - Fri tekst
+Knyttet til firma alene
+Knyttet til kontakt, og da også firma hvis kontakten tilhører et firma i gitt periode.
+Knyttet til leads
+
+Email - Innhold
+Knyttet til mottaker (som kan være kontakt eller firma).
+Email skal kunne videresendes til en e-post-adresse, tolkes og knyttes til kontakt i CRM-systemet. Hvis kontakten finnes kobles epost til denne, og hvis ikke opprettes en ny kontakt. Skal også spores hvilken bruker som sendte epost til systemet.
+Email skal kunne sendes som BCC til systemet når bruker sender epost til en kontakt. Hvis kontakten finnes kobles epost til denne, og hvis ikke opprettes en ny kontakt.
+Oppfølging
+Brukere skal kunne lage oppfølging knyttet til kontakter, firmaer eller leads fram i tid.
+Oppfølginger må vises for den enkelte bruker som laget den.
+Administrator må kunne se alle oppfølginger.
+
+
+

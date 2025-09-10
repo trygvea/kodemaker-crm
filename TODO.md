@@ -1,10 +1,14 @@
 
 Bugs
+* Fix Contact hydration error
 
 Features
-* Fix Contact hydration error
 * Les epost
-* Legg til actions
+* Legg til oppføgning/actions
+* Begrens rettigheter for ikke-admins
+* Overføre repo til kodemaker.no
+* Lag endelig deploy mot kodemaker rep og kodemaker secrets.
+* 
 
 Maybe?
 * Bilde for endre kontakt/kunde-historikk
