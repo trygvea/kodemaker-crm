@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { leads } from '@/db/schema'
+import { companies, contacts, leads } from '@/db/schema'
 import { z } from 'zod'
-import { and, desc, inArray } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
@@ -29,8 +29,23 @@ export async function GET(req: NextRequest) {
   }
 
   const data = await db
-    .select()
+    .select({
+      id: leads.id,
+      description: leads.description,
+      status: leads.status,
+      company: {
+        id: companies.id,
+        name: companies.name,
+      },
+      contact: {
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+      },
+    })
     .from(leads)
+    .leftJoin(companies, eq(leads.companyId, companies.id))
+    .leftJoin(contacts, eq(leads.contactId, contacts.id))
     .where(filters.length ? and(...filters) : undefined)
     .orderBy(desc(leads.id))
     .limit(100)
