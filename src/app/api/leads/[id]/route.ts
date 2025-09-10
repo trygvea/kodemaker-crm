@@ -17,6 +17,8 @@ export async function GET(
       id: leads.id,
       description: leads.description,
       status: leads.status,
+      createdAt: leads.createdAt,
+      updatedAt: leads.updatedAt,
       company: {
         id: companies.id,
         name: companies.name,

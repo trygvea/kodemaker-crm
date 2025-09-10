@@ -17,7 +17,7 @@ const schema = z.object({ description: z.string().min(1), status: z.enum(['NEW',
 export default function LeadDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
-  const { data } = useSWR<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'; company?: { id: number; name: string } | null; contact?: { id: number; firstName: string; lastName: string } | null }>(id ? `/api/leads/${id}` : null)
+  const { data } = useSWR<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'; createdAt: string; updatedAt: string; company?: { id: number; name: string } | null; contact?: { id: number; firstName: string; lastName: string } | null }>(id ? `/api/leads/${id}` : null)
   const { mutate } = useSWRConfig()
   const router = useRouter()
 
@@ -58,6 +58,8 @@ export default function LeadDetailPage() {
               Kunde: <a href={`/customers/${data.company.id}`} className="underline">{data.company.name}</a>
             </div>
           ) : null}
+          <div>Opprettet: {new Date(data.createdAt).toLocaleString()}</div>
+          <div>Sist endret: {new Date(data.updatedAt).toLocaleString()}</div>
         </div>
       </section>
 
