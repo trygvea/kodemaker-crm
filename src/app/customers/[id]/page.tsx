@@ -1,6 +1,6 @@
 "use client"
 import useSWR from 'swr'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 // import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
@@ -17,6 +17,7 @@ type Company = {
 export default function CompanyDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
+  const router = useRouter()
   const { data } = useSWR<{ company: Company; contacts: Array<{ id: number; firstName: string; lastName: string; email?: string | null }>; leads: Array<{ id: number; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'; description: string; contactId?: number | null }> }>(id ? `/api/companies/${id}` : null)
 
   // Ensure hooks run consistently on every render
@@ -69,12 +70,24 @@ export default function CompanyDetailPage() {
         </div>
         <div className="border rounded divide-y">
           {contacts.map((c) => (
-            <div key={c.id} className="p-3 flex items-center justify-between">
+            <div
+              key={c.id}
+              className="p-3 flex items-center justify-between hover:bg-muted cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push(`/contacts/${c.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  router.push(`/contacts/${c.id}`)
+                }
+              }}
+            >
               <div>
-                <a href={`/contacts/${c.id}`} className="font-medium underline-offset-4 hover:underline">{c.firstName} {c.lastName}</a>
+                <div className="font-medium">{c.firstName} {c.lastName}</div>
                 <div className="text-sm text-muted-foreground">{c.email}</div>
               </div>
-              <div className="space-x-2 flex items-center">
+              <div className="space-x-2 flex items-center" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                 {contactLeadCounts[c.id] ? (
                   <div className="flex items-center gap-1 mr-2">
                     {contactLeadCounts[c.id].NEW > 0 ? (

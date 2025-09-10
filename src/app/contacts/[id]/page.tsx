@@ -1,7 +1,7 @@
 "use client"
 import useSWR from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 type Contact = { id: number; firstName: string; lastName: string; email?: string | null; phone?: string | null; linkedInUrl?: string | null }
 type CompanyBrief = { id: number; name: string; startDate?: string | null; endDate?: string | null }
@@ -9,6 +9,7 @@ type CompanyBrief = { id: number; name: string; startDate?: string | null; endDa
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
+  const router = useRouter()
   const { data } = useSWR<{ contact: Contact; currentCompany: CompanyBrief | null; previousCompanies: CompanyBrief[]; leads: Array<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' }> }>(id ? `/api/contacts/${id}` : null)
 
   if (!data) return <div className="p-6">Laster...</div>
@@ -35,8 +36,19 @@ export default function ContactDetailPage() {
       <section>
         <h2 className="text-lg font-medium mb-2">Nåværende kunde</h2>
         {currentCompany ? (
-          <div className="border rounded p-3">
-            <a className="font-medium underline" href={`/customers/${currentCompany.id}`}>{currentCompany.name}</a>
+          <div
+            className="border rounded p-3 hover:bg-muted cursor-pointer"
+            role="button"
+            tabIndex={0}
+            onClick={() => router.push(`/customers/${currentCompany.id}`)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                router.push(`/customers/${currentCompany.id}`)
+              }
+            }}
+          >
+            <div className="font-medium">{currentCompany.name}</div>
             {currentCompany.startDate ? <div className="text-sm text-muted-foreground">Siden {currentCompany.startDate}</div> : null}
           </div>
         ) : (
@@ -48,8 +60,20 @@ export default function ContactDetailPage() {
         <h2 className="text-lg font-medium mb-2">Tidligere kunder</h2>
         <div className="border rounded divide-y">
           {previousCompanies.length ? previousCompanies.map((co) => (
-            <div key={`${co.id}-${co.startDate}-${co.endDate}`} className="p-3">
-              <a className="font-medium underline" href={`/customers/${co.id}`}>{co.name}</a>
+            <div
+              key={`${co.id}-${co.startDate}-${co.endDate}`}
+              className="p-3 hover:bg-muted cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push(`/customers/${co.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  router.push(`/customers/${co.id}`)
+                }
+              }}
+            >
+              <div className="font-medium">{co.name}</div>
               <div className="text-sm text-muted-foreground">{co.startDate} - {co.endDate}</div>
             </div>
           )) : (
