@@ -1,6 +1,8 @@
 "use client"
 import Link from 'next/link'
 import Image from 'next/image'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useSession, signOut, signIn } from 'next-auth/react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { SidebarSheetContent } from '@/components/sidebar'
@@ -8,6 +10,8 @@ import { Menu } from 'lucide-react'
 
 export function AppHeader() {
   const { data: session } = useSession()
+  const email = session?.user?.email || ''
+  const avatarInitial = (email.trim()[0]?.toUpperCase() || '?') as string
   return (
     <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
@@ -29,7 +33,18 @@ export function AppHeader() {
         </div>
         {session?.user ? (
           <nav className="flex items-center gap-2">
-            <span className="hidden sm:inline text-xs bg-white/20 px-2 py-0.5 rounded-full">{session.user.email}</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Avatar>
+                    <AvatarFallback className="bg-white/20 text-white font-semibold">
+                      {avatarInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{email}</TooltipContent>
+            </Tooltip>
             <button
               type="button"
               className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
