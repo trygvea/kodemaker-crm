@@ -127,7 +127,7 @@ function NewCompanyDialog({
                 <FormItem>
                   <FormLabel>Navn</FormLabel>
                   <FormControl>
-                    <Input placeholder="Firmanavn" {...field} />
+                    <Input placeholder="Kundenavn" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

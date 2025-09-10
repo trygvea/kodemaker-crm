@@ -48,14 +48,14 @@ export default function LeadDetailPage() {
       <section>
         <h1 className="text-2xl font-semibold">Lead</h1>
         <div className="text-sm text-muted-foreground space-y-1">
-          {data.company ? (
-            <div>
-              Firma: <a href={`/customers/${data.company.id}`} className="underline">{data.company.name}</a>
-            </div>
-          ) : null}
           {data.contact ? (
             <div>
               Kontakt: <a href={`/contacts/${data.contact.id}`} className="underline">{data.contact.firstName} {data.contact.lastName}</a>
+            </div>
+          ) : null}
+          {data.company ? (
+            <div>
+              Kunde: <a href={`/customers/${data.company.id}`} className="underline">{data.company.name}</a>
             </div>
           ) : null}
         </div>

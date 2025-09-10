@@ -4,7 +4,6 @@ import { getToken } from 'next-auth/jwt'
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  console.log("############################# /pathname:", pathname)
   // Allow public assets and auth endpoints
   if (
     pathname.startsWith('/api/') ||

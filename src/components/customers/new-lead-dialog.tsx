@@ -22,7 +22,7 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName }
       companyId: z.number().optional(),
       contactId: z.number().optional(),
     })
-    .refine((d) => !!(d.companyId || d.contactId), { message: 'Velg firma eller kontakt', path: ['companyId'] })
+    .refine((d) => !!(d.companyId || d.contactId), { message: 'Velg kunde eller kontakt', path: ['companyId'] })
 
   const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { description: '', companyId } })
 
@@ -97,16 +97,16 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName }
             <div className="grid grid-cols-2 gap-3">
               <FormField control={form.control} name="companyId" render={() => (
                 <FormItem>
-                  <FormLabel>Firma</FormLabel>
+                  <FormLabel>Kunde</FormLabel>
                   <Popover open={cOpen} onOpenChange={setCOpen}>
                     <PopoverTrigger asChild>
                       <Button type="button" variant="outline" className="justify-between w-full">
-                        {selectedCompany?.name || companyName || 'Velg firma'}
+                        {selectedCompany?.name || companyName || 'Velg kunde'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
                       <Command>
-                        <CommandInput placeholder="Søk firma..." value={companyQuery} onValueChange={setCompanyQuery} />
+                        <CommandInput placeholder="Søk kunde..." value={companyQuery} onValueChange={setCompanyQuery} />
                         <CommandList>
                           <CommandEmpty>Ingen treff</CommandEmpty>
                           {companies?.map((c) => (

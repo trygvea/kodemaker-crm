@@ -42,5 +42,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 Manually migrate database
 ```bash
     URL="$(scalingo -a kodemaker-crm env-get SCALINGO_POSTGRESQL_URL)"
-    scalingo -a mydb-crm env-set DATABASE_URL="$URL"
+    scalingo -a kodemaker-crm env-set DATABASE_URL="$URL"
+    scalingo -a kodemaker-crm run 'npx -y drizzle-kit migrate'
 ```
