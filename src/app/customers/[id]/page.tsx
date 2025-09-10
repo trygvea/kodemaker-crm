@@ -2,7 +2,7 @@
 import useSWR from 'swr'
 import { useParams, useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-// import { NewContactDialog } from '@/components/customers/new-contact-dialog'
+import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
@@ -59,6 +59,7 @@ export default function CompanyDetailPage() {
                 {company.websiteUrl}
               </a>
             ) : null}
+            {company.emailDomain ? <div>@{company.emailDomain}</div> : null}
             {company.contactEmail ? <div>{company.contactEmail}</div> : null}
           </div>
         </div>
@@ -67,6 +68,7 @@ export default function CompanyDetailPage() {
       <section>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-medium">Kontakter</h2>
+          <NewContactDialog companyId={company.id} companyName={company.name} />
         </div>
         <div className="border rounded divide-y">
           {contacts.map((c) => (

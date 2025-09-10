@@ -70,9 +70,12 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
       setSelectedCompany({ id: companyId, name: companyName || '' })
       form.setValue('companyId', companyId)
       form.setValue('startDate', new Date().toISOString().slice(0, 10))
+    } else {
+      setSelectedCompany(null)
+      form.setValue('companyId', undefined)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId])
+  }, [companyId, companyName])
 
   // Auto-suggest email when company has domain and user hasn't manually edited email
   const domainFromSelection = selectedCompany?.emailDomain
