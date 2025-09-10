@@ -34,7 +34,7 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
     })
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { firstName: '', lastName: '', email: '', phone: '', linkedInUrl: '', companyId, startDate: companyId ? new Date().toISOString().slice(0, 10) : undefined },
+    defaultValues: { firstName: '', lastName: '', email: '', phone: '', linkedInUrl: '', companyId, startDate: new Date().toISOString().slice(0, 10) },
   })
   const [open, setOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
