@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 type Company = {
   id: number
   name: string
+  emailDomain?: string | null
 }
 
 export function NewContactDialog({ companyId, companyName, trigger }: { companyId?: number; companyName?: string; trigger?: ReactNode }) {
@@ -38,9 +39,31 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
   })
   const [open, setOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
-  const [selectedCompany, setSelectedCompany] = useState<{ id: number; name: string } | null>(null)
+  const [selectedCompany, setSelectedCompany] = useState<{ id: number; name: string; emailDomain?: string | null } | null>(null)
   const { data: companyOptions } = useSWR<Company[]>(companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null)
   const { mutate: globalMutate } = useSWRConfig()
+  const [emailManuallyEdited, setEmailManuallyEdited] = useState(false)
+
+  const firstNameValue = form.watch('firstName')
+  const lastNameValue = form.watch('lastName')
+
+  function normalizeNamePart(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase()
+  }
+
+  function buildEmailSuggestion(firstName: string, lastName: string, domain: string | null | undefined): string | undefined {
+    if (!domain) return undefined
+    const cleanDomain = domain.replace(/^@/, '')
+    const first = normalizeNamePart(firstName || '')
+    const last = normalizeNamePart(lastName || '')
+    if (!first && !last) return undefined
+    const local = first && last ? `${first}.${last}` : (first || last)
+    return `${local}@${cleanDomain}`
+  }
 
   useEffect(() => {
     if (companyId) {
@@ -50,6 +73,18 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId])
+
+  // Auto-suggest email when company has domain and user hasn't manually edited email
+  const domainFromSelection = selectedCompany?.emailDomain
+  
+  useEffect(() => {
+    if (!domainFromSelection || emailManuallyEdited) return
+    const suggestion = buildEmailSuggestion(firstNameValue, lastNameValue, domainFromSelection)
+    if (suggestion) {
+      form.setValue('email', suggestion, { shouldDirty: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [domainFromSelection, firstNameValue, lastNameValue, emailManuallyEdited])
 
   async function onSubmit(values: z.infer<typeof schema>) {
     const res = await fetch('/api/contacts', { method: 'POST', body: JSON.stringify(values) })
@@ -135,8 +170,10 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
                               key={c.id}
                               value={c.name}
                               onSelect={() => {
-                                setSelectedCompany({ id: c.id, name: c.name })
+                                setSelectedCompany({ id: c.id, name: c.name, emailDomain: c.emailDomain })
                                 form.setValue('companyId', c.id)
+                                // Allow auto-suggestion to apply for newly selected company
+                                setEmailManuallyEdited(false)
                                 setOpen(false)
                               }}
                             >
@@ -161,7 +198,15 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
             <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem className="col-span-2">
                 <FormLabel>Epost</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
+                <FormControl>
+                  <Input
+                    {...field}
+                    onChange={(e) => {
+                      setEmailManuallyEdited(true)
+                      field.onChange(e)
+                    }}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
