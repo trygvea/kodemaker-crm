@@ -1,6 +1,6 @@
 "use client"
 import useSWR, { useSWRConfig } from 'swr'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -17,7 +17,7 @@ type Company = {
   name: string
 }
 
-export function NewContactDialog({ companyId, companyName }: { companyId?: number; companyName?: string }) {
+export function NewContactDialog({ companyId, companyName, trigger }: { companyId?: number; companyName?: string; trigger?: ReactNode }) {
   const schema = z
     .object({
       firstName: z.string().min(1),
@@ -66,7 +66,7 @@ export function NewContactDialog({ companyId, companyName }: { companyId?: numbe
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="secondary">Ny kontakt</Button>
+        {trigger ?? <Button variant="secondary">Ny kontakt</Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

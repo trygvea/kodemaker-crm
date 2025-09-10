@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import useSWR from 'swr'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
 import { Building2, Users2, BadgePercent, Mail, List } from 'lucide-react'
@@ -17,7 +16,7 @@ function NavLink({ href, label, icon: Icon, active }: { href: string; label: str
       className={`flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted ${active ? 'bg-muted font-semibold' : 'text-foreground/80'}`}
     >
       <Icon className="h-4 w-4" />
-      <span className="hidden lg:inline">{label}</span>
+      <span>{label}</span>
     </Link>
   )
 }
@@ -42,28 +41,44 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 shrink-0 border-r bg-card">
       <div className="p-3">
-        <Accordion type="single" collapsible defaultValue="company">
-          <AccordionItem value="company" className="border-b-0">
-            <AccordionTrigger className="px-3 py-2 rounded hover:no-underline">
-              <div className="flex items-center gap-2">
+        <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
+        <div className="py-1">
+          <NewCompanyDialog
+            trigger={
+              <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
                 <Building2 className="h-4 w-4" />
-                <span>Kunde</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-2 pb-2">
-              <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
-              <div className="px-2 py-1">
-                <NewCompanyDialog />
-              </div>
-              {/* Placeholder for detail route link when on a company */}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+                <span>Ny kunde</span>
+              </button>
+            }
+          />
+        </div>
+        <div className="py-1">
+          <NewContactDialog
+            companyId={headerCompanyId}
+            companyName={headerCompanyName}
+            trigger={
+              <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
+                <Users2 className="h-4 w-4" />
+                <span>Ny kontakt</span>
+              </button>
+            }
+          />
+        </div>
+        <div className="py-1">
+          <NewLeadDialog
+            companyId={headerCompanyId}
+            companyName={headerCompanyName}
+            contactId={headerContactId}
+            contactName={headerContactName}
+            trigger={
+              <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
+                <BadgePercent className="h-4 w-4" />
+                <span>Ny lead</span>
+              </button>
+            }
+          />
+        </div>
         <Separator className="my-2" />
-        <NavLink href="/contacts/1" label="Kontakt" icon={Users2} active={pathname?.startsWith('/contacts/') || false} />
-        <div className="px-2 py-1"><NewContactDialog companyId={headerCompanyId} companyName={headerCompanyName} /></div>
-        <NavLink href="/leads/1" label="Lead" icon={BadgePercent} active={pathname?.startsWith('/leads/') || false} />
-        <div className="px-2 py-1"><NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} /></div>
         <NavLink href="/mail" label="E-post" icon={Mail} active={pathname === '/mail'} />
       </div>
     </aside>
@@ -131,16 +146,44 @@ export function SidebarSheetContent() {
   const isActive = (p: string) => pathname === p
   return (
     <div className="p-3">
-      <div className="px-3 py-2 text-sm font-semibold flex items-center gap-2">
-        <Building2 className="h-4 w-4" /> Kunde
-      </div>
       <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
-      <div className="px-2 py-1"><NewCompanyDialog /></div>
+      <div className="py-1">
+        <NewCompanyDialog
+          trigger={
+            <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
+              <Building2 className="h-4 w-4" />
+              <span>Ny kunde</span>
+            </button>
+          }
+        />
+      </div>
+      <div className="py-1">
+        <NewContactDialog
+          companyId={headerCompanyId}
+          companyName={headerCompanyName}
+          trigger={
+            <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
+              <Users2 className="h-4 w-4" />
+              <span>Ny kontakt</span>
+            </button>
+          }
+        />
+      </div>
+      <div className="py-1">
+        <NewLeadDialog
+          companyId={headerCompanyId}
+          companyName={headerCompanyName}
+          contactId={headerContactId}
+          contactName={headerContactName}
+          trigger={
+            <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
+              <BadgePercent className="h-4 w-4" />
+              <span>Ny lead</span>
+            </button>
+          }
+        />
+      </div>
       <Separator className="my-2" />
-      <NavLink href="/contacts/1" label="Kontakt" icon={Users2} active={pathname?.startsWith('/contacts/') || false} />
-      <div className="px-2 py-1"><NewContactDialog companyId={headerCompanyId} companyName={headerCompanyName} /></div>
-      <NavLink href="/leads/1" label="Lead" icon={BadgePercent} active={pathname?.startsWith('/leads/') || false} />
-      <div className="px-2 py-1"><NewLeadDialog companyId={headerCompanyId} companyName={headerCompanyName} contactId={headerContactId} contactName={headerContactName} /></div>
       <NavLink href="/mail" label="E-post" icon={Mail} active={pathname === '/mail'} />
     </div>
   )

@@ -1,5 +1,6 @@
 "use client"
 import { useSWRConfig } from 'swr'
+import { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -16,7 +17,7 @@ const companySchema = z.object({
   contactEmail: z.string().email('Ugyldig epost').optional(),
 })
 
-export function NewCompanyDialog({ onCreated }: { onCreated?: () => void }) {
+export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => void; trigger?: ReactNode }) {
   const { mutate } = useSWRConfig()
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -38,7 +39,7 @@ export function NewCompanyDialog({ onCreated }: { onCreated?: () => void }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Ny kunde</Button>
+        {trigger ?? <Button>Ny kunde</Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

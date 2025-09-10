@@ -1,6 +1,6 @@
 "use client"
 import useSWR, { useSWRConfig } from 'swr'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 type Company = { id: number; name: string }
 type Contact = { id: number; firstName: string; lastName: string }
 
-export function NewLeadDialog({ companyId, companyName, contactId, contactName }: { companyId?: number; companyName?: string; contactId?: number; contactName?: string }) {
+export function NewLeadDialog({ companyId, companyName, contactId, contactName, trigger }: { companyId?: number; companyName?: string; contactId?: number; contactName?: string; trigger?: ReactNode }) {
   const schema = z
     .object({
       description: z.string().min(1),
@@ -76,7 +76,7 @@ export function NewLeadDialog({ companyId, companyName, contactId, contactName }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary">Ny lead</Button>
+        {trigger ?? <Button variant="secondary">Ny lead</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-h-[80vh] overflow-y-auto">
         <DialogHeader>
