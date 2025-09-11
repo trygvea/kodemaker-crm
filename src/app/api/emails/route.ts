@@ -17,7 +17,7 @@ const postmarkInboundSchema = z.object({
   From: z.string().optional(),
   To: z.string().optional(),
   ToFull: z.array(postmarkEmailAddressSchema).optional(),
-  FromFull: z.array(postmarkEmailAddressSchema).optional(),
+  FromFull: postmarkEmailAddressSchema,
   Bcc: z.string().optional(),
   StrippedTextReply: z.string().optional(),
   TextBody: z.string().optional(),
@@ -52,7 +52,7 @@ function findRecipientEmailFromFORWARDED(mail: z.infer<typeof postmarkInboundSch
 }
 
 function findCreatedByEmail(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
-  return mail.FromFull?.[0]?.Email || extractFirstEmailFromAddressList(mail.From)  
+  return mail.FromFull?.Email || extractFirstEmailFromAddressList(mail.From)  
 }
 
 
