@@ -47,7 +47,11 @@ Login is handled by NextAuth with Google login.
 Inbound email is handled by Postmark Inbound Email that feeds the `/api/emails` route.
 
 
-### Scalingo deploy
+TODO Currently, Trygve has set up Scalingo, Google login, Postmark on his account. We need to transfer these to Kodemaker.
+
+### Email inbound
+Use 4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com as the email address.
+
 
 ### Manual db migration
 
@@ -57,6 +61,8 @@ Scalingo is set up to automatically run generated migrations when the app is dep
     scalingo -a kodemaker-crm env-set DATABASE_URL="$URL"
     scalingo -a kodemaker-crm run 'npx -y drizzle-kit migrate'
 ```
+
+
 
 # LLM use
 
