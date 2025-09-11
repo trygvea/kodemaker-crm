@@ -10,10 +10,10 @@ export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
   const router = useRouter()
-  const { data } = useSWR<{ contact: Contact; currentCompany: CompanyBrief | null; previousCompanies: CompanyBrief[]; leads: Array<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' }> }>(id ? `/api/contacts/${id}` : null)
+  const { data } = useSWR<{ contact: Contact; currentCompany: CompanyBrief | null; previousCompanies: CompanyBrief[]; leads: Array<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' }>; emails: Array<{ id: number; content: string; createdAt: string }> }>(id ? `/api/contacts/${id}` : null)
 
   if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, leads } = data
+  const { contact, currentCompany, previousCompanies, leads, emails } = data
 
   const crumbs = [
     { label: 'Kundeliste', href: '/customers' },
@@ -117,6 +117,22 @@ export default function ContactDetailPage() {
           )}
         </div>
       </section>
+
+      <section>
+        <h2 className="text-lg font-medium mb-2">E-poster</h2>
+        <div className="border rounded divide-y">
+          {emails.length ? emails.map((e) => (
+            <div key={e.id} className="p-3">
+              <div className="text-xs text-muted-foreground mb-1">{new Date(e.createdAt).toLocaleString()}</div>
+              <div className="whitespace-pre-wrap text-sm">{e.content}</div>
+            </div>
+          )) : (
+            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+          )}
+        </div>
+      </section>
+
+
     </div>
   )
 }

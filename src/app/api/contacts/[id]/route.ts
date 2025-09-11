@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contactCompanyHistory, contacts, leads } from '@/db/schema'
+import { companies, contactCompanyHistory, contacts, leads, emails } from '@/db/schema'
 import { and, desc, eq, isNull, isNotNull } from 'drizzle-orm'
 
 export async function GET(
@@ -45,7 +45,13 @@ export async function GET(
     .where(eq(leads.contactId, id))
     .orderBy(desc(leads.id))
 
-  return NextResponse.json({ contact, currentCompany: current || null, previousCompanies: previous, leads: contactLeads })
+  const contactEmails = await db
+    .select()
+    .from(emails)
+    .where(eq(emails.recipientContactId, id))
+    .orderBy(desc(emails.createdAt))
+
+  return NextResponse.json({ contact, currentCompany: current || null, previousCompanies: previous, leads: contactLeads, emails: contactEmails })
 }
 
 
