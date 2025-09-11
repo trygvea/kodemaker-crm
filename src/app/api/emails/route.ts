@@ -12,6 +12,7 @@ type MODE = 'FORWARDED' | 'BCC'
 
 function getContentFromForwarded(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
   const forwarded = parseForwardedMessage(mail.TextBody || mail.HtmlBody || '')
+  logger.info({ route: '/api/emails', method: 'POST', mail, forwarded }, 'Parsed forwarded email')
   if (forwarded) {
     return [
       forwarded.originalHeaders.subject && `Subject: ${forwarded.originalHeaders.subject}`,
