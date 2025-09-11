@@ -1,45 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# About this project
+
+This is a Next.js project bootstrapeed with `create-next-app` and modified to use a postgres database with drizzle.
+
+It was created with Cursor in Agent mode with the gpt-5-high-fast model, and bootstrapped with the LLM prompt given later in this document. After that, there has been a lot of vibe coding, but also some manual coding. 
+
 
 ## Getting Started
 
-First, run the development server:
+First, start the database:
+
+```bash
+npm run db:up
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Database migrations
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If you change any database schema, you must remember to generate migrations.
+The workflow is to first create a new migration, then check it in to git, and then apply it.
 
-## Learn More
+Run the following command to create a new migration:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:generate-migrations
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run the following command to apply the migration:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run db:migrate
+```
 
-## Deploy on Vercel
+On Scalingo, checked in migrations will be run automatically when the app is deployed.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app is deployed to Scalingo, and the database is deployed to Scalingo Postgres.
+Login is handled by NextAuth with Google login.
+Inbound email is handled by Postmark Inbound Email that feeds the `/api/emails` route.
 
-# Scalingo deploy
 
-### Tips
+### Scalingo deploy
 
-Manually migrate database
+### Manual db migration
+
+Scalingo is set up to automatically run generated migrations when the app is deployed. If you want to manually migrate the database, you can do so by running the following command:
 ```bash
     URL="$(scalingo -a kodemaker-crm env-get SCALINGO_POSTGRESQL_URL)"
     scalingo -a kodemaker-crm env-set DATABASE_URL="$URL"
