@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   if (!maybeContact) {
     const localPart = recipientEmail.split('@')[0]
-    logger.info({ route: '/api/emails', method: 'POST' }, 'creating contact')
+    logger.info({ route: '/api/emails', method: 'POST' }, 'creating contact for email ' + recipientEmail)
         const [created] = await db
           .insert(contacts)
           .values({ firstName: localPart, lastName: '', email: recipientEmail })
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
     .values({ content, recipientContactId: contactId, sourceUserId: createdByUser.id, mode })
     .returning()
 
-    logger.info({ route: '/api/emails', method: 'POST' }, 'Email imported from' + recipientEmail)
+    logger.info({ route: '/api/emails', method: 'POST' }, `Imported ${mode} email from ${recipientEmail})
 
     return NextResponse.json(createdEmail)
 }
