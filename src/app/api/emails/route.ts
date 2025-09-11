@@ -29,7 +29,7 @@ function extractFirstEmailFromAddressList(value?: string): string | undefined {
 }
 
 export async function POST(req: NextRequest) {
-  try { logger.info({ route: '/api/emails', method: 'POST' }, 'api call') } catch {}
+  logger.info({ route: '/api/emails', method: 'POST' }, 'api call')
   // Read raw body to optionally verify Postmark signature
   const rawBody = await req.text()
   let body: unknown
@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       // If verification fails due to env/crypto, continue without blocking
     }
   }
+  logger.info({ route: '/api/emails', method: 'POST' }, 'signature ok')
 
   // Parse and validate Postmark inbound payload using zod
   const parsed = postmarkInboundSchema.safeParse(body)
@@ -59,10 +60,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
+  logger.info({ route: '/api/emails', method: 'POST' }, 'parsed ok')
+
   const recipientEmail: string | undefined = parsed.data.ToFull?.[0]?.Email || extractFirstEmailFromAddressList(parsed.data.To)
   const content: string | undefined = parsed.data.StrippedTextReply || parsed.data.TextBody || parsed.data.HtmlBody || ''
   const mode: 'FORWARDED' | 'BCC' = parsed.data.Bcc && parsed.data.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
 
+  logger.info({ route: '/api/emails', method: 'POST' }, 'found recipient and content')
   if (!recipientEmail || !content) {
     return NextResponse.json({ error: 'Missing recipient or content' }, { status: 400 })
   }
@@ -73,6 +77,7 @@ export async function POST(req: NextRequest) {
   let contactId: number | undefined = maybeContact?.id
 
   if (!contactId) {
+    logger.info({ route: '/api/emails', method: 'POST' }, 'creating contact')
     const [created] = await db
       .insert(contacts)
       .values({ firstName: localPart, lastName: '', email: recipientEmail })
@@ -85,6 +90,7 @@ export async function POST(req: NextRequest) {
     .values({ content, recipientContactId: contactId, mode })
     .returning()
 
+    logger.info({ route: '/api/emails', method: 'POST' }, 'email read ok')
   return NextResponse.json(createdEmail)
 }
 
