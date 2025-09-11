@@ -1,3 +1,20 @@
+Siste
+* Motta bcc og forward
+* Lag hendelseslogg entitet, med dato, objekttype, objektid (for link), brukerid
+* Startbilde: siste hendelser: leads, eposter, kommentarer, nye kunder og kontakter
+  * Passerte oppfølginger
+* Hendelsesliste er primærlisten på kunde og kontakt.
+* Dato på alle lister
+* Rename kunde -> organisasjon
+* Kommentater:  lage kommentarer for kunde, kontakter og leads
+* Oppfølginger: Ny side, eget menyvalg. 
+  * lage oppfølginger for kunde, kontakter og leads
+  * Alle kan lage oppfølginger
+  * Normalt kan man kun se egne oppføgninger, men kan velge alle.
+  * Eget menyvalg
+* En kontakt må kunne ha flere eposter.
+
+
 
 Bugs
 * Fix Contact hydration error

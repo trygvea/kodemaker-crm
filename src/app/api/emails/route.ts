@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
-import { contacts, emails } from '@/db/schema'
+import { contacts, emails, users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import { z } from 'zod'
+
+type MODE = 'FORWARDED' | 'BCC'
 
 const postmarkEmailAddressSchema = z.object({
   Email: z.string().email(),
@@ -15,6 +17,7 @@ const postmarkInboundSchema = z.object({
   From: z.string().optional(),
   To: z.string().optional(),
   ToFull: z.array(postmarkEmailAddressSchema).optional(),
+  FromFull: z.array(postmarkEmailAddressSchema).optional(),
   Bcc: z.string().optional(),
   StrippedTextReply: z.string().optional(),
   TextBody: z.string().optional(),
@@ -27,6 +30,31 @@ function extractFirstEmailFromAddressList(value?: string): string | undefined {
   const m = first.match(/<([^>]+)>/)
   return (m ? m[1] : first).trim()
 }
+
+function findRecipientEmailFromBCC(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
+  return mail.ToFull?.[0]?.Email || extractFirstEmailFromAddressList(mail.To)
+}
+
+function findRecipientEmailFromFORWARDED(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
+  const body = mail.TextBody || mail.HtmlBody || ''
+  const match = body.match(/^From:.*<([^>]+)>/m)
+  if (match) {
+    return match[1].trim();
+  }
+
+  // If no <> brackets, try to find a bare email in the From line
+  const fallback = body.match(/^From:.*?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/m);
+  if (fallback) {
+    return fallback[1].trim();
+  }
+
+  return undefined;
+}
+
+function findCreatedByEmail(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
+  return mail.FromFull?.[0]?.Email || extractFirstEmailFromAddressList(mail.From)  
+}
+
 
 export async function POST(req: NextRequest) {
   logger.info({ route: '/api/emails', method: 'POST' }, 'api call')
@@ -52,46 +80,56 @@ export async function POST(req: NextRequest) {
       // If verification fails due to env/crypto, continue without blocking
     }
   }
-  logger.info({ route: '/api/emails', method: 'POST' }, 'signature ok')
 
-  // Parse and validate Postmark inbound payload using zod
   const parsed = postmarkInboundSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  logger.info({ route: '/api/emails', method: 'POST' }, 'parsed ok')
-
-  const recipientEmail: string | undefined = parsed.data.ToFull?.[0]?.Email || extractFirstEmailFromAddressList(parsed.data.To)
   const content: string | undefined = parsed.data.StrippedTextReply || parsed.data.TextBody || parsed.data.HtmlBody || ''
-  const mode: 'FORWARDED' | 'BCC' = parsed.data.Bcc && parsed.data.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
+  const mode: MODE = parsed.data.Bcc && parsed.data.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
 
-  logger.info({ route: '/api/emails', method: 'POST' }, 'found recipient and content')
+  const recipientEmail = mode === 'BCC' 
+    ? findRecipientEmailFromBCC(parsed.data) 
+    : findRecipientEmailFromFORWARDED(parsed.data)
+
+  logger.info({ route: '/api/emails', method: 'POST' }, 'Recipient email: ' + recipientEmail)
+
   if (!recipientEmail || !content) {
     return NextResponse.json({ error: 'Missing recipient or content' }, { status: 400 })
   }
 
-  const localPart = recipientEmail.split('@')[0]
   const [maybeContact] = await db.select().from(contacts).where(eq(contacts.email, recipientEmail))
+  let contactId = maybeContact?.id
 
-  let contactId: number | undefined = maybeContact?.id
-
-  if (!contactId) {
+  if (!maybeContact) {
+    const localPart = recipientEmail.split('@')[0]
     logger.info({ route: '/api/emails', method: 'POST' }, 'creating contact')
-    const [created] = await db
-      .insert(contacts)
-      .values({ firstName: localPart, lastName: '', email: recipientEmail })
-      .returning()
-    contactId = created.id
+        const [created] = await db
+          .insert(contacts)
+          .values({ firstName: localPart, lastName: '', email: recipientEmail })
+          .returning()
+        contactId = created.id
+  }
+
+  const createdByEmail = findCreatedByEmail(parsed.data)
+  if (!createdByEmail) {
+    return NextResponse.json({ error: 'No created by email found' }, { status: 400 })
+  }
+  const [createdByUser] = await db.select().from(users).where(eq(users.email, createdByEmail))
+  
+  if (!createdByUser) {
+    return NextResponse.json({ error: 'No user defined with email ' + createdByEmail }, { status: 400 })
   }
 
   const [createdEmail] = await db
     .insert(emails)
-    .values({ content, recipientContactId: contactId, mode })
+    .values({ content, recipientContactId: contactId, sourceUserId: createdByUser.id, mode })
     .returning()
 
-    logger.info({ route: '/api/emails', method: 'POST' }, 'email read ok')
-  return NextResponse.json(createdEmail)
+    logger.info({ route: '/api/emails', method: 'POST' }, 'Email imported from' + recipientEmail)
+
+    return NextResponse.json(createdEmail)
 }
 
 
