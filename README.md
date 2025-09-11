@@ -46,7 +46,9 @@ Manually migrate database
     scalingo -a kodemaker-crm run 'npx -y drizzle-kit migrate'
 ```
 
-# LLM prompts
+# LLM use
+
+This project was created with Cursor in Agent mode with the gpt-5-high-fast model, and bootstrapped with the LLM prompt below. After that, there has been a lot of vibe coding, but also some manual coding. 
 
 ## Initial prompt
 
