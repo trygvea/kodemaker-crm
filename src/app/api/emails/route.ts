@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
 import { contacts, emails } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -28,6 +29,7 @@ function extractFirstEmailFromAddressList(value?: string): string | undefined {
 }
 
 export async function POST(req: NextRequest) {
+  try { logger.info({ route: '/api/emails', method: 'POST' }, 'api call') } catch {}
   // Read raw body to optionally verify Postmark signature
   const rawBody = await req.text()
   let body: unknown
