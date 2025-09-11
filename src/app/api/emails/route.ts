@@ -64,8 +64,6 @@ export async function POST(req: NextRequest) {
     ? findRecipientEmailFromBCC(parsed.data) 
     : findRecipientEmailFromFORWARDED(parsed.data)
 
-  logger.info({ route: '/api/emails', method: 'POST' }, 'Recipient email: ' + recipientEmail)
-
   if (!recipientEmail || !content) {
     logger.error({ route: '/api/emails', method: 'POST' }, 'Missing recipient or content')
     return NextResponse.json({ error: 'Missing recipient or content' }, { status: 400 })
