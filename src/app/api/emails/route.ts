@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
     try {
       const expected = createHmac('sha256', signingKey).update(rawBody, 'utf8').digest('base64')
       if (expected !== signature) {
+        logger.error({ route: '/api/emails', method: 'POST' }, 'Invalid signature')
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
       }
     } catch {
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
   logger.info({ route: '/api/emails', method: 'POST' }, 'Recipient email: ' + recipientEmail)
 
   if (!recipientEmail || !content) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'Missing recipient or content')
     return NextResponse.json({ error: 'Missing recipient or content' }, { status: 400 })
   }
 
@@ -115,11 +117,13 @@ export async function POST(req: NextRequest) {
 
   const createdByEmail = findCreatedByEmail(parsed.data)
   if (!createdByEmail) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'No created by email found')
     return NextResponse.json({ error: 'No created by email found' }, { status: 400 })
   }
   const [createdByUser] = await db.select().from(users).where(eq(users.email, createdByEmail))
   
   if (!createdByUser) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'No user defined with email ' + createdByEmail)
     return NextResponse.json({ error: 'No user defined with email ' + createdByEmail }, { status: 400 })
   }
 
