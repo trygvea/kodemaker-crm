@@ -5,56 +5,22 @@ import { contacts, emails, users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import { z } from 'zod'
+import { postmarkInboundSchema, findRecipientEmailFromBCC, findRecipientEmailFromFORWARDED, findCreatedByEmail } from './postmark-utils'
+import { parseForwardedMessage } from './forwarded-utils'
 
 type MODE = 'FORWARDED' | 'BCC'
 
-const postmarkEmailAddressSchema = z.object({
-  Email: z.string().email(),
-  Name: z.string().optional().nullable(),
-})
-
-const postmarkInboundSchema = z.object({
-  From: z.string().optional(),
-  To: z.string().optional(),
-  ToFull: z.array(postmarkEmailAddressSchema).optional(),
-  FromFull: postmarkEmailAddressSchema,
-  Bcc: z.string().optional(),
-  StrippedTextReply: z.string().optional(),
-  TextBody: z.string().optional(),
-  HtmlBody: z.string().optional(),
-})
-
-function extractFirstEmailFromAddressList(value?: string): string | undefined {
-  if (!value) return undefined
-  const first = value.split(',')[0]
-  const m = first.match(/<([^>]+)>/)
-  return (m ? m[1] : first).trim()
-}
-
-function findRecipientEmailFromBCC(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
-  return mail.ToFull?.[0]?.Email || extractFirstEmailFromAddressList(mail.To)
-}
-
-function findRecipientEmailFromFORWARDED(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
-  const body = mail.TextBody || mail.HtmlBody || ''
-  const match = body.match(/^From:.*<([^>]+)>/m)
-  if (match) {
-    return match[1].trim();
+function getContentFromForwarded(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
+  const forwarded = parseForwardedMessage(mail.TextBody || mail.HtmlBody || '')
+  if (forwarded) {
+    return [
+      forwarded.originalHeaders.subject && `Subject: ${forwarded.originalHeaders.subject}`,
+      forwarded.originalBody && `Original body: ${forwarded.originalBody}`,
+      forwarded.remainder && `Forward message: ${forwarded.remainder}`
+    ].filter(Boolean).join('\n')
   }
-
-  // If no <> brackets, try to find a bare email in the From line
-  const fallback = body.match(/^From:.*?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/m);
-  if (fallback) {
-    return fallback[1].trim();
-  }
-
-  return undefined;
+  return ""
 }
-
-function findCreatedByEmail(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
-  return mail.FromFull?.Email || extractFirstEmailFromAddressList(mail.From)  
-}
-
 
 export async function POST(req: NextRequest) {
   logger.info({ route: '/api/emails', method: 'POST' }, 'api call')
@@ -88,8 +54,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const content: string | undefined = parsed.data.StrippedTextReply || parsed.data.TextBody || parsed.data.HtmlBody || ''
   const mode: MODE = parsed.data.Bcc && parsed.data.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
+
+  const content = mode === "BCC" 
+    ? (parsed.data.StrippedTextReply || parsed.data.TextBody || parsed.data.HtmlBody || '')
+    : getContentFromForwarded(parsed.data)
 
   const recipientEmail = mode === 'BCC' 
     ? findRecipientEmailFromBCC(parsed.data) 
