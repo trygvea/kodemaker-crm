@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = postmarkInboundSchema.safeParse(body)
   if (!parsed.success) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'Parse failed: ' + JSON.stringify(parsed.error.flatten()))
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
