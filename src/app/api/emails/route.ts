@@ -12,6 +12,7 @@ import {
   findCreatedByEmail,
 } from './postmark-utils'
 import { parseForwardedMessages } from './parse-forwarded'
+import { parsePostmarkInboundEmail } from './parse-mail'
 
 type MODE = 'FORWARDED' | 'BCC'
 
@@ -58,6 +59,12 @@ export async function POST(req: NextRequest) {
       'Parse failed: ' + JSON.stringify(parsed.error.flatten())
     )
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+  }
+
+  const parsedMail = parsePostmarkInboundEmail(parsed.data)
+  if (parsedMail.mode === 'ERROR') {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'Parse failed: ' + parsedMail.error)
+    return NextResponse.json({ error: parsedMail.error }, { status: 400 })
   }
 
   const mode: MODE = parsed.data.Bcc && parsed.data.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'

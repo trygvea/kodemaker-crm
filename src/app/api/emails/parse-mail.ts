@@ -47,7 +47,7 @@ export function parsePostmarkInboundEmail(
   mail: z.infer<typeof postmarkInboundSchema>
 ): ParsedMail | ParseError {
   const mode = mail.Bcc && mail.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
-  const crmUser = mail.ToFull?.[0]?.Email || extractFirstEmailFromAddressList(mail.To)
+  const crmUser = mail.FromFull?.Email || extractFirstEmailFromAddressList(mail.From)
   const date = mail.Date
   const subject = mail.Subject
   const body = mail.TextBody || mail.HtmlBody || ''
@@ -63,7 +63,7 @@ export function parsePostmarkInboundEmail(
     return {
       mode: 'FORWARDED',
       crmUser,
-      contactEmail: forwarded[0].headers.to,
+      contactEmail: extractFirstEmailFromAddressList(forwarded[0].headers.from),
       date,
       subject,
       body: forwarded[0].body,
