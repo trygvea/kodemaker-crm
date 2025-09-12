@@ -6,18 +6,18 @@ import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import { z } from 'zod'
 import { postmarkInboundSchema, findRecipientEmailFromBCC, findRecipientEmailFromFORWARDED, findCreatedByEmail } from './postmark-utils'
-import { parseForwardedMessage } from './forwarded-utils'
+import { parseForwardedMessages } from './forwarded-utils'
 
 type MODE = 'FORWARDED' | 'BCC'
 
 function getContentFromForwarded(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
-  const forwarded = parseForwardedMessage(mail.TextBody || mail.HtmlBody || '')
+  const forwarded = parseForwardedMessages(mail.TextBody || mail.HtmlBody || '')
   logger.info({ route: '/api/emails', method: 'POST', mail, forwarded }, 'Parsed forwarded email')
-  if (forwarded) {
+  if (forwarded && forwarded.length > 0) {
     return [
-      forwarded.originalHeaders.subject && `Subject: ${forwarded.originalHeaders.subject}`,
-      forwarded.originalBody && `Original body: ${forwarded.originalBody}`,
-      forwarded.remainder && `Forward message: ${forwarded.remainder}`
+      forwarded[0].headers.subject && `Subject: ${forwarded[0].headers.subject}`,
+      // TODO missing comments from forwarder
+      forwarded[0].body && `Original body: ${forwarded[0].body}`
     ].filter(Boolean).join('\n')
   }
   return ""
