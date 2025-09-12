@@ -4,32 +4,8 @@ import { db } from '@/db/client'
 import { contacts, emails, users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
-import { z } from 'zod'
-import {
-  postmarkInboundSchema,
-  findRecipientEmailFromBCC,
-  findRecipientEmailFromFORWARDED,
-  findCreatedByEmail,
-} from './postmark-utils'
-import { parseForwardedMessages } from './parse-forwarded'
-import { parsePostmarkInboundEmail } from './parse-mail'
-
-type MODE = 'FORWARDED' | 'BCC'
-
-function getContentFromForwarded(mail: z.infer<typeof postmarkInboundSchema>): string | undefined {
-  const forwarded = parseForwardedMessages(mail.TextBody || mail.HtmlBody || '')
-  logger.info({ route: '/api/emails', method: 'POST', mail, forwarded }, 'Parsed forwarded email')
-  if (forwarded && forwarded.length > 0) {
-    return [
-      forwarded[0].headers.subject && `Subject: ${forwarded[0].headers.subject}`,
-      // TODO missing comments from forwarder
-      forwarded[0].body && `Original body: ${forwarded[0].body}`,
-    ]
-      .filter(Boolean)
-      .join('\n')
-  }
-  return ''
-}
+import {} from './parse-mail'
+import { postmarkInboundSchema, parsePostmarkInboundEmail } from './parse-mail'
 
 export async function POST(req: NextRequest) {
   logger.info({ route: '/api/emails', method: 'POST' }, 'api call')
@@ -67,53 +43,48 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsedMail.error }, { status: 400 })
   }
 
-  const mode: MODE = parsed.data.Bcc && parsed.data.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
-
-  const content =
-    mode === 'BCC'
-      ? parsed.data.StrippedTextReply || parsed.data.TextBody || parsed.data.HtmlBody || ''
-      : getContentFromForwarded(parsed.data)
-
-  const recipientEmail =
-    mode === 'BCC'
-      ? findRecipientEmailFromBCC(parsed.data)
-      : findRecipientEmailFromFORWARDED(parsed.data)
-
-  if (!recipientEmail || !content) {
-    logger.error({ route: '/api/emails', method: 'POST' }, 'Missing recipient or content')
-    return NextResponse.json({ error: 'Missing recipient or content' }, { status: 400 })
+  if (!parsedMail.contactEmail) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'Missing contact mail')
+    return NextResponse.json({ error: 'Missing contact mail' }, { status: 400 })
   }
 
-  const [maybeContact] = await db.select().from(contacts).where(eq(contacts.email, recipientEmail))
+  if (!parsedMail.body) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'No text in body')
+    return NextResponse.json({ error: 'No text in body' }, { status: 400 })
+  }
+
+  if (!parsedMail.crmUser) {
+    logger.error({ route: '/api/emails', method: 'POST' }, 'Crm user not found')
+    return NextResponse.json({ error: 'Crm user not found' }, { status: 400 })
+  }
+
+  const [maybeContact] = await db
+    .select()
+    .from(contacts)
+    .where(eq(contacts.email, parsedMail.contactEmail))
   let contactId = maybeContact?.id
 
   if (!maybeContact) {
-    const localPart = recipientEmail.split('@')[0]
+    const localPart = parsedMail.contactEmail.split('@')[0]
     logger.info(
       { route: '/api/emails', method: 'POST' },
-      'creating contact for email ' + recipientEmail
+      'creating contact for email ' + parsedMail.contactEmail
     )
     const [created] = await db
       .insert(contacts)
-      .values({ firstName: localPart, lastName: '', email: recipientEmail })
+      .values({ firstName: localPart, lastName: '', email: parsedMail.contactEmail })
       .returning()
     contactId = created.id
   }
 
-  const createdByEmail = findCreatedByEmail(parsed.data)
-  if (!createdByEmail) {
-    logger.error({ route: '/api/emails', method: 'POST' }, 'No created by email found')
-    return NextResponse.json({ error: 'No created by email found' }, { status: 400 })
-  }
-  const [createdByUser] = await db.select().from(users).where(eq(users.email, createdByEmail))
-
+  const [createdByUser] = await db.select().from(users).where(eq(users.email, parsedMail.crmUser))
   if (!createdByUser) {
     logger.error(
       { route: '/api/emails', method: 'POST' },
-      'No user defined with email ' + createdByEmail
+      `User with email ${parsedMail.crmUser} not in user db`
     )
     return NextResponse.json(
-      { error: 'No user defined with email ' + createdByEmail },
+      { error: `User with email ${parsedMail.crmUser} not in user db` },
       { status: 400 }
     )
   }
@@ -121,16 +92,16 @@ export async function POST(req: NextRequest) {
   const [createdEmail] = await db
     .insert(emails)
     .values({
-      content,
+      content: parsedMail.body,
       recipientContactId: contactId,
       sourceUserId: createdByUser.id,
-      mode,
+      mode: parsedMail.mode,
     })
     .returning()
 
   logger.info(
     { route: '/api/emails', method: 'POST' },
-    `Imported ${mode} email from ${recipientEmail}`
+    `Imported ${parsedMail.mode} email from ${parsedMail.contactEmail}`
   )
 
   return NextResponse.json(createdEmail)

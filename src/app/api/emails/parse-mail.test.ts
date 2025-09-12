@@ -1,4 +1,3 @@
-import { parseForwardedMessages } from './parse-forwarded'
 import { parsePostmarkInboundEmail } from './parse-mail'
 
 describe('parsePostmarkInboundEmail', () => {

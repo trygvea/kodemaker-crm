@@ -19,7 +19,7 @@ export const postmarkInboundSchema = z.object({
   HtmlBody: z.string().optional(),
 })
 
-type Mode = 'FORWARDED' | 'BCC' | 'ERROR'
+type Mode = 'FORWARDED' | 'BCC'
 
 export type ParsedMail = {
   mode: Mode
