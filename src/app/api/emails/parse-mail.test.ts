@@ -106,9 +106,8 @@ describe('parsePostmarkInboundEmail', () => {
         subject: 'Fwd: Mail til trygvea fra trygve.amundsen',
         body: 'Viktig mail (original body)',
         forwardComment:
-          '(Her er en melding fra trygve kodemaker, som var den som forwardet mailen)\n\n',
+          '(Her er en melding fra trygve kodemaker, som var den som forwardet mailen)',
       })
-      expect(parsed.forwardComment).toBeUndefined()
     }
   })
 })

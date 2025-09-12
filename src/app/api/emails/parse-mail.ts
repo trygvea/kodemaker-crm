@@ -67,7 +67,7 @@ export function parsePostmarkInboundEmail(
       date,
       subject,
       body: forwarded[0].body,
-      forwardComment: mail.StrippedTextReply?.split('\n').slice(0, -1).join('\n'),
+      forwardComment: mail.StrippedTextReply?.split('\n').slice(0, -1).join('\n').trimEnd(),
     }
   } else {
     return {
