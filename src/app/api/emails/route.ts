@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
-import { contacts, emails, users } from '@/db/schema'
+import { companies, contactCompanyHistory, contacts, emails, users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import {} from './parse-mail'
@@ -58,12 +58,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Crm user not found' }, { status: 400 })
   }
 
+  // Find or create contact
   const [maybeContact] = await db
     .select()
     .from(contacts)
     .where(eq(contacts.email, parsedMail.contactEmail))
   let contactId = maybeContact?.id
-
   if (!maybeContact) {
     const localPart = parsedMail.contactEmail.split('@')[0]
     logger.info(
@@ -77,6 +77,38 @@ export async function POST(req: NextRequest) {
     contactId = created.id
   }
 
+  // Find or create contactHistory (and company if not found)
+  const companyDomain = parsedMail.contactEmail.split('@')[1]
+  const [maybeContactHistory] = await db
+    .select()
+    .from(contactCompanyHistory)
+    .where(eq(contactCompanyHistory.contactId, contactId))
+  if (!maybeContactHistory) {
+    // Find or create company
+    const [maybeCompany] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.emailDomain, companyDomain))
+    let companyId = maybeCompany?.id
+    if (!maybeCompany) {
+      const name = companyDomain.split('.').slice(0, -1).join('.')
+      const [createdCompany] = await db
+        .insert(companies)
+        .values({
+          name: name.at(0)?.toUpperCase() + name.slice(1), // capitalize
+          emailDomain: companyDomain,
+        })
+        .returning()
+      companyId = createdCompany.id
+    }
+    // Now, create contactHistory
+    await db
+      .insert(contactCompanyHistory)
+      .values({ contactId, companyId, startDate: new Date().toISOString() })
+      .returning()
+  }
+
+  // Find created by user
   const [createdByUser] = await db.select().from(users).where(eq(users.email, parsedMail.crmUser))
   if (!createdByUser) {
     logger.error(
@@ -89,6 +121,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Insert email
   const [createdEmail] = await db
     .insert(emails)
     .values({
