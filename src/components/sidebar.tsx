@@ -61,7 +61,8 @@ export function Sidebar() {
           icon={History}
           active={pathname === '/hendelseslogg'}
         />
-        <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
+        <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
+        <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
         <NavLink
           href="/leads/active"
           label="Aktive leads"
@@ -136,18 +137,18 @@ export function MobileSidebar() {
               <Building2 className="h-5 w-5" />
             </Link>
           </TooltipTrigger>
-          <TooltipContent>Kunde</TooltipContent>
+          <TooltipContent>Kunder</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
-              href="/contacts/1"
-              className={`p-2 rounded ${pathname?.startsWith('/contacts/') ? 'bg-muted' : ''}`}
+              href="/contacts"
+              className={`p-2 rounded ${pathname === '/contacts' || pathname?.startsWith('/contacts/') ? 'bg-muted' : ''}`}
             >
-              <Users2 className="h-5 w-5" />
+              <List className="h-5 w-5" />
             </Link>
           </TooltipTrigger>
-          <TooltipContent>Kontakt</TooltipContent>
+          <TooltipContent>Kontakter</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -201,7 +202,8 @@ export function SidebarSheetContent() {
         icon={History}
         active={pathname === '/hendelseslogg'}
       />
-      <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
+      <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
+      <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
       <NavLink
         href="/leads/active"
         label="Aktive leads"

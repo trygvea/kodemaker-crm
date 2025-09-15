@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { contacts, contactCompanyHistory } from '@/db/schema'
+import { contacts, contactCompanyHistory, companies } from '@/db/schema'
 import { z } from 'zod'
-import { ilike, desc, or } from 'drizzle-orm'
+import { ilike, desc, or, asc, eq, isNull, and } from 'drizzle-orm'
 import { createEvent } from '@/db/events'
 
 const createContactSchema = z.object({
@@ -18,15 +18,54 @@ const createContactSchema = z.object({
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q')?.trim()
-  if (q) {
+  if (q && q.length >= 1) {
     const data = await db
-      .select()
+      .select({
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        email: contacts.email,
+        company: {
+          id: companies.id,
+          name: companies.name,
+        },
+      })
       .from(contacts)
-      .where(or(ilike(contacts.firstName, `%${q}%`), ilike(contacts.lastName, `%${q}%`)))
-      .limit(50)
+      .leftJoin(
+        contactCompanyHistory,
+        and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
+      )
+      .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
+      .where(
+        or(
+          ilike(contacts.firstName, `%${q}%`),
+          ilike(contacts.lastName, `%${q}%`),
+          ilike(companies.name, `%${q}%`)
+        )
+      )
+      .orderBy(asc(contacts.lastName), asc(contacts.firstName))
+      .limit(200)
     return NextResponse.json(data)
   }
-  const data = await db.select().from(contacts).orderBy(desc(contacts.id)).limit(100)
+  const data = await db
+    .select({
+      id: contacts.id,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+      email: contacts.email,
+      company: {
+        id: companies.id,
+        name: companies.name,
+      },
+    })
+    .from(contacts)
+    .leftJoin(
+      contactCompanyHistory,
+      and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
+    )
+    .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
+    .orderBy(asc(contacts.lastName), asc(contacts.firstName))
+    .limit(100)
   return NextResponse.json(data)
 }
 

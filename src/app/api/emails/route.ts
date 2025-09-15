@@ -160,10 +160,12 @@ export async function POST(req: NextRequest) {
     })
     .returning()
 
+  const [contact] = await db.select().from(contacts).where(eq(contacts.id, contactId))
+  const type = parsedMail.mode === 'BCC' ? 'BCC' : 'videresendt'
   await createEvent(
     'contact',
     contactId!,
-    parsedMail.mode === 'BCC' ? 'Ny e-post (BCC)' : 'Ny e-post (videresendt)'
+    'Ny e-post (${type}) to ${contact.firstName} ${contact.lastName}: ${parsedMail.subject}'
   )
 
   logger.info(

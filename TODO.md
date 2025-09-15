@@ -1,4 +1,8 @@
 Siste
+Kontaktliste -> Kontakter
+Kundeliste -> Kunder
+url /hendelseslogg -> /events
+
 v Motta bcc og forward
 - Lag repository for enklere database aksess?
 v Må ha en fiks for kontakter som ikke er assignet til noen kunde.
