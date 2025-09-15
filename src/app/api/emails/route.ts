@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
-import { companies, contactCompanyHistory, contacts, emails, users } from '@/db/schema'
+import { companies, contactCompanyHistory, contacts, emails, users, events } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import {} from './parse-mail'
@@ -75,6 +75,13 @@ export async function POST(req: NextRequest) {
       .values({ firstName: localPart, lastName: '', email: parsedMail.contactEmail })
       .returning()
     contactId = created.id
+    await db
+      .insert(events)
+      .values({
+        entity: 'contact',
+        entityId: created.id,
+        description: `Ny kontakt: ${created.firstName} ${created.lastName}`,
+      })
   }
 
   // Find or create contactHistory (and company if not found)
@@ -102,6 +109,13 @@ export async function POST(req: NextRequest) {
         .returning()
       companyId = createdCompany.id
       logger.info({ route: '/api/emails', method: 'POST' }, `Create company ${capitalizedName}`)
+      await db
+        .insert(events)
+        .values({
+          entity: 'company',
+          entityId: createdCompany.id,
+          description: `Ny kunde: ${capitalizedName}`,
+        })
     }
     // Now, create contactHistory
     await db
@@ -133,6 +147,14 @@ export async function POST(req: NextRequest) {
       mode: parsedMail.mode,
     })
     .returning()
+
+  await db
+    .insert(events)
+    .values({
+      entity: 'contact',
+      entityId: contactId!,
+      description: parsedMail.mode === 'BCC' ? 'Ny e-post (BCC)' : 'Ny e-post (videresendt)',
+    })
 
   logger.info(
     { route: '/api/emails', method: 'POST' },

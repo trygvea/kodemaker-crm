@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, leads } from '@/db/schema'
+import { companies, leads, events } from '@/db/schema'
 import { z } from 'zod'
 import { ilike, inArray, sql } from 'drizzle-orm'
 
@@ -32,7 +32,8 @@ export async function GET(req: NextRequest) {
     .where(inArray(leads.companyId, ids))
     .groupBy(leads.companyId, leads.status)
 
-  const byCompany: Record<number, { NEW: number; IN_PROGRESS: number; LOST: number; WON: number }> = {}
+  const byCompany: Record<number, { NEW: number; IN_PROGRESS: number; LOST: number; WON: number }> =
+    {}
   for (const id of ids) {
     byCompany[id] = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0 }
   }
@@ -52,7 +53,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
   const [created] = await db.insert(companies).values(parsed.data).returning()
+  await db
+    .insert(events)
+    .values({ entity: 'company', entityId: created.id, description: `Ny kunde: ${created.name}` })
   return NextResponse.json(created)
 }
-
-

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { comments } from '@/db/schema'
+import { comments, events } from '@/db/schema'
 import { z } from 'zod'
 import { desc } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
@@ -26,8 +26,16 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
-  const [created] = await db.insert(comments).values({ ...parsed.data, createdByUserId: userId }).returning()
+  const [created] = await db
+    .insert(comments)
+    .values({ ...parsed.data, createdByUserId: userId })
+    .returning()
+  await db
+    .insert(events)
+    .values({
+      entity: parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact',
+      entityId: (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
+      description: 'Ny kommentar',
+    })
   return NextResponse.json(created)
 }
-
-

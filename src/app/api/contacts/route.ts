@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { contacts, contactCompanyHistory } from '@/db/schema'
+import { contacts, contactCompanyHistory, events } from '@/db/schema'
 import { z } from 'zod'
 import { ilike, desc, or } from 'drizzle-orm'
 
@@ -37,12 +37,15 @@ export async function POST(req: NextRequest) {
   }
   const { companyId, startDate, ...values } = parsed.data
   const [created] = await db.insert(contacts).values(values).returning()
+  await db
+    .insert(events)
+    .values({
+      entity: 'contact',
+      entityId: created.id,
+      description: `Ny kontakt: ${created.firstName} ${created.lastName}`,
+    })
   if (companyId && startDate) {
-    await db
-      .insert(contactCompanyHistory)
-      .values({ companyId, contactId: created.id, startDate })
+    await db.insert(contactCompanyHistory).values({ companyId, contactId: created.id, startDate })
   }
   return NextResponse.json(created)
 }
-
-

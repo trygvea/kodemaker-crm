@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { followups } from '@/db/schema'
+import { followups, events } from '@/db/schema'
 import { z } from 'zod'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
@@ -22,7 +22,11 @@ export async function GET() {
   const data = await db
     .select()
     .from(followups)
-    .where(isAdmin ? undefined : and(eq(followups.createdByUserId, userId!), isNull(followups.completedAt)))
+    .where(
+      isAdmin
+        ? undefined
+        : and(eq(followups.createdByUserId, userId!), isNull(followups.completedAt))
+    )
     .orderBy(desc(followups.dueAt))
     .limit(100)
 
@@ -48,7 +52,12 @@ export async function POST(req: NextRequest) {
       createdByUserId: userId,
     })
     .returning()
+  await db
+    .insert(events)
+    .values({
+      entity: parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact',
+      entityId: (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
+      description: 'Ny oppfølging',
+    })
   return NextResponse.json(created)
 }
-
-

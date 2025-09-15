@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, leads } from '@/db/schema'
+import { companies, contacts, leads, events } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
   const id = Number(idStr)
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
@@ -45,10 +42,7 @@ const updateLeadSchema = z.object({
   status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON']).optional(),
 })
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
   const id = Number(idStr)
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
@@ -62,7 +56,20 @@ export async function PATCH(
     .set({ ...parsed.data })
     .where(eq(leads.id, id))
     .returning()
+  if (updated) {
+    const changed = [
+      parsed.data.description ? 'beskrivelse' : undefined,
+      parsed.data.status ? 'status' : undefined,
+    ]
+      .filter(Boolean)
+      .join(' & ')
+    await db
+      .insert(events)
+      .values({
+        entity: 'lead',
+        entityId: updated.id,
+        description: `Oppdatert lead (${changed || 'ingen endringer'})`,
+      })
+  }
   return NextResponse.json(updated)
 }
-
-

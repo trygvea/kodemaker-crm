@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, contactCompanyHistory, leads } from '@/db/schema'
+import { companies, contacts, contactCompanyHistory, leads, events } from '@/db/schema'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
   const id = Number(idStr)
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
@@ -36,5 +33,3 @@ export async function GET(
 
   return NextResponse.json({ company, contacts: companyContacts, leads: companyLeads })
 }
-
-

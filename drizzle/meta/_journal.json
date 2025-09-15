@@ -8,6 +8,13 @@
       "when": 1756727861758,
       "tag": "0000_superb_lockjaw",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757926459073,
+      "tag": "0001_lonely_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }
