@@ -2,6 +2,7 @@
 import useSWR from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 type Contact = {
   id: number
@@ -17,10 +18,11 @@ export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
   const router = useRouter()
-  const { data } = useSWR<{
+  const { data, mutate } = useSWR<{
     contact: Contact
     currentCompany: CompanyBrief | null
     previousCompanies: CompanyBrief[]
+    comments: Array<{ id: number; content: string; createdAt: string }>
     leads: Array<{
       id: number
       description: string
@@ -28,12 +30,21 @@ export default function ContactDetailPage() {
     }>
     emails: Array<{ id: number; subject?: string | null; content: string; createdAt: string }>
   }>(id ? `/api/contacts/${id}` : null)
+  const [newComment, setNewComment] = useState('')
 
   if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, leads, emails } = data
+  const { contact, currentCompany, previousCompanies, comments, leads, emails } = data
+  async function saveComment() {
+    const body = { content: newComment, contactId: contact.id }
+    const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
+    if (res.ok) {
+      setNewComment('')
+      mutate()
+    }
+  }
 
   const crumbs = [
-    { label: 'Kundeliste', href: '/customers' },
+    { label: 'Kunder', href: '/customers' },
     ...(currentCompany
       ? [{ label: currentCompany.name, href: `/customers/${currentCompany.id}` }]
       : []),
@@ -105,6 +116,42 @@ export default function ContactDetailPage() {
                 <div className="text-sm text-muted-foreground">
                   {co.startDate} - {co.endDate}
                 </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-medium mb-2">Kommentarer</h2>
+        <div className="space-y-2">
+          <textarea
+            rows={3}
+            className="w-full border rounded p-2 text-sm resize-y"
+            placeholder="Skriv en kommentar…"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
+          <div className="flex justify-end">
+            <button
+              className="inline-flex items-center rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm disabled:opacity-50"
+              disabled={!newComment.trim()}
+              onClick={saveComment}
+            >
+              Lagre kommentar
+            </button>
+          </div>
+        </div>
+        <div className="border rounded divide-y mt-3">
+          {comments.length ? (
+            comments.map((c) => (
+              <div key={c.id} className="p-3">
+                <div className="text-xs text-muted-foreground mb-1">
+                  {new Date(c.createdAt).toLocaleString()}
+                </div>
+                <div className="whitespace-pre-wrap text-sm">{c.content}</div>
               </div>
             ))
           ) : (
