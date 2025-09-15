@@ -31,6 +31,7 @@ export function parseForwardedMessages(bodyText: string): ForwardedMessage[] {
     /^begin forwarded message:?$/im,
     /^[-]{2,}\s*forwarded message\s*[-]{2,}\s*$/im,
     /^[-\s]*videresendt melding[-\s]*$/im,
+    /^[-\s]*videresendt e-post[-\s]*$/im,
     /^begynn videresendt melding:?$/im,
     /^[-]{2,}\s*videresendt melding\s*[-]{2,}\s*$/im,
   ]

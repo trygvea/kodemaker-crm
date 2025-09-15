@@ -6,6 +6,8 @@ v Motta bcc og forward
   - 1. Automatisk ved insert av Email.
   - 2. Manuelt!! Kunde: Legg til kontakt - side? Men ansatt-dato. NB også for kontakter som bytter kunde!
 - Ved mail mottak, opprett firma og kontakt-historikk om det ikke finnes
+- Ved forward-motak, opprett kommentar med forward body.
+  - Også vis kommentarer på email-siden.
 - Lag hendelseslogg entitet, med dato, objekttype, objektid (for link), brukerid
 - Startbilde: siste hendelser: leads, eposter, kommentarer, nye kunder og kontakter
   - Passerte oppfølginger
