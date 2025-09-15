@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, leads, events } from '@/db/schema'
+import { companies, leads } from '@/db/schema'
+import { createEvent } from '@/db/events'
 import { z } from 'zod'
 import { ilike, inArray, sql } from 'drizzle-orm'
 
@@ -53,8 +54,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
   const [created] = await db.insert(companies).values(parsed.data).returning()
-  await db
-    .insert(events)
-    .values({ entity: 'company', entityId: created.id, description: `Ny kunde: ${created.name}` })
+  await createEvent('company', created.id, `Ny kunde: ${created.name}`)
   return NextResponse.json(created)
 }

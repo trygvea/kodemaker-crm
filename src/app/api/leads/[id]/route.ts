@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, leads, events } from '@/db/schema'
+import { companies, contacts, leads } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { createEvent } from '@/db/events'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
@@ -63,13 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     ]
       .filter(Boolean)
       .join(' & ')
-    await db
-      .insert(events)
-      .values({
-        entity: 'lead',
-        entityId: updated.id,
-        description: `Oppdatert lead (${changed || 'ingen endringer'})`,
-      })
+    await createEvent('lead', updated.id, `Oppdatert lead (${changed || 'ingen endringer'})`)
   }
   return NextResponse.json(updated)
 }

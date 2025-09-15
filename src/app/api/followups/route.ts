@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { followups, events } from '@/db/schema'
+import { followups } from '@/db/schema'
 import { z } from 'zod'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { createEvent } from '@/db/events'
 
 const createFollowupSchema = z.object({
   note: z.string().min(1),
@@ -52,12 +53,10 @@ export async function POST(req: NextRequest) {
       createdByUserId: userId,
     })
     .returning()
-  await db
-    .insert(events)
-    .values({
-      entity: parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact',
-      entityId: (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
-      description: 'Ny oppfølging',
-    })
+  await createEvent(
+    parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact',
+    (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
+    'Ny oppfølging'
+  )
   return NextResponse.json(created)
 }

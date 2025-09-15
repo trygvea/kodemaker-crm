@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, leads, events } from '@/db/schema'
+import { companies, contacts, leads } from '@/db/schema'
 import { z } from 'zod'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { createEvent } from '@/db/events'
 
 const createLeadSchema = z.object({
   companyId: z.number().int(),
@@ -64,12 +65,6 @@ export async function POST(req: NextRequest) {
     .insert(leads)
     .values({ ...parsed.data, createdByUserId: userId })
     .returning()
-  await db
-    .insert(events)
-    .values({
-      entity: 'lead',
-      entityId: created.id,
-      description: `Ny lead for kunde ${created.companyId}`,
-    })
+  await createEvent('lead', created.id, `Ny lead for kunde ${created.companyId}`)
   return NextResponse.json(created)
 }

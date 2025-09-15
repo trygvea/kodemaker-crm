@@ -1,11 +1,10 @@
 Siste
 v Motta bcc og forward
-
 - Lag repository for enklere database aksess?
-- Må ha en fiks for kontakter som ikke er assignet til noen kunde.
-  - 1. Automatisk ved insert av Email.
+v Må ha en fiks for kontakter som ikke er assignet til noen kunde.
+  v 1. Automatisk ved insert av Email.
   - 2. Manuelt!! Kunde: Legg til kontakt - side? Men ansatt-dato. NB også for kontakter som bytter kunde!
-- Ved mail mottak, opprett firma og kontakt-historikk om det ikke finnes
+v Ved mail mottak, opprett firma og kontakt-historikk om det ikke finnes
 - Ved forward-motak, opprett kommentar med forward body.
   - Også vis kommentarer på email-siden.
 - Lag hendelseslogg entitet, med dato, objekttype, objektid (for link), brukerid
