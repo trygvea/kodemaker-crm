@@ -47,6 +47,7 @@ export default function EventsPage() {
   }, [data])
 
   useEffect(() => {
+    if (data === undefined) return
     let es: EventSource | null = null
     let cancelled = false
     const connect = () => {
@@ -85,7 +86,7 @@ export default function EventsPage() {
       cancelled = true
       es?.close()
     }
-  }, [paused])
+  }, [paused, data])
 
   return (
     <div className="p-6 space-y-4">

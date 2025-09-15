@@ -56,13 +56,13 @@ export function Sidebar() {
     <aside className="hidden lg:flex lg:flex-col lg:w-64 shrink-0 border-r bg-card">
       <div className="p-3">
         <NavLink
-          href="/hendelseslogg"
+          href="/events"
           label="Hendelseslogg"
           icon={History}
-          active={pathname === '/hendelseslogg'}
+          active={pathname === '/events'}
         />
-        <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
         <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
+        <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
         <NavLink
           href="/leads/active"
           label="Aktive leads"
@@ -120,24 +120,13 @@ export function MobileSidebar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
-              href="/hendelseslogg"
-              className={`p-2 rounded ${pathname === '/hendelseslogg' ? 'bg-muted' : ''}`}
+              href="/events"
+              className={`p-2 rounded ${pathname === '/events' ? 'bg-muted' : ''}`}
             >
               <History className="h-5 w-5" />
             </Link>
           </TooltipTrigger>
           <TooltipContent>Hendelser</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/customers"
-              className={`p-2 rounded ${pathname === '/customers' ? 'bg-muted' : ''}`}
-            >
-              <Building2 className="h-5 w-5" />
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent>Kunder</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -149,6 +138,17 @@ export function MobileSidebar() {
             </Link>
           </TooltipTrigger>
           <TooltipContent>Kontakter</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/customers"
+              className={`p-2 rounded ${pathname === '/customers' ? 'bg-muted' : ''}`}
+            >
+              <Building2 className="h-5 w-5" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Kunder</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -197,10 +197,10 @@ export function SidebarSheetContent() {
   return (
     <div className="p-3">
       <NavLink
-        href="/hendelseslogg"
+        href="/events"
         label="Hendelseslogg"
         icon={History}
-        active={pathname === '/hendelseslogg'}
+        active={pathname === '/events'}
       />
       <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
       <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
