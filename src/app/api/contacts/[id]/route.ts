@@ -43,7 +43,7 @@ export async function GET(
     .select()
     .from(leads)
     .where(eq(leads.contactId, id))
-    .orderBy(desc(leads.id))
+    .orderBy(desc(leads.createdAt))
 
   const contactEmails = await db
     .select()

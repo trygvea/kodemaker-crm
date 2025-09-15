@@ -87,6 +87,7 @@ export const comments = pgTable('comments', {
 export const emails = pgTable('emails', {
   id: serial('id').primaryKey(),
   content: text('content').notNull(),
+  subject: text('subject'),
   recipientCompanyId: integer('recipient_company_id').references(() => companies.id, {
     onDelete: 'cascade',
   }),

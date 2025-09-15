@@ -15,6 +15,13 @@
       "when": 1757926459073,
       "tag": "0001_lonely_cassandra_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1757942716029,
+      "tag": "0002_productive_archangel",
+      "breakpoints": true
     }
   ]
 }

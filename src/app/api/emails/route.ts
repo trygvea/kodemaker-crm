@@ -153,6 +153,7 @@ export async function POST(req: NextRequest) {
     .insert(emails)
     .values({
       content: parsedMail.body,
+      subject: parsedMail.subject,
       recipientContactId: contactId,
       sourceUserId: createdByUser.id,
       mode: parsedMail.mode,
