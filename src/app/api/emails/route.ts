@@ -92,14 +92,16 @@ export async function POST(req: NextRequest) {
     let companyId = maybeCompany?.id
     if (!maybeCompany) {
       const name = companyDomain.split('.').slice(0, -1).join('.')
+      const capitalizedName = name.at(0)?.toUpperCase() + name.slice(1)
       const [createdCompany] = await db
         .insert(companies)
         .values({
-          name: name.at(0)?.toUpperCase() + name.slice(1), // capitalize
+          name: capitalizedName,
           emailDomain: companyDomain,
         })
         .returning()
       companyId = createdCompany.id
+      logger.info({ route: '/api/emails', method: 'POST' }, `Create company ${capitalizedName}`)
     }
     // Now, create contactHistory
     await db
