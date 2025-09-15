@@ -29,7 +29,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     .select()
     .from(leads)
     .where(eq(leads.companyId, id))
-    .orderBy(desc(leads.id))
+    .orderBy(desc(leads.createdAt))
 
   return NextResponse.json({ company, contacts: companyContacts, leads: companyLeads })
 }

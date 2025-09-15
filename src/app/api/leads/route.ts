@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
       id: leads.id,
       description: leads.description,
       status: leads.status,
+      createdAt: leads.createdAt,
       company: {
         id: companies.id,
         name: companies.name,
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
     .leftJoin(companies, eq(leads.companyId, companies.id))
     .leftJoin(contacts, eq(leads.contactId, contacts.id))
     .where(filters.length ? and(...filters) : undefined)
-    .orderBy(desc(leads.id))
+    .orderBy(desc(leads.createdAt))
     .limit(100)
   return NextResponse.json(data)
 }
@@ -61,10 +62,11 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
+  const [company] = await db.select().from(companies).where(eq(companies.id, parsed.data.companyId))
   const [created] = await db
     .insert(leads)
     .values({ ...parsed.data, createdByUserId: userId })
     .returning()
-  await createEvent('lead', created.id, `Ny lead for kunde ${created.companyId}`)
+  await createEvent('lead', created.id, `Ny lead for kunde ${company.name}`)
   return NextResponse.json(created)
 }

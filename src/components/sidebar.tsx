@@ -55,6 +55,12 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 shrink-0 border-r bg-card">
       <div className="p-3">
+        <NavLink
+          href="/hendelseslogg"
+          label="Hendelseslogg"
+          icon={History}
+          active={pathname === '/hendelseslogg'}
+        />
         <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
         <NavLink
           href="/leads/active"
@@ -99,12 +105,6 @@ export function Sidebar() {
           />
         </div>
         <Separator className="my-2" />
-        <NavLink
-          href="/hendelseslogg"
-          label="Hendelseslogg"
-          icon={History}
-          active={pathname === '/hendelseslogg'}
-        />
         <NavLink href="/mail" label="E-post" icon={Mail} active={pathname === '/mail'} />
       </div>
     </aside>
@@ -116,6 +116,17 @@ export function MobileSidebar() {
   return (
     <TooltipProvider>
       <div className="flex lg:hidden items-center gap-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/hendelseslogg"
+              className={`p-2 rounded ${pathname === '/hendelseslogg' ? 'bg-muted' : ''}`}
+            >
+              <History className="h-5 w-5" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Hendelser</TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
@@ -184,6 +195,12 @@ export function SidebarSheetContent() {
   const isActive = (p: string) => pathname === p
   return (
     <div className="p-3">
+      <NavLink
+        href="/hendelseslogg"
+        label="Hendelseslogg"
+        icon={History}
+        active={pathname === '/hendelseslogg'}
+      />
       <NavLink href="/customers" label="Kundeliste" icon={List} active={isActive('/customers')} />
       <NavLink
         href="/leads/active"
@@ -228,12 +245,6 @@ export function SidebarSheetContent() {
         />
       </div>
       <Separator className="my-2" />
-      <NavLink
-        href="/hendelseslogg"
-        label="Hendelseslogg"
-        icon={History}
-        active={pathname === '/hendelseslogg'}
-      />
       <NavLink href="/mail" label="E-post" icon={Mail} active={pathname === '/mail'} />
     </div>
   )
