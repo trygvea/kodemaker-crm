@@ -57,7 +57,7 @@ export default function CompanyDetailPage() {
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs
-        items={[{ label: 'Kundeliste', href: '/customers' }, { label: company.name }]}
+        items={[{ label: 'Kunder', href: '/customers' }, { label: company.name }]}
       />
       <div className="flex items-center justify-between">
         <div>

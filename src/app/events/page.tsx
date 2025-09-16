@@ -90,7 +90,7 @@ export default function EventsPage() {
 
   return (
     <div className="p-6 space-y-4">
-      <PageBreadcrumbs items={[{ label: 'Hendelseslogg' }]} />
+      <h1 className="text-2xl font-semibold">Hendelseslogg</h1>
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 text-sm">
           <input

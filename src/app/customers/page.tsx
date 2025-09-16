@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import useSWR from 'swr'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -55,9 +55,15 @@ export default function CustomersPage() {
 
   return (
     <div className="p-6 space-y-4">
-      <PageBreadcrumbs items={[{ label: 'Kundeliste' }]} />
+      <h1 className="text-2xl font-semibold">Kunder</h1>
       <div className="flex gap-2 items-center justify-between">
-        <Input autoFocus className="max-w-sm" placeholder="Søk i kunder" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input
+          autoFocus
+          className="max-w-sm"
+          placeholder="Søk i kunder"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
       <div className="divide-y border rounded">
         {filtered.map((c) => (
@@ -68,11 +74,15 @@ export default function CustomersPage() {
             role="button"
           >
             <div>
-              <div className="font-medium">
-                {c.name}
-              </div>
+              <div className="font-medium">{c.name}</div>
               {c.websiteUrl ? (
-                <a className="block text-sm text-muted-foreground" href={c.websiteUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+                <a
+                  className="block text-sm text-muted-foreground"
+                  href={c.websiteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {c.websiteUrl}
                 </a>
               ) : null}
@@ -80,10 +90,18 @@ export default function CustomersPage() {
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               {c.leadCounts ? (
                 <div className="flex items-center gap-1 mr-2">
-                  <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">Ny {c.leadCounts.NEW}</span>
-                  <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">Under arbeid {c.leadCounts.IN_PROGRESS}</span>
-                  <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">Tapt {c.leadCounts.LOST}</span>
-                  <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">Vunnet {c.leadCounts.WON}</span>
+                  <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">
+                    Ny {c.leadCounts.NEW}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">
+                    Under arbeid {c.leadCounts.IN_PROGRESS}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">
+                    Tapt {c.leadCounts.LOST}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">
+                    Vunnet {c.leadCounts.WON}
+                  </span>
                 </div>
               ) : null}
               <NewContactDialog companyId={c.id} companyName={c.name} />
@@ -95,5 +113,3 @@ export default function CustomersPage() {
     </div>
   )
 }
-
-

@@ -78,7 +78,7 @@ export default function LeadDetailPage() {
 
   if (!data) return <div className="p-6">Laster...</div>
   const crumbs = [
-    { label: 'Kundeliste', href: '/customers' },
+    { label: 'Kunder', href: '/customers' },
     ...(data.company ? [{ label: data.company.name, href: `/customers/${data.company.id}` }] : []),
     ...(data.contact
       ? [
