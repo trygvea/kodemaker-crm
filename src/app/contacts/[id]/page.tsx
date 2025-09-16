@@ -3,6 +3,7 @@ import useSWR from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
 type Contact = {
   id: number
@@ -161,7 +162,15 @@ export default function ContactDetailPage() {
       </section>
 
       <section>
-        <h2 className="text-lg font-medium mb-2">Leads</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-medium">Leads</h2>
+          <NewLeadDialog
+            companyId={currentCompany?.id}
+            companyName={currentCompany?.name}
+            contactId={contact.id}
+            contactName={`${contact.firstName} ${contact.lastName}`}
+          />
+        </div>
         <div className="border rounded divide-y">
           {leads.length ? (
             leads.map((l) => (

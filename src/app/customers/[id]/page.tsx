@@ -198,6 +198,7 @@ export default function CompanyDetailPage() {
       <section>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-medium">Leads</h2>
+          <NewLeadDialog companyId={company.id} companyName={company.name}/>
         </div>
         <div className="flex items-center gap-1 mb-2">
           <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">
