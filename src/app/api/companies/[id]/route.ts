@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, contactCompanyHistory, leads } from '@/db/schema'
+import { companies, contacts, contactCompanyHistory, leads, comments } from '@/db/schema'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -31,5 +31,16 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     .where(eq(leads.companyId, id))
     .orderBy(desc(leads.createdAt))
 
-  return NextResponse.json({ company, contacts: companyContacts, leads: companyLeads })
+  const companyComments = await db
+    .select()
+    .from(comments)
+    .where(eq(comments.companyId, id))
+    .orderBy(desc(comments.createdAt))
+
+  return NextResponse.json({
+    company,
+    contacts: companyContacts,
+    comments: companyComments,
+    leads: companyLeads,
+  })
 }
