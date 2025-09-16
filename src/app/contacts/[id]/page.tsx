@@ -1,12 +1,11 @@
 'use client'
-useSWR
 import useSWR from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
-import type { GetContactDetailResponse, ApiContact, ApiCompanyBrief } from '@/types/api'
+import type { GetContactDetailResponse } from '@/types/api'
 
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()

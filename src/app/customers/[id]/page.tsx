@@ -7,7 +7,7 @@ import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
-import type { GetCompanyDetailResponse, ApiCompany } from '@/types/api'
+import type { GetCompanyDetailResponse } from '@/types/api'
 
 export default function CompanyDetailPage() {
   const params = useParams<{ id: string }>()

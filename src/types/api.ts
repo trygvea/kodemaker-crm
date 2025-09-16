@@ -8,7 +8,7 @@ export type ApiContact = {
   linkedInUrl?: string | null
 }
 
-export type ApiCompanyBrief = {
+type ApiCompanyBrief = {
   id: number
   name: string
   startDate?: string | null
