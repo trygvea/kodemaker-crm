@@ -1,29 +1,58 @@
-"use client"
+'use client'
 import useSWR, { useSWRConfig } from 'swr'
+import { useState } from 'react'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
-const schema = z.object({ description: z.string().min(1), status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON']) })
+const schema = z.object({
+  description: z.string().min(1),
+  status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON']),
+})
 
 export default function LeadDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
-  const { data } = useSWR<{ id: number; description: string; status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'; createdAt: string; updatedAt: string; company?: { id: number; name: string } | null; contact?: { id: number; firstName: string; lastName: string } | null }>(id ? `/api/leads/${id}` : null)
+  const { data } = useSWR<{
+    id: number
+    description: string
+    status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
+    createdAt: string
+    updatedAt: string
+    company?: { id: number; name: string } | null
+    contact?: { id: number; firstName: string; lastName: string } | null
+    comments: Array<{ id: number; content: string; createdAt: string }>
+  }>(id ? `/api/leads/${id}` : null)
   const { mutate } = useSWRConfig()
   const router = useRouter()
+  const [newComment, setNewComment] = useState('')
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    values: data ? { description: data.description, status: data.status } : { description: '', status: 'NEW' },
+    values: data
+      ? { description: data.description, status: data.status }
+      : { description: '', status: 'NEW' },
   })
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -31,15 +60,34 @@ export default function LeadDetailPage() {
     if (!res.ok) return toast.error('Kunne ikke oppdatere lead')
     toast.success('Lead oppdatert')
     await mutate(`/api/leads/${id}`)
-    const target = data?.contact ? `/contacts/${data.contact.id}` : (data?.company ? `/customers/${data.company.id}` : '/customers')
+    const target = data?.contact
+      ? `/contacts/${data.contact.id}`
+      : data?.company
+        ? `/customers/${data.company.id}`
+        : '/customers'
     router.push(target)
+  }
+
+  async function saveComment() {
+    const body = { content: newComment, leadId: id }
+    const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
+    if (!res.ok) return toast.error('Kunne ikke lagre kommentar')
+    setNewComment('')
+    await mutate(`/api/leads/${id}`)
   }
 
   if (!data) return <div className="p-6">Laster...</div>
   const crumbs = [
     { label: 'Kundeliste', href: '/customers' },
     ...(data.company ? [{ label: data.company.name, href: `/customers/${data.company.id}` }] : []),
-    ...(data.contact ? [{ label: `${data.contact.firstName} ${data.contact.lastName}`, href: `/contacts/${data.contact.id}` }] : []),
+    ...(data.contact
+      ? [
+          {
+            label: `${data.contact.firstName} ${data.contact.lastName}`,
+            href: `/contacts/${data.contact.id}`,
+          },
+        ]
+      : []),
     { label: 'Lead' },
   ]
   return (
@@ -50,12 +98,18 @@ export default function LeadDetailPage() {
         <div className="text-sm text-muted-foreground space-y-1">
           {data.contact ? (
             <div>
-              Kontakt: <a href={`/contacts/${data.contact.id}`} className="underline">{data.contact.firstName} {data.contact.lastName}</a>
+              Kontakt:{' '}
+              <a href={`/contacts/${data.contact.id}`} className="underline">
+                {data.contact.firstName} {data.contact.lastName}
+              </a>
             </div>
           ) : null}
           {data.company ? (
             <div>
-              Kunde: <a href={`/customers/${data.company.id}`} className="underline">{data.company.name}</a>
+              Kunde:{' '}
+              <a href={`/customers/${data.company.id}`} className="underline">
+                {data.company.name}
+              </a>
             </div>
           ) : null}
           <div>Opprettet: {new Date(data.createdAt).toLocaleString()}</div>
@@ -66,32 +120,73 @@ export default function LeadDetailPage() {
       <section>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3 max-w-2xl">
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Beskrivelse</FormLabel>
-                <FormControl>
-                  <Textarea rows={10} className="resize-y" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="status" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger><SelectValue placeholder="Velg status" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="NEW">Ny</SelectItem>
-                    <SelectItem value="IN_PROGRESS">Under arbeid</SelectItem>
-                    <SelectItem value="LOST">Tapt</SelectItem>
-                    <SelectItem value="WON">Vunnet</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Beskrivelse</FormLabel>
+                  <FormControl>
+                    <Textarea rows={10} className="resize-y" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Velg status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NEW">Ny</SelectItem>
+                      <SelectItem value="IN_PROGRESS">Under arbeid</SelectItem>
+                      <SelectItem value="LOST">Tapt</SelectItem>
+                      <SelectItem value="WON">Vunnet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="col-span-2 flex justify-end">
               <Button type="submit">Lagre</Button>
+            </div>
+            <div className="col-span-2">
+              <h3 className="text-sm font-medium mb-1">Kommentarer</h3>
+              <div className="space-y-2">
+                <Textarea
+                  rows={3}
+                  className="resize-y"
+                  placeholder="Skriv en kommentar…"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <div className="flex justify-end">
+                  <Button type="button" disabled={!newComment.trim()} onClick={saveComment}>
+                    Lagre kommentar
+                  </Button>
+                </div>
+              </div>
+              <div className="border rounded divide-y mt-3">
+                {data.comments?.length ? (
+                  data.comments.map((c) => (
+                    <div key={c.id} className="p-3">
+                      <div className="text-xs text-muted-foreground mb-1">
+                        {new Date(c.createdAt).toLocaleString()}
+                      </div>
+                      <div className="whitespace-pre-wrap text-sm">{c.content}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+                )}
+              </div>
             </div>
           </form>
         </Form>
@@ -99,5 +194,3 @@ export default function LeadDetailPage() {
     </div>
   )
 }
-
-

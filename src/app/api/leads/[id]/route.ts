@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, leads } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { companies, contacts, leads, comments } from '@/db/schema'
+import { desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { createEvent } from '@/db/events'
 
@@ -35,7 +35,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const row = rows[0]
   if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  return NextResponse.json(row)
+
+  const leadComments = await db
+    .select()
+    .from(comments)
+    .where(eq(comments.leadId, id))
+    .orderBy(desc(comments.createdAt))
+
+  return NextResponse.json({ ...row, comments: leadComments })
 }
 
 const updateLeadSchema = z.object({
