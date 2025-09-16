@@ -1,7 +1,7 @@
 'use client'
 import useSWR from 'swr'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
@@ -51,7 +51,7 @@ export default function EditContactPage() {
   const [linkedInUrl, setLinkedInUrl] = useState(contact?.linkedInUrl || '')
 
   // Re-sync local state when data loads
-  useMemo(() => {
+  useEffect(() => {
     if (!contact) return
     setFirstName(contact.firstName || '')
     setLastName(contact.lastName || '')

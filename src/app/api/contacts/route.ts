@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { contacts, contactCompanyHistory, companies } from '@/db/schema'
 import { z } from 'zod'
-import { ilike, desc, or, asc, eq, isNull, and } from 'drizzle-orm'
+import { ilike, or, asc, eq, isNull, and } from 'drizzle-orm'
 import { createEvent } from '@/db/events'
 
 const createContactSchema = z.object({
