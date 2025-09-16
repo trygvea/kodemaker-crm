@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q')?.trim()
   if (q && q.length >= 1) {
-    const data = await db
+    const rows = await db
       .select({
         id: contacts.id,
         firstName: contacts.firstName,
@@ -45,9 +45,15 @@ export async function GET(req: NextRequest) {
       )
       .orderBy(asc(contacts.lastName), asc(contacts.firstName))
       .limit(200)
+    const seen = new Set<number>()
+    const data = rows.filter((r) => {
+      if (seen.has(r.id)) return false
+      seen.add(r.id)
+      return true
+    })
     return NextResponse.json(data)
   }
-  const data = await db
+  const rows = await db
     .select({
       id: contacts.id,
       firstName: contacts.firstName,
@@ -66,6 +72,12 @@ export async function GET(req: NextRequest) {
     .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
     .orderBy(asc(contacts.lastName), asc(contacts.firstName))
     .limit(100)
+  const seen = new Set<number>()
+  const data = rows.filter((r) => {
+    if (seen.has(r.id)) return false
+    seen.add(r.id)
+    return true
+  })
   return NextResponse.json(data)
 }
 

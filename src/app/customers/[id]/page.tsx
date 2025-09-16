@@ -88,6 +88,12 @@ export default function CompanyDetailPage() {
             {company.contactEmail ? <div>{company.contactEmail}</div> : null}
           </div>
         </div>
+        <a
+          href={`/customers/${company.id}/edit`}
+          className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
+        >
+          Endre
+        </a>
       </div>
 
       <section>
@@ -198,7 +204,7 @@ export default function CompanyDetailPage() {
       <section>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-medium">Leads</h2>
-          <NewLeadDialog companyId={company.id} companyName={company.name}/>
+          <NewLeadDialog companyId={company.id} companyName={company.name} />
         </div>
         <div className="flex items-center gap-1 mb-2">
           <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">
