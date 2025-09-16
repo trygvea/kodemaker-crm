@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
   await createEvent(
     'contact',
     contactId!,
-    'Ny e-post (${type}) to ${contact.firstName} ${contact.lastName}: ${parsedMail.subject}'
+    `Ny e-post (${type}) to ${contact.firstName} ${contact.lastName}: ${parsedMail.subject}`
   )
 
   logger.info(
