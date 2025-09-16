@@ -7,10 +7,7 @@ const config: Config = {
     '^.+\\.(ts|tsx)$': [
       'ts-jest',
       {
-        tsconfig: {
-          jsx: 'react-jsx',
-          module: 'commonjs',
-        },
+        tsconfig: '<rootDir>/tsconfig.jest.json',
       },
     ],
   },
@@ -21,5 +18,3 @@ const config: Config = {
 }
 
 export default config
-
-

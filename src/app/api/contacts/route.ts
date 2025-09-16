@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { contacts, contactCompanyHistory, companies } from '@/db/schema'
+import { contacts, contactCompanyHistory } from '@/db/schema'
 import { z } from 'zod'
-import { ilike, or, asc, eq, isNull, and } from 'drizzle-orm'
 import { createEvent } from '@/db/events'
+import { listContacts } from '@/db/contacts'
 
 const createContactSchema = z.object({
   firstName: z.string().min(1),
@@ -17,67 +17,8 @@ const createContactSchema = z.object({
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const q = searchParams.get('q')?.trim()
-  if (q && q.length >= 1) {
-    const rows = await db
-      .select({
-        id: contacts.id,
-        firstName: contacts.firstName,
-        lastName: contacts.lastName,
-        email: contacts.email,
-        company: {
-          id: companies.id,
-          name: companies.name,
-        },
-      })
-      .from(contacts)
-      .leftJoin(
-        contactCompanyHistory,
-        and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
-      )
-      .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
-      .where(
-        or(
-          ilike(contacts.firstName, `%${q}%`),
-          ilike(contacts.lastName, `%${q}%`),
-          ilike(companies.name, `%${q}%`)
-        )
-      )
-      .orderBy(asc(contacts.lastName), asc(contacts.firstName))
-      .limit(200)
-    const seen = new Set<number>()
-    const data = rows.filter((r) => {
-      if (seen.has(r.id)) return false
-      seen.add(r.id)
-      return true
-    })
-    return NextResponse.json(data)
-  }
-  const rows = await db
-    .select({
-      id: contacts.id,
-      firstName: contacts.firstName,
-      lastName: contacts.lastName,
-      email: contacts.email,
-      company: {
-        id: companies.id,
-        name: companies.name,
-      },
-    })
-    .from(contacts)
-    .leftJoin(
-      contactCompanyHistory,
-      and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
-    )
-    .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
-    .orderBy(asc(contacts.lastName), asc(contacts.firstName))
-    .limit(100)
-  const seen = new Set<number>()
-  const data = rows.filter((r) => {
-    if (seen.has(r.id)) return false
-    seen.add(r.id)
-    return true
-  })
+  const q = searchParams.get('q')?.trim() || null
+  const data = await listContacts(q)
   return NextResponse.json(data)
 }
 

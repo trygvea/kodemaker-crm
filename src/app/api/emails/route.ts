@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import { postmarkInboundSchema, parsePostmarkInboundEmail } from './parse-mail'
 
-import { capitalizeNamePart, deriveNamesFromEmailLocalPart } from './name-utils'
+import { deriveNamesFromEmailLocalPart } from './name-utils'
 
 export async function POST(req: NextRequest) {
   logger.info({ route: '/api/emails', method: 'POST' }, 'api call')
