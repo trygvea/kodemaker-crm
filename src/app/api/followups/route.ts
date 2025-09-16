@@ -9,7 +9,8 @@ import { createEvent } from '@/db/events'
 
 const createFollowupSchema = z.object({
   note: z.string().min(1),
-  dueAt: z.string().datetime(),
+  // Accept HTML datetime-local (e.g. 2025-09-16T13:45) and coerce to Date
+  dueAt: z.coerce.date(),
   companyId: z.number().int().optional(),
   contactId: z.number().int().optional(),
   leadId: z.number().int().optional(),
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
     .insert(followups)
     .values({
       note: parsed.data.note,
-      dueAt: new Date(parsed.data.dueAt),
+      dueAt: parsed.data.dueAt,
       companyId: parsed.data.companyId,
       contactId: parsed.data.contactId,
       leadId: parsed.data.leadId,

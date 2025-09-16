@@ -24,6 +24,12 @@ export default function ContactDetailPage() {
     currentCompany: CompanyBrief | null
     previousCompanies: CompanyBrief[]
     comments: Array<{ id: number; content: string; createdAt: string }>
+    followups: Array<{
+      id: number
+      note: string
+      dueAt: string
+      createdBy?: { firstName?: string | null; lastName?: string | null } | null
+    }>
     leads: Array<{
       id: number
       description: string
@@ -32,14 +38,45 @@ export default function ContactDetailPage() {
     emails: Array<{ id: number; subject?: string | null; content: string; createdAt: string }>
   }>(id ? `/api/contacts/${id}` : null)
   const [newComment, setNewComment] = useState('')
+  const [newFollowupNote, setNewFollowupNote] = useState('')
+  const [newFollowupDue, setNewFollowupDue] = useState(() => {
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+    const d = new Date()
+    d.setDate(d.getDate() + 7)
+    d.setHours(9, 0, 0, 0)
+    const y = d.getFullYear()
+    const m = pad(d.getMonth() + 1)
+    const day = pad(d.getDate())
+    const hh = pad(d.getHours())
+    const mm = pad(d.getMinutes())
+    return `${y}-${m}-${day}T${hh}:${mm}`
+  })
 
   if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, comments, leads, emails } = data
+  const { contact, currentCompany, previousCompanies, comments, followups, leads, emails } = data
   async function saveComment() {
     const body = { content: newComment, contactId: contact.id }
     const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
     if (res.ok) {
       setNewComment('')
+      mutate()
+    }
+  }
+  async function saveFollowup() {
+    const body = { note: newFollowupNote, dueAt: newFollowupDue, contactId: contact.id }
+    const res = await fetch('/api/followups', { method: 'POST', body: JSON.stringify(body) })
+    if (res.ok) {
+      setNewFollowupNote('')
+      const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+      const d = new Date()
+      d.setDate(d.getDate() + 7)
+      d.setHours(9, 0, 0, 0)
+      const y = d.getFullYear()
+      const m = pad(d.getMonth() + 1)
+      const day = pad(d.getDate())
+      const hh = pad(d.getHours())
+      const mm = pad(d.getMinutes())
+      setNewFollowupDue(`${y}-${m}-${day}T${hh}:${mm}`)
       mutate()
     }
   }
@@ -51,6 +88,26 @@ export default function ContactDetailPage() {
       : []),
     { label: `${contact.firstName} ${contact.lastName}` },
   ]
+
+  function dueBgStyle(dueAt: string): React.CSSProperties {
+    const now = Date.now()
+    const due = new Date(dueAt).getTime()
+    const dayMs = 24 * 60 * 60 * 1000
+    const diffDays = (due - now) / dayMs
+    // Future beyond 2 days: no highlight
+    if (diffDays >= 2) return {}
+    // Within next 0-2 days: amber tint, continuous
+    if (diffDays >= 0) {
+      const t = 1 - Math.min(2, Math.max(0, diffDays)) / 2 // 0..1
+      const lightness = 95 - 10 * t // 95% -> 85%
+      return { backgroundColor: `hsl(45 95% ${lightness}%)` }
+    }
+    // Overdue: red tint, continuous up to 14 days past due
+    const overdue = Math.min(14, -diffDays)
+    const t = overdue / 14 // 0..1
+    const lightness = 96 - 26 * t // 96% -> 70%
+    return { backgroundColor: `hsl(0 92% ${lightness}%)` }
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -153,6 +210,68 @@ export default function ContactDetailPage() {
                   {new Date(c.createdAt).toLocaleString()}
                 </div>
                 <div className="whitespace-pre-wrap text-sm">{c.content}</div>
+              </div>
+            ))
+          ) : (
+            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-medium mb-2">Oppfølgninger</h2>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <textarea
+              rows={3}
+              className="w-full border rounded p-2 text-sm resize-y"
+              placeholder="Notat…"
+              value={newFollowupNote}
+              onChange={(e) => setNewFollowupNote(e.target.value)}
+            />
+          </div>
+          <div className="w-48">
+            <label className="block text-xs text-muted-foreground mb-1">Frist</label>
+            <input
+              type="datetime-local"
+              className="w-full border rounded p-2 text-sm"
+              value={newFollowupDue}
+              onChange={(e) => setNewFollowupDue(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="flex justify-end mt-2">
+          <button
+            className="inline-flex items-center rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm disabled:opacity-50"
+            disabled={!newFollowupNote.trim() || !newFollowupDue}
+            onClick={saveFollowup}
+          >
+            Lagre oppfølgning
+          </button>
+        </div>
+        <div className="border rounded divide-y mt-3">
+          {followups.length ? (
+            followups.map((f) => (
+              <div key={f.id} className="p-3">
+                <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
+                  <div className="px-1 rounded" style={dueBgStyle(f.dueAt)}>
+                    Frist: {new Date(f.dueAt).toLocaleString()}{' '}
+                    {f.createdBy
+                      ? `· Av: ${f.createdBy.firstName ?? ''} ${f.createdBy.lastName ?? ''}`
+                      : ''}
+                  </div>
+                  <button
+                    className="inline-flex items-center rounded border px-2 py-0.5 text-xs hover:bg-muted"
+                    onClick={async (e) => {
+                      e.preventDefault()
+                      await fetch(`/api/followups/${f.id}`, { method: 'PATCH' })
+                      mutate()
+                    }}
+                  >
+                    Utført
+                  </button>
+                </div>
+                <div className="whitespace-pre-wrap text-sm">{f.note}</div>
               </div>
             ))
           ) : (

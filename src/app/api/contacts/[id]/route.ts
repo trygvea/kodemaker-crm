@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contactCompanyHistory, contacts, leads, emails, comments } from '@/db/schema'
-import { and, desc, eq, isNull, isNotNull } from 'drizzle-orm'
+import {
+  companies,
+  contactCompanyHistory,
+  contacts,
+  leads,
+  emails,
+  comments,
+  followups,
+  users,
+} from '@/db/schema'
+import { and, asc, desc, eq, isNull, isNotNull } from 'drizzle-orm'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
@@ -54,10 +63,26 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     .where(eq(comments.contactId, id))
     .orderBy(desc(comments.createdAt))
 
+  const openFollowups = await db
+    .select({
+      id: followups.id,
+      note: followups.note,
+      dueAt: followups.dueAt,
+      createdBy: {
+        firstName: users.firstName,
+        lastName: users.lastName,
+      },
+    })
+    .from(followups)
+    .leftJoin(users, eq(users.id, followups.createdByUserId))
+    .where(and(eq(followups.contactId, id), isNull(followups.completedAt)))
+    .orderBy(asc(followups.dueAt))
+
   return NextResponse.json({
     contact,
     currentCompany: current || null,
     previousCompanies: previous,
+    followups: openFollowups,
     comments: contactComments,
     leads: contactLeads,
     emails: contactEmails,

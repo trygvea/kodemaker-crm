@@ -1,4 +1,12 @@
+Nye
+- ? Hendelseslogg: Bør kanskje ha created by?
+
+
+Refaktorering
+- Lag react komponent av kommentarer og oppfølginger
+
 Siste
+- Edit kunde og kontakt
 v Motta bcc og forward
 - Lag repository for enklere database aksess?
 v Må ha en fiks for kontakter som ikke er assignet til noen kunde.
