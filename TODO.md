@@ -3,7 +3,13 @@ Nye
 
 
 Refaktorering
+- be om å få laget tester for alle komponenter
 - Lag react komponent av kommentarer og oppfølginger
+- Be om å oppdatere README.md
+- Be om å lage AGENTS.md
+- Be om andre refaktoreringer/opprydning av død kode.
+- 
+- 
 
 Siste
 - Edit kunde og kontakt

@@ -113,10 +113,18 @@ export default function ContactDetailPage() {
     <div className="p-6 space-y-6">
       <PageBreadcrumbs items={crumbs} />
       <section>
-        <h1 className="text-2xl font-semibold">
-          {contact.firstName} {contact.lastName}
-        </h1>
-        <div className="text-sm text-muted-foreground space-y-1">
+        <div className="flex items-start justify-between">
+          <h1 className="text-2xl font-semibold">
+            {contact.firstName} {contact.lastName}
+          </h1>
+          <a
+            href={`/contacts/${contact.id}/edit`}
+            className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
+          >
+            Endre
+          </a>
+        </div>
+        <div className="text-sm text-muted-foreground space-y-1 mt-1">
           {contact.email ? <div>{contact.email}</div> : null}
           {contact.phone ? <div>{contact.phone}</div> : null}
           {contact.linkedInUrl ? (
@@ -128,7 +136,9 @@ export default function ContactDetailPage() {
       </section>
 
       <section>
-        <h2 className="text-lg font-medium mb-2">Nåværende kunde</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-medium">Nåværende kunde</h2>
+        </div>
         {currentCompany ? (
           <div
             className="border rounded p-3 hover:bg-muted cursor-pointer"

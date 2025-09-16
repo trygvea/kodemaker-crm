@@ -36,7 +36,19 @@ export default function ContactsSearchPage() {
           <div className="p-3 text-sm text-muted-foreground">Ingen treff</div>
         ) : null}
         {rows.map((r) => (
-          <a key={r.id} href={`/contacts/${r.id}`} className="block p-3 hover:bg-muted">
+          <div
+            key={r.id}
+            className="p-3 hover:bg-muted cursor-pointer"
+            role="button"
+            tabIndex={0}
+            onClick={() => (window.location.href = `/contacts/${r.id}`)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                window.location.href = `/contacts/${r.id}`
+              }
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium">
@@ -54,7 +66,7 @@ export default function ContactsSearchPage() {
                 </a>
               ) : null}
             </div>
-          </a>
+          </div>
         ))}
       </div>
     </div>
