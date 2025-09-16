@@ -85,19 +85,33 @@ export default function EditCompanyPage() {
             onChange={(e) => setContactEmail(e.target.value)}
           />
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-between gap-2">
           <button
-            className="px-3 py-1.5 text-sm border rounded"
-            onClick={() => router.push(`/customers/${id}`)}
+            className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+            onClick={async () => {
+              if (!confirm('Slette kunde? Dette kan ikke angres.')) return
+              const res = await fetch(`/api/companies/${id}`, { method: 'DELETE' })
+              if (res.ok) {
+                router.push('/customers')
+              }
+            }}
           >
-            Avbryt
+            Slett
           </button>
-          <button
-            className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground"
-            onClick={save}
-          >
-            Lagre
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1.5 text-sm border rounded"
+              onClick={() => router.push(`/customers/${id}`)}
+            >
+              Avbryt
+            </button>
+            <button
+              className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground"
+              onClick={save}
+            >
+              Lagre
+            </button>
+          </div>
         </div>
       </div>
     </div>

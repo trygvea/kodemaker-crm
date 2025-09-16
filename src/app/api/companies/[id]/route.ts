@@ -39,3 +39,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const [updated] = await db.update(companies).set(values).where(eq(companies.id, id)).returning()
   return NextResponse.json(updated)
 }
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: idStr } = await params
+  const id = Number(idStr)
+  if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+  const [deleted] = await db.delete(companies).where(eq(companies.id, id)).returning()
+  if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  return NextResponse.json({ ok: true })
+}

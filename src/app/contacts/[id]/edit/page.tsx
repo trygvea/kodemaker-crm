@@ -122,19 +122,33 @@ export default function EditContactPage() {
             onChange={(e) => setLinkedInUrl(e.target.value)}
           />
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-between gap-2">
           <button
-            className="px-3 py-1.5 text-sm border rounded"
-            onClick={() => router.push(`/contacts/${id}`)}
+            className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+            onClick={async () => {
+              if (!confirm('Slette kontakt? Dette kan ikke angres.')) return
+              const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' })
+              if (res.ok) {
+                router.push('/contacts')
+              }
+            }}
           >
-            Avbryt
+            Slett
           </button>
-          <button
-            className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground"
-            onClick={save}
-          >
-            Lagre
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1.5 text-sm border rounded"
+              onClick={() => router.push(`/contacts/${id}`)}
+            >
+              Avbryt
+            </button>
+            <button
+              className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground"
+              onClick={save}
+            >
+              Lagre
+            </button>
+          </div>
         </div>
       </div>
 

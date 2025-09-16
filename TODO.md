@@ -5,7 +5,7 @@ Nye
 Refaktorering
 - be om å få laget tester for alle komponenter
 - Lag react komponent av kommentarer og oppfølginger
-- Be om å oppdatere README.md
+- Prettify: Align page headings, add appropriate icons to buttons, etc.
 - Be om å lage AGENTS.md
 - Be om andre refaktoreringer/opprydning av død kode.
 - 
