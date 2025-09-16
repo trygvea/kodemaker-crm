@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { Input } from '@/components/ui/input'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
+import { useRouter } from 'next/navigation'
 
 type Row = {
   id: number
@@ -18,6 +19,7 @@ export default function ContactsSearchPage() {
   const url = query.length >= 1 ? `/api/contacts?q=${encodeURIComponent(query)}` : `/api/contacts`
   const { data } = useSWR<Row[]>(url)
   const rows = useMemo(() => data || [], [data])
+  const router = useRouter()
 
   return (
     <div className="p-6 space-y-4">
@@ -41,11 +43,11 @@ export default function ContactsSearchPage() {
             className="p-3 hover:bg-muted cursor-pointer"
             role="button"
             tabIndex={0}
-            onClick={() => (window.location.href = `/contacts/${r.id}`)}
+            onClick={() => router.push(`/contacts/${r.id}`)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
-                window.location.href = `/contacts/${r.id}`
+                router.push(`/contacts/${r.id}`)
               }
             }}
           >
