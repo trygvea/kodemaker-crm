@@ -1,8 +1,30 @@
 # About this project
 
-This is a Next.js project bootstrapeed with `create-next-app` and modified to use a postgres database with drizzle.
+This is a Next.js project bootstrapped with `create-next-app` and wired to PostgreSQL via Drizzle ORM.
 
 It was created with Cursor in Agent mode with the gpt-5-high-fast model, and bootstrapped with the LLM prompt given later in this document. After that, there has been a lot of vibe coding, but also some manual coding.
+
+## Features
+
+- Hendelseslogg (Events) with live updates via Server‑Sent Events (SSE)
+  - Page: `/events` (default route from `/`)
+  - Pause/resume toggle; new events animate (10s) on arrival
+  - Backfilled delivery on reconnect using `?since=`
+- Contacts
+  - New search page `/contacts` with incremental search (from first character)
+  - De‑duplicated list (unique contacts even with multiple company histories)
+  - Contact detail page: comments, open followups, leads, emails; “Endre” button to edit
+  - Contact edit page: update fields and manage company affiliations with searchable picker
+- Companies
+  - Company detail page: comments, contacts, leads; “Endre” button to edit
+  - Company edit page: update name, website, email domain, contact email
+- Leads
+  - Active leads show `createdAt`; lists sorted reverse‑chronologically where relevant
+- Emails
+  - Inbound email parsing from Postmark (BCC and forwarded)
+  - Subjects are stored; names derived from email local‑part with proper capitalization
+- Event logging
+  - Inserts into `events` on create/update for contacts, companies, leads, comments, emails, followups
 
 ## Getting Started
 
@@ -19,6 +41,24 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Environment variables
+
+Create a `.env.local` with (examples):
+
+```
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/crm3
+
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=dev-secret-change
+
+# Google OAuth (if enabled)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+
+# Postmark inbound webhook (optional signature verification)
+POSTMARK_WEBHOOK_SECRET=...
+```
 
 ### Database migrations
 
@@ -39,6 +79,28 @@ npm run db:migrate
 
 On Scalingo, checked in migrations will be run automatically when the app is deployed.
 
+Note: If you add/alter enums, ensure migrations do not recreate an existing enum (common Postgres gotcha).
+
+### Real‑time Events (SSE)
+
+- Server endpoint: `GET /api/events/stream` (dynamic; uses Postgres LISTEN/NOTIFY)
+- Initial list: `GET /api/events` (returns latest 200)
+- Client: `src/app/events/page.tsx` subscribes after initial SWR load to avoid animating initial items.
+
+### API overview (selected)
+
+- `GET /api/events` — latest events
+- `GET /api/events/stream?since=<id>` — live stream via SSE
+- `POST /api/comments` — add comment (company/contact/lead)
+- `POST /api/followups` — add followup (uses `z.coerce.date()` for `datetime-local`)
+- `PATCH /api/followups/:id` — mark completed
+- `GET /api/contacts` — list/search (top 100 or top 200 on search; unique by contact)
+- `GET /api/contacts/:id` — contact details (sorted lists)
+- `PATCH /api/contacts/:id` — update contact
+- `GET /api/companies/:id` — company details
+- `PATCH /api/companies/:id` — update company
+- `POST /api/emails` — inbound email (Postmark) parsing and persistence
+
 ## Deployment
 
 The app is deployed to Scalingo, and the database is deployed to Scalingo Postgres.
@@ -57,6 +119,8 @@ There are many ways to send emails to the crm app.
 - After receiving an email from a contact, we (later) FORWARD the email to the app. (supported)
 - After sending an email to a contact, we (later) FORWARD the email to the app. (NOT YET SUPPORTED)
 
+Subjects are stored. When creating a contact from an email address, the local‑part is used to derive first/last name (handles dots, hyphens, plus‑tags) and capitalization.
+
 ### Manual db migration
 
 Scalingo is set up to automatically run generated migrations when the app is deployed. If you want to manually migrate the database, you can do so by running the following command:
@@ -66,6 +130,21 @@ Scalingo is set up to automatically run generated migrations when the app is dep
     scalingo -a kodemaker-crm env-set DATABASE_URL="$URL"
     scalingo -a kodemaker-crm run 'npx -y drizzle-kit migrate'
 ```
+
+## Testing
+
+Jest + Testing Library are configured.
+
+```
+npm test
+```
+
+Highlights:
+
+- Unit tests for email parsing and name derivation
+- API tests for contacts de‑dup and company updates
+- Events test for Postgres NOTIFY path
+- UI tests for `/events` highlight lifecycle and `/contacts` navigation
 
 # LLM use
 
