@@ -5,19 +5,13 @@ import { Input } from '@/components/ui/input'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useRouter } from 'next/navigation'
 
-type Row = {
-  id: number
-  firstName: string
-  lastName: string
-  email?: string | null
-  company?: { id: number; name: string } | null
-}
+import type { ListContactsItem } from '@/types/api'
 
 export default function ContactsSearchPage() {
   const [q, setQ] = useState('')
   const query = q.trim()
   const url = query.length >= 1 ? `/api/contacts?q=${encodeURIComponent(query)}` : `/api/contacts`
-  const { data } = useSWR<Row[]>(url)
+  const { data } = useSWR<ListContactsItem[]>(url)
   const rows = useMemo(() => data || [], [data])
   const router = useRouter()
 

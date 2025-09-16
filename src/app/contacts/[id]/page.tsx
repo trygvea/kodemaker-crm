@@ -1,42 +1,18 @@
 'use client'
+useSWR
 import useSWR from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
-type Contact = {
-  id: number
-  firstName: string
-  lastName: string
-  email?: string | null
-  phone?: string | null
-  linkedInUrl?: string | null
-}
-type CompanyBrief = { id: number; name: string; startDate?: string | null; endDate?: string | null }
+import type { GetContactDetailResponse, ApiContact, ApiCompanyBrief } from '@/types/api'
 
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
   const router = useRouter()
-  const { data, mutate } = useSWR<{
-    contact: Contact
-    currentCompany: CompanyBrief | null
-    previousCompanies: CompanyBrief[]
-    comments: Array<{ id: number; content: string; createdAt: string }>
-    followups: Array<{
-      id: number
-      note: string
-      dueAt: string
-      createdBy?: { firstName?: string | null; lastName?: string | null } | null
-    }>
-    leads: Array<{
-      id: number
-      description: string
-      status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
-    }>
-    emails: Array<{ id: number; subject?: string | null; content: string; createdAt: string }>
-  }>(id ? `/api/contacts/${id}` : null)
+  const { data, mutate } = useSWR<GetContactDetailResponse>(id ? `/api/contacts/${id}` : null)
   const [newComment, setNewComment] = useState('')
   const [newFollowupNote, setNewFollowupNote] = useState('')
   const [newFollowupDue, setNewFollowupDue] = useState(() => {

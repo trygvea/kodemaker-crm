@@ -7,29 +7,13 @@ import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
-type Company = {
-  id: number
-  name: string
-  websiteUrl?: string | null
-  emailDomain?: string | null
-  contactEmail?: string | null
-}
+import type { GetCompanyDetailResponse, ApiCompany } from '@/types/api'
 
 export default function CompanyDetailPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
   const router = useRouter()
-  const { data, mutate } = useSWR<{
-    company: Company
-    contacts: Array<{ id: number; firstName: string; lastName: string; email?: string | null }>
-    comments: Array<{ id: number; content: string; createdAt: string }>
-    leads: Array<{
-      id: number
-      status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
-      description: string
-      contactId?: number | null
-    }>
-  }>(id ? `/api/companies/${id}` : null)
+  const { data, mutate } = useSWR<GetCompanyDetailResponse>(id ? `/api/companies/${id}` : null)
 
   // Ensure hooks run consistently on every render
   const leadsList = useMemo(() => data?.leads ?? [], [data])
