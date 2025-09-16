@@ -1,16 +1,36 @@
-"use client"
+'use client'
 import useSWR, { useSWRConfig } from 'swr'
 import { useEffect, useState, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
+import { Save } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 
 type Company = {
   id: number
@@ -18,7 +38,15 @@ type Company = {
   emailDomain?: string | null
 }
 
-export function NewContactDialog({ companyId, companyName, trigger }: { companyId?: number; companyName?: string; trigger?: ReactNode }) {
+export function NewContactDialog({
+  companyId,
+  companyName,
+  trigger,
+}: {
+  companyId?: number
+  companyName?: string
+  trigger?: ReactNode
+}) {
   const schema = z
     .object({
       firstName: z.string().min(1),
@@ -35,12 +63,26 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
     })
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { firstName: '', lastName: '', email: '', phone: '', linkedInUrl: '', companyId, startDate: new Date().toISOString().slice(0, 10) },
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      linkedInUrl: '',
+      companyId,
+      startDate: new Date().toISOString().slice(0, 10),
+    },
   })
   const [open, setOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
-  const [selectedCompany, setSelectedCompany] = useState<{ id: number; name: string; emailDomain?: string | null } | null>(null)
-  const { data: companyOptions } = useSWR<Company[]>(companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null)
+  const [selectedCompany, setSelectedCompany] = useState<{
+    id: number
+    name: string
+    emailDomain?: string | null
+  } | null>(null)
+  const { data: companyOptions } = useSWR<Company[]>(
+    companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null
+  )
   const { mutate: globalMutate } = useSWRConfig()
   const [emailManuallyEdited, setEmailManuallyEdited] = useState(false)
 
@@ -55,13 +97,17 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
       .toLowerCase()
   }
 
-  function buildEmailSuggestion(firstName: string, lastName: string, domain: string | null | undefined): string | undefined {
+  function buildEmailSuggestion(
+    firstName: string,
+    lastName: string,
+    domain: string | null | undefined
+  ): string | undefined {
     if (!domain) return undefined
     const cleanDomain = domain.replace(/^@/, '')
     const first = normalizeNamePart(firstName || '')
     const last = normalizeNamePart(lastName || '')
     if (!first && !last) return undefined
-    const local = first && last ? `${first}.${last}` : (first || last)
+    const local = first && last ? `${first}.${last}` : first || last
     return `${local}@${cleanDomain}`
   }
 
@@ -79,7 +125,7 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
 
   // Auto-suggest email when company has domain and user hasn't manually edited email
   const domainFromSelection = selectedCompany?.emailDomain
-  
+
   useEffect(() => {
     if (!domainFromSelection || emailManuallyEdited) return
     const suggestion = buildEmailSuggestion(firstNameValue, lastNameValue, domainFromSelection)
@@ -112,20 +158,32 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
-            <FormField control={form.control} name="firstName" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fornavn</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="lastName" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Etternavn</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fornavn</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etternavn</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="companyId"
@@ -173,7 +231,11 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
                               key={c.id}
                               value={c.name}
                               onSelect={() => {
-                                setSelectedCompany({ id: c.id, name: c.name, emailDomain: c.emailDomain })
+                                setSelectedCompany({
+                                  id: c.id,
+                                  name: c.name,
+                                  emailDomain: c.emailDomain,
+                                })
                                 form.setValue('companyId', c.id)
                                 // Allow auto-suggestion to apply for newly selected company
                                 setEmailManuallyEdited(false)
@@ -191,44 +253,68 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
                 </FormItem>
               )}
             />
-            <FormField control={form.control} name="startDate" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ansatt dato</FormLabel>
-                <FormControl><Input type="date" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="email" render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Epost</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    onChange={(e) => {
-                      setEmailManuallyEdited(true)
-                      field.onChange(e)
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="phone" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefon</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="linkedInUrl" render={({ field }) => (
-              <FormItem>
-                <FormLabel>LinkedIn</FormLabel>
-                <FormControl><Input placeholder="https://linkedin.com/in/..." {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ansatt dato</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Epost</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      onChange={(e) => {
+                        setEmailManuallyEdited(true)
+                        field.onChange(e)
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefon</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="linkedInUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://linkedin.com/in/..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="col-span-2 flex justify-end">
-              <Button type="submit">Lagre</Button>
+              <Button type="submit" className="inline-flex items-center gap-1.5">
+                <Save className="h-4 w-4" /> Lagre
+              </Button>
             </div>
           </form>
         </Form>
@@ -236,5 +322,3 @@ export function NewContactDialog({ companyId, companyName, trigger }: { companyI
     </Dialog>
   )
 }
-
-

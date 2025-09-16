@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
+import { Pencil } from 'lucide-react'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
 import type { GetCompanyDetailResponse } from '@/types/api'
@@ -56,9 +57,7 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <PageBreadcrumbs
-        items={[{ label: 'Kunder', href: '/customers' }, { label: company.name }]}
-      />
+      <PageBreadcrumbs items={[{ label: 'Kunder', href: '/customers' }, { label: company.name }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{company.name}</h1>
@@ -76,6 +75,7 @@ export default function CompanyDetailPage() {
           href={`/customers/${company.id}/edit`}
           className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
         >
+          <Pencil className="h-4 w-4 mr-1.5" />
           Endre
         </a>
       </div>

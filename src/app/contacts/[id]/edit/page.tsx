@@ -12,6 +12,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Button } from '@/components/ui/button'
+import { Save, X, Trash2 } from 'lucide-react'
 
 type Contact = {
   id: number
@@ -124,7 +125,7 @@ export default function EditContactPage() {
         </div>
         <div className="flex justify-between gap-2">
           <button
-            className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+            className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1.5"
             onClick={async () => {
               if (!confirm('Slette kontakt? Dette kan ikke angres.')) return
               const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' })
@@ -133,20 +134,20 @@ export default function EditContactPage() {
               }
             }}
           >
-            Slett
+            <Trash2 className="h-4 w-4" /> Slett
           </button>
           <div className="flex gap-2">
             <button
-              className="px-3 py-1.5 text-sm border rounded"
+              className="px-3 py-1.5 text-sm border rounded inline-flex items-center gap-1.5"
               onClick={() => router.push(`/contacts/${id}`)}
             >
-              Avbryt
+              <X className="h-4 w-4" /> Avbryt
             </button>
             <button
-              className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground"
+              className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground inline-flex items-center gap-1.5"
               onClick={save}
             >
-              Lagre
+              <Save className="h-4 w-4" /> Lagre
             </button>
           </div>
         </div>

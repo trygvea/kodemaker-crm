@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
 import type { GetContactDetailResponse } from '@/types/api'
+import { Pencil, MessageSquarePlus, CalendarPlus, Check } from 'lucide-react'
 
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
@@ -96,6 +97,7 @@ export default function ContactDetailPage() {
             href={`/contacts/${contact.id}/edit`}
             className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
           >
+            <Pencil className="h-4 w-4 mr-1.5" />
             Endre
           </a>
         </div>
@@ -183,6 +185,7 @@ export default function ContactDetailPage() {
               disabled={!newComment.trim()}
               onClick={saveComment}
             >
+              <MessageSquarePlus className="h-4 w-4 mr-1.5" />
               Lagre kommentar
             </button>
           </div>
@@ -231,6 +234,7 @@ export default function ContactDetailPage() {
             disabled={!newFollowupNote.trim() || !newFollowupDue}
             onClick={saveFollowup}
           >
+            <CalendarPlus className="h-4 w-4 mr-1.5" />
             Lagre oppfølgning
           </button>
         </div>
@@ -253,7 +257,7 @@ export default function ContactDetailPage() {
                       mutate()
                     }}
                   >
-                    Utført
+                    Merk som utført
                   </button>
                 </div>
                 <div className="whitespace-pre-wrap text-sm">{f.note}</div>

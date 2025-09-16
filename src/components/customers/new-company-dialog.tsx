@@ -1,9 +1,23 @@
-"use client"
+'use client'
 import { useSWRConfig } from 'swr'
 import { ReactNode, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Save } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -17,7 +31,13 @@ const companySchema = z.object({
   contactEmail: z.string().email('Ugyldig epost').optional(),
 })
 
-export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => void; trigger?: ReactNode }) {
+export function NewCompanyDialog({
+  onCreated,
+  trigger,
+}: {
+  onCreated?: () => void
+  trigger?: ReactNode
+}) {
   const { mutate } = useSWRConfig()
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -109,9 +129,7 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        {trigger ?? <Button>Ny kunde</Button>}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger ?? <Button>Ny kunde</Button>}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Ny kunde</DialogTitle>
@@ -192,7 +210,9 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit">Lagre</Button>
+              <Button type="submit" className="inline-flex items-center gap-1.5">
+                <Save className="h-4 w-4" /> Lagre
+              </Button>
             </div>
           </form>
         </Form>
@@ -200,5 +220,3 @@ export function NewCompanyDialog({ onCreated, trigger }: { onCreated?: () => voi
     </Dialog>
   )
 }
-
-

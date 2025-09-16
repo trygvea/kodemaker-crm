@@ -24,6 +24,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
+import { Save, MessageSquarePlus } from 'lucide-react'
 import { toast } from 'sonner'
 
 const schema = z.object({
@@ -155,7 +156,9 @@ export default function LeadDetailPage() {
               )}
             />
             <div className="col-span-2 flex justify-end">
-              <Button type="submit">Lagre</Button>
+              <Button type="submit" className="inline-flex items-center gap-1.5">
+                <Save className="h-4 w-4" /> Lagre
+              </Button>
             </div>
             <div className="col-span-2">
               <h3 className="text-sm font-medium mb-1">Kommentarer</h3>
@@ -168,8 +171,13 @@ export default function LeadDetailPage() {
                   onChange={(e) => setNewComment(e.target.value)}
                 />
                 <div className="flex justify-end">
-                  <Button type="button" disabled={!newComment.trim()} onClick={saveComment}>
-                    Lagre kommentar
+                  <Button
+                    type="button"
+                    disabled={!newComment.trim()}
+                    onClick={saveComment}
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    <MessageSquarePlus className="h-4 w-4" /> Lagre kommentar
                   </Button>
                 </div>
               </div>
