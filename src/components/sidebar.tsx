@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import useSWR from 'swr'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
-import { Building2, Users2, BadgePercent, Mail, List, History } from 'lucide-react'
+import { Building2, Users2, BadgePercent, Mail, List, History, ClipboardList } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NewCompanyDialog } from '@/components/customers/new-company-dialog'
 import { NewContactDialog } from '@/components/customers/new-contact-dialog'
@@ -60,6 +60,12 @@ export function Sidebar() {
           label="Hendelseslogg"
           icon={History}
           active={pathname === '/events'}
+        />
+        <NavLink
+          href="/followups"
+          label="Oppfølgninger"
+          icon={ClipboardList}
+          active={pathname === '/followups'}
         />
         <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
         <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
@@ -127,6 +133,17 @@ export function MobileSidebar() {
             </Link>
           </TooltipTrigger>
           <TooltipContent>Hendelser</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/followups"
+              className={`p-2 rounded ${pathname === '/followups' ? 'bg-muted' : ''}`}
+            >
+              <ClipboardList className="h-5 w-5" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Oppfølgninger</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -204,6 +221,12 @@ export function SidebarSheetContent() {
       />
       <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
       <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
+      <NavLink
+        href="/followups"
+        label="Oppfølgninger"
+        icon={ClipboardList}
+        active={pathname === '/followups'}
+      />
       <NavLink
         href="/leads/active"
         label="Aktive leads"

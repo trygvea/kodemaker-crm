@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { followups } from '@/db/schema'
+import { followups, users } from '@/db/schema'
 import { z } from 'zod'
-import { and, desc, eq, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, isNull } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { createEvent } from '@/db/events'
@@ -16,21 +16,45 @@ const createFollowupSchema = z.object({
   leadId: z.number().int().optional(),
 })
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   const isAdmin = session?.user?.role === 'admin'
   const userId = session?.user?.id ? Number(session.user.id) : undefined
+  const { searchParams } = new URL(req.url)
+  const all = searchParams.get('all') === '1'
+  const contactId = searchParams.get('contactId')
+  const companyId = searchParams.get('companyId')
+  const leadId = searchParams.get('leadId')
+
+  const baseOpen = isNull(followups.completedAt)
+  const scope = contactId
+    ? eq(followups.contactId, Number(contactId))
+    : companyId
+      ? eq(followups.companyId, Number(companyId))
+      : leadId
+        ? eq(followups.leadId, Number(leadId))
+        : undefined
+  const mineOnly = and(eq(followups.createdByUserId, userId!), baseOpen)
+  const where = all
+    ? scope
+      ? and(scope, baseOpen)
+      : baseOpen
+    : scope
+      ? and(scope, mineOnly)
+      : mineOnly
 
   const data = await db
-    .select()
+    .select({
+      id: followups.id,
+      note: followups.note,
+      dueAt: followups.dueAt,
+      createdBy: { firstName: users.firstName, lastName: users.lastName },
+    })
     .from(followups)
-    .where(
-      isAdmin
-        ? undefined
-        : and(eq(followups.createdByUserId, userId!), isNull(followups.completedAt))
-    )
-    .orderBy(desc(followups.dueAt))
-    .limit(100)
+    .leftJoin(users, eq(users.id, followups.createdByUserId))
+    .where(where)
+    .orderBy(asc(followups.dueAt))
+    .limit(200)
 
   return NextResponse.json(data)
 }

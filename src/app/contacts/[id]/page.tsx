@@ -7,6 +7,7 @@ import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
 import type { GetContactDetailResponse } from '@/types/api'
 import { Pencil, MessageSquarePlus, CalendarPlus, Check } from 'lucide-react'
+import { FollowupsList } from '@/components/followups-list'
 
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
@@ -238,35 +239,7 @@ export default function ContactDetailPage() {
             Lagre oppfølgning
           </button>
         </div>
-        <div className="border rounded divide-y mt-3">
-          {followups.length ? (
-            followups.map((f) => (
-              <div key={f.id} className="p-3">
-                <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-                  <div className="px-1 rounded" style={dueBgStyle(f.dueAt)}>
-                    Frist: {new Date(f.dueAt).toLocaleString()}{' '}
-                    {f.createdBy
-                      ? `· Av: ${f.createdBy.firstName ?? ''} ${f.createdBy.lastName ?? ''}`
-                      : ''}
-                  </div>
-                  <button
-                    className="inline-flex items-center rounded border px-2 py-0.5 text-xs hover:bg-muted"
-                    onClick={async (e) => {
-                      e.preventDefault()
-                      await fetch(`/api/followups/${f.id}`, { method: 'PATCH' })
-                      mutate()
-                    }}
-                  >
-                    Merk som utført
-                  </button>
-                </div>
-                <div className="whitespace-pre-wrap text-sm">{f.note}</div>
-              </div>
-            ))
-          ) : (
-            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-          )}
-        </div>
+        <FollowupsList endpoint={`/api/followups?contactId=${contact.id}`} />
       </section>
 
       <section>
