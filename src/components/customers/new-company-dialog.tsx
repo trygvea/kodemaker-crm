@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Description } from '@radix-ui/react-dialog'
 
 const companySchema = z.object({
   name: z.string().min(1, 'Skriv navn'),
@@ -131,6 +132,7 @@ export function NewCompanyDialog({
     <Dialog>
       <DialogTrigger asChild>{trigger ?? <Button>Ny kunde</Button>}</DialogTrigger>
       <DialogContent>
+        <Description>Ny kunde</Description>
         <DialogHeader>
           <DialogTitle>Ny kunde</DialogTitle>
         </DialogHeader>

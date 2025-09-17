@@ -1,5 +1,6 @@
 'use client'
 import useSWR from 'swr'
+import { useRouter } from 'next/navigation'
 
 export default function ActiveLeadsPage() {
   const { data } = useSWR<
@@ -12,6 +13,7 @@ export default function ActiveLeadsPage() {
       contact?: { id: number; firstName: string; lastName: string } | null
     }>
   >('/api/leads?status=NEW,IN_PROGRESS')
+  const router = useRouter()
 
   return (
     <div className="p-6 space-y-4">
@@ -19,20 +21,40 @@ export default function ActiveLeadsPage() {
       <div className="border rounded divide-y">
         {data?.length ? (
           data.map((l) => (
-            <a key={l.id} href={`/leads/${l.id}`} className="block p-3">
+            <div
+              key={l.id}
+              className="p-3 hover:bg-muted cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push(`/leads/${l.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  router.push(`/leads/${l.id}`)
+                }
+              }}
+            >
               <div className="flex items-center justify-between">
                 <div className="text-sm">
                   <div className="font-medium">
                     {l.contact ? (
                       <>
-                        <a href={`/contacts/${l.contact.id}`} className="underline">
+                        <a
+                          href={`/contacts/${l.contact.id}`}
+                          className="underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {l.contact.firstName} {l.contact.lastName}
                         </a>
                         {l.company ? <span> · </span> : null}
                       </>
                     ) : null}
                     {l.company ? (
-                      <a href={`/customers/${l.company.id}`} className="underline">
+                      <a
+                        href={`/customers/${l.company.id}`}
+                        className="underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         {l.company.name}
                       </a>
                     ) : null}
@@ -52,7 +74,7 @@ export default function ActiveLeadsPage() {
                   {l.status === 'NEW' ? 'Ny' : 'Under arbeid'}
                 </span>
               </div>
-            </a>
+            </div>
           ))
         ) : (
           <div className="p-3 text-sm text-muted-foreground">Ingen</div>

@@ -31,6 +31,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Description } from '@radix-ui/react-dialog'
 
 type Company = {
   id: number
@@ -153,6 +154,7 @@ export function NewContactDialog({
         {trigger ?? <Button variant="secondary">Ny kontakt</Button>}
       </DialogTrigger>
       <DialogContent>
+        <Description>Ny kontakt</Description>
         <DialogHeader>
           <DialogTitle>Ny kontakt</DialogTitle>
         </DialogHeader>

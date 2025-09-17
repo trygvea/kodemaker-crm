@@ -31,6 +31,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Description } from '@radix-ui/react-dialog'
 
 type Company = { id: number; name: string }
 type Contact = { id: number; firstName: string; lastName: string }
@@ -138,6 +139,7 @@ export function NewLeadDialog({
         {trigger ?? <Button variant="secondary">Ny lead</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-h-[80vh] overflow-y-auto">
+        <Description>Ny lead</Description>
         <DialogHeader>
           <DialogTitle>Ny lead</DialogTitle>
         </DialogHeader>
