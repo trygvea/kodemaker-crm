@@ -119,10 +119,10 @@ export function NewCompanyDialog({
   async function onSubmit(values: z.infer<typeof companySchema>) {
     const res = await fetch('/api/companies', { method: 'POST', body: JSON.stringify(values) })
     if (!res.ok) {
-      toast.error('Kunne ikke opprette kunde')
+      toast.error('Kunne ikke opprette organisasjon')
       return
     }
-    toast.success('Kunde opprettet')
+    toast.success('Organisasjon opprettet')
     form.reset()
     await mutate('/api/companies')
     onCreated?.()
@@ -130,11 +130,11 @@ export function NewCompanyDialog({
 
   return (
     <Dialog>
-      <DialogTrigger asChild>{trigger ?? <Button>Ny kunde</Button>}</DialogTrigger>
+      <DialogTrigger asChild>{trigger ?? <Button>Ny organisasjon</Button>}</DialogTrigger>
       <DialogContent>
-        <Description>Ny kunde</Description>
+        <Description>Ny organisasjon</Description>
         <DialogHeader>
-          <DialogTitle>Ny kunde</DialogTitle>
+          <DialogTitle>Ny organisasjon</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">

@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         .returning()
       companyId = createdCompany.id
       logger.info({ route: '/api/emails', method: 'POST' }, `Create company ${capitalizedName}`)
-      await createEvent('company', createdCompany.id, `Ny kunde: ${capitalizedName}`)
+      await createEvent('company', createdCompany.id, `Ny organisasjon: ${capitalizedName}`)
     }
     // Now, create contactHistory
     await db

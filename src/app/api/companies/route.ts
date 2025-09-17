@@ -54,6 +54,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
   const [created] = await db.insert(companies).values(parsed.data).returning()
-  await createEvent('company', created.id, `Ny kunde: ${created.name}`)
+  await createEvent('company', created.id, `Ny organisasjon: ${created.name}`)
   return NextResponse.json(created)
 }

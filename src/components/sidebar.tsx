@@ -68,7 +68,12 @@ export function Sidebar() {
           active={pathname === '/followups'}
         />
         <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
-        <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
+        <NavLink
+          href="/customers"
+          label="Organisasjoner"
+          icon={List}
+          active={isActive('/customers')}
+        />
         <NavLink
           href="/leads/active"
           label="Aktive leads"
@@ -80,7 +85,7 @@ export function Sidebar() {
             trigger={
               <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
                 <Building2 className="h-4 w-4" />
-                <span>Ny kunde</span>
+                <span>Ny organisasjon</span>
               </button>
             }
           />
@@ -165,7 +170,7 @@ export function MobileSidebar() {
               <Building2 className="h-5 w-5" />
             </Link>
           </TooltipTrigger>
-          <TooltipContent>Kunder</TooltipContent>
+          <TooltipContent>Organisasjoner</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -219,7 +224,12 @@ export function SidebarSheetContent() {
         icon={History}
         active={pathname === '/events'}
       />
-      <NavLink href="/customers" label="Kunder" icon={List} active={isActive('/customers')} />
+      <NavLink
+        href="/customers"
+        label="Organisasjoner"
+        icon={List}
+        active={isActive('/customers')}
+      />
       <NavLink href="/contacts" label="Kontakter" icon={List} active={pathname === '/contacts'} />
       <NavLink
         href="/followups"
@@ -238,7 +248,7 @@ export function SidebarSheetContent() {
           trigger={
             <button className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted text-foreground/80">
               <Building2 className="h-4 w-4" />
-              <span>Ny kunde</span>
+              <span>Ny organisasjon</span>
             </button>
           }
         />

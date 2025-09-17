@@ -57,7 +57,9 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <PageBreadcrumbs items={[{ label: 'Kunder', href: '/customers' }, { label: company.name }]} />
+      <PageBreadcrumbs
+        items={[{ label: 'Organisasjoner', href: '/customers' }, { label: company.name }]}
+      />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{company.name}</h1>

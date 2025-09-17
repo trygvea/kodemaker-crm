@@ -59,7 +59,7 @@ export default function ContactDetailPage() {
   }
 
   const crumbs = [
-    { label: 'Kunder', href: '/customers' },
+    { label: 'Organisasjoner', href: '/customers' },
     ...(currentCompany
       ? [{ label: currentCompany.name, href: `/customers/${currentCompany.id}` }]
       : []),
@@ -115,7 +115,7 @@ export default function ContactDetailPage() {
 
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-medium">Nåværende kunde</h2>
+          <h2 className="text-lg font-medium">Nåværende organisasjon</h2>
         </div>
         {currentCompany ? (
           <div
@@ -136,12 +136,12 @@ export default function ContactDetailPage() {
             ) : null}
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">Ingen aktiv kunde</div>
+          <div className="text-sm text-muted-foreground">Ingen aktiv organisasjon</div>
         )}
       </section>
 
       <section>
-        <h2 className="text-lg font-medium mb-2">Tidligere kunder</h2>
+        <h2 className="text-lg font-medium mb-2">Tidligere organisasjoner</h2>
         <div className="border rounded divide-y">
           {previousCompanies.length ? (
             previousCompanies.map((co) => (

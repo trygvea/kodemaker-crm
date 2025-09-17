@@ -56,7 +56,7 @@ export function NewLeadDialog({
       contactId: z.number().optional(),
     })
     .refine((d) => !!(d.companyId || d.contactId), {
-      message: 'Velg kunde eller kontakt',
+      message: 'Velg organisasjon eller kontakt',
       path: ['companyId'],
     })
 
@@ -236,7 +236,7 @@ export function NewLeadDialog({
                 name="companyId"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Kunde</FormLabel>
+                    <FormLabel>Organisasjon</FormLabel>
                     <Popover open={cOpen} onOpenChange={setCOpen}>
                       <PopoverTrigger asChild>
                         <Button
@@ -255,14 +255,14 @@ export function NewLeadDialog({
                             }
                           }}
                         >
-                          {selectedCompany?.name || companyName || 'Velg kunde'}
+                          {selectedCompany?.name || companyName || 'Velg organisasjon'}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
                         <Command>
                           <CommandInput
                             autoFocus
-                            placeholder="Søk kunde..."
+                            placeholder="Søk organisasjon..."
                             value={companyQuery}
                             onValueChange={setCompanyQuery}
                             onKeyDown={(e) => {

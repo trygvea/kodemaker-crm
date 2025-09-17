@@ -191,7 +191,7 @@ export function NewContactDialog({
               name="companyId"
               render={() => (
                 <FormItem>
-                  <FormLabel>Kunde</FormLabel>
+                  <FormLabel>Organisasjon</FormLabel>
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -210,14 +210,14 @@ export function NewContactDialog({
                           }
                         }}
                       >
-                        {selectedCompany?.name || 'Velg kunde'}
+                        {selectedCompany?.name || 'Velg organisasjon'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
                       <Command>
                         <CommandInput
                           autoFocus
-                          placeholder="Søk etter kunde..."
+                          placeholder="Søk etter organisasjon..."
                           value={companyQuery}
                           onValueChange={setCompanyQuery}
                           onKeyDown={(e) => {

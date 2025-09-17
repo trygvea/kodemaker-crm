@@ -45,22 +45,22 @@ export default function CustomersPage() {
   async function onSubmit(values: z.infer<typeof companySchema>) {
     const res = await fetch('/api/companies', { method: 'POST', body: JSON.stringify(values) })
     if (!res.ok) {
-      toast.error('Kunne ikke opprette kunde')
+      toast.error('Kunne ikke opprette organisasjon')
       return
     }
-    toast.success('Kunde opprettet')
+    toast.success('Organisasjon opprettet')
     form.reset()
     mutate()
   }
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Kunder</h1>
+      <h1 className="text-2xl font-semibold">Organisasjoner</h1>
       <div className="flex gap-2 items-center justify-between">
         <Input
           autoFocus
           className="max-w-sm"
-          placeholder="Søk i kunder"
+          placeholder="Søk i organisasjoner"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

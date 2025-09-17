@@ -48,7 +48,7 @@ export default function EditCompanyPage() {
     <div className="p-6 space-y-4">
       <PageBreadcrumbs
         items={[
-          { label: 'Kunder', href: '/customers' },
+          { label: 'Organisasjoner', href: '/customers' },
           { label: company.name, href: `/customers/${company.id}` },
           { label: 'Endre' },
         ]}

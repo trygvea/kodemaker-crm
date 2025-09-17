@@ -79,7 +79,7 @@ export default function LeadDetailPage() {
 
   if (!data) return <div className="p-6">Laster...</div>
   const crumbs = [
-    { label: 'Kunder', href: '/customers' },
+    { label: 'Organisasjoner', href: '/customers' },
     ...(data.company ? [{ label: data.company.name, href: `/customers/${data.company.id}` }] : []),
     ...(data.contact
       ? [
@@ -107,7 +107,7 @@ export default function LeadDetailPage() {
           ) : null}
           {data.company ? (
             <div>
-              Kunde:{' '}
+              Organisasjon:{' '}
               <a href={`/customers/${data.company.id}`} className="underline">
                 {data.company.name}
               </a>
