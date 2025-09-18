@@ -7,6 +7,8 @@ export type FollowupItem = {
   note: string
   dueAt: string
   createdBy?: { firstName?: string | null; lastName?: string | null } | null
+  company?: { id: number; name: string } | null
+  contact?: { id: number; firstName: string | null; lastName: string | null } | null
 }
 
 export function useDueBgStyle() {
@@ -51,6 +53,23 @@ export function FollowupsList({
                 {f.createdBy
                   ? `· Av: ${f.createdBy.firstName ?? ''} ${f.createdBy.lastName ?? ''}`
                   : ''}
+                {f.contact || f.company ? (
+                  <span>
+                    {' '}
+                    · På{' '}
+                    {f.contact ? (
+                      <a className="underline" href={`/contacts/${(f.contact as any).id}`}>
+                        {(f.contact.firstName ?? '') + ' ' + (f.contact.lastName ?? '')}
+                      </a>
+                    ) : null}
+                    {f.contact && f.company ? ' / ' : ''}
+                    {f.company ? (
+                      <a className="underline" href={`/customers/${(f.company as any).id}`}>
+                        {f.company.name}
+                      </a>
+                    ) : null}
+                  </span>
+                ) : null}
               </div>
               <button
                 className="inline-flex items-center rounded border px-2 py-0.5 text-xs hover:bg-muted"

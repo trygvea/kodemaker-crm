@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { followups, users } from '@/db/schema'
+import { companies, contacts, followups, leads, users } from '@/db/schema'
 import { z } from 'zod'
-import { and, asc, desc, eq, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { createEventWithContext } from '@/db/events'
@@ -43,18 +43,73 @@ export async function GET(req: NextRequest) {
       ? and(scope, mineOnly)
       : mineOnly
 
-  const data = await db
+  const rows = await db
     .select({
       id: followups.id,
       note: followups.note,
       dueAt: followups.dueAt,
       createdBy: { firstName: users.firstName, lastName: users.lastName },
+      companyId: followups.companyId,
+      contactId: followups.contactId,
+      leadId: followups.leadId,
     })
     .from(followups)
     .leftJoin(users, eq(users.id, followups.createdByUserId))
     .where(where)
     .orderBy(asc(followups.dueAt))
     .limit(200)
+
+  // Resolve missing company/contact via lead references
+  const leadIds = Array.from(new Set(rows.map((r) => r.leadId).filter(Boolean))) as number[]
+  const leadsById: Record<number, { companyId: number | null; contactId: number | null }> = {}
+  if (leadIds.length) {
+    const leadRows = await db
+      .select({ id: leads.id, companyId: leads.companyId, contactId: leads.contactId })
+      .from(leads)
+      .where(inArray(leads.id, leadIds))
+    for (const l of leadRows)
+      leadsById[l.id] = { companyId: l.companyId ?? null, contactId: l.contactId ?? null }
+  }
+
+  const resolvedCompanyIds = new Set<number>()
+  const resolvedContactIds = new Set<number>()
+  const resolved = rows.map((r) => {
+    const viaLead = r.leadId ? leadsById[r.leadId] : undefined
+    const companyId = r.companyId ?? viaLead?.companyId ?? null
+    const contactId = r.contactId ?? viaLead?.contactId ?? null
+    if (companyId) resolvedCompanyIds.add(companyId)
+    if (contactId) resolvedContactIds.add(contactId)
+    return { ...r, companyId, contactId }
+  })
+
+  let companiesById: Record<number, { id: number; name: string }> = {}
+  let contactsById: Record<
+    number,
+    { id: number; firstName: string | null; lastName: string | null }
+  > = {}
+  if (resolvedCompanyIds.size) {
+    const coRows = await db
+      .select({ id: companies.id, name: companies.name })
+      .from(companies)
+      .where(inArray(companies.id, Array.from(resolvedCompanyIds)))
+    companiesById = Object.fromEntries(coRows.map((c) => [c.id, c]))
+  }
+  if (resolvedContactIds.size) {
+    const ctRows = await db
+      .select({ id: contacts.id, firstName: contacts.firstName, lastName: contacts.lastName })
+      .from(contacts)
+      .where(inArray(contacts.id, Array.from(resolvedContactIds)))
+    contactsById = Object.fromEntries(ctRows.map((c) => [c.id, c]))
+  }
+
+  const data = resolved.map((r) => ({
+    id: r.id,
+    note: r.note,
+    dueAt: r.dueAt,
+    createdBy: r.createdBy,
+    company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
+    contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
+  }))
 
   return NextResponse.json(data)
 }
