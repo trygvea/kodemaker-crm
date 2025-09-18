@@ -1,6 +1,7 @@
 Nye
 - ? Hendelseslogg: Bør kanskje ha created by?
-
+- Hendelseslogg: mer tekst på hvert entry (bruk ai)
+- 
 
 Refaktorering
 - be om å få laget tester for alle komponenter

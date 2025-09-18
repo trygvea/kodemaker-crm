@@ -7,6 +7,12 @@ import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
 import type { GetContactDetailResponse } from '@/types/api'
 import { Pencil, MessageSquarePlus, CalendarPlus, Check } from 'lucide-react'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { FollowupsList } from '@/components/followups-list'
 
 export default function ContactDetailPage() {
@@ -306,7 +312,21 @@ export default function ContactDetailPage() {
                     {new Date(e.createdAt).toLocaleString()}
                   </div>
                 )}
-                <div className="whitespace-pre-wrap text-sm">{e.content}</div>
+                <Accordion type="single" collapsible>
+                  <AccordionItem value={`email-${e.id}`}>
+                    <AccordionTrigger className="hover:no-underline text-left">
+                      <div
+                        className="whitespace-pre-wrap text-sm"
+                        style={{ maxHeight: '4.5em', overflow: 'hidden' }}
+                      >
+                        {e.content}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="whitespace-pre-wrap text-sm">{e.content}</div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             ))
           ) : (
