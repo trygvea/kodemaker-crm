@@ -314,9 +314,9 @@ export default function ContactDetailPage() {
                 )}
                 <Accordion type="single" collapsible>
                   <AccordionItem value={`email-${e.id}`}>
-                    <AccordionTrigger className="hover:no-underline text-left">
+                    <AccordionTrigger className="group hover:no-underline text-left font-normal">
                       <div
-                        className="whitespace-pre-wrap text-sm"
+                        className="whitespace-pre-wrap text-sm group-data-[state=open]:hidden"
                         style={{ maxHeight: '4.5em', overflow: 'hidden' }}
                       >
                         {e.content}
