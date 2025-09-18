@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 
 import type { GetContactDetailResponse } from '@/types/api'
-import { Pencil, MessageSquarePlus, CalendarPlus, Check } from 'lucide-react'
+import { Pencil, MessageSquarePlus, CalendarPlus } from 'lucide-react'
 import {
   Accordion,
   AccordionContent,
@@ -36,7 +36,7 @@ export default function ContactDetailPage() {
   })
 
   if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, comments, followups, leads, emails } = data
+  const { contact, currentCompany, previousCompanies, comments, leads, emails } = data
   async function saveComment() {
     const body = { content: newComment, contactId: contact.id }
     const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
@@ -71,26 +71,6 @@ export default function ContactDetailPage() {
       : []),
     { label: `${contact.firstName} ${contact.lastName}` },
   ]
-
-  function dueBgStyle(dueAt: string): React.CSSProperties {
-    const now = Date.now()
-    const due = new Date(dueAt).getTime()
-    const dayMs = 24 * 60 * 60 * 1000
-    const diffDays = (due - now) / dayMs
-    // Future beyond 2 days: no highlight
-    if (diffDays >= 2) return {}
-    // Within next 0-2 days: amber tint, continuous
-    if (diffDays >= 0) {
-      const t = 1 - Math.min(2, Math.max(0, diffDays)) / 2 // 0..1
-      const lightness = 95 - 10 * t // 95% -> 85%
-      return { backgroundColor: `hsl(45 95% ${lightness}%)` }
-    }
-    // Overdue: red tint, continuous up to 14 days past due
-    const overdue = Math.min(14, -diffDays)
-    const t = overdue / 14 // 0..1
-    const lightness = 96 - 26 * t // 96% -> 70%
-    return { backgroundColor: `hsl(0 92% ${lightness}%)` }
-  }
 
   return (
     <div className="p-6 space-y-6">

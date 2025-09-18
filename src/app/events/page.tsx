@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
 type Event = {
   id: number

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { companies, contacts, followups, leads, users } from '@/db/schema'
 import { z } from 'zod'
-import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { createEventWithContext } from '@/db/events'
@@ -18,7 +18,6 @@ const createFollowupSchema = z.object({
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
-  const isAdmin = session?.user?.role === 'admin'
   const userId = session?.user?.id ? Number(session.user.id) : undefined
   const { searchParams } = new URL(req.url)
   const all = searchParams.get('all') === '1'

@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Find or create contactHistory (and company if not found)
+  let companyId = undefined
   const companyDomain = parsedMail.contactEmail.split('@')[1]
   const [maybeContactHistory] = await db
     .select()
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
       .select()
       .from(companies)
       .where(eq(companies.emailDomain, companyDomain))
-    let companyId = maybeCompany?.id
+    companyId = maybeCompany?.id
     if (!maybeCompany) {
       const name = companyDomain.split('.').slice(0, -1).join('.')
       const capitalizedName = name.at(0)?.toUpperCase() + name.slice(1)
@@ -142,11 +143,10 @@ export async function POST(req: NextRequest) {
     })
     .returning()
 
-  const [contact] = await db.select().from(contacts).where(eq(contacts.id, contactId))
   const type = parsedMail.mode === 'BCC' ? 'BCC' : 'videresendt'
   await createEventWithContext('contact', contactId!, 'Ny e-post', {
-    contactId: contactId!,
-    companyId: undefined,
+    contactId,
+    companyId,
     excerpt: `${type}: ${parsedMail.subject ?? ''}`.trim(),
   })
 

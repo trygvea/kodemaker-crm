@@ -2,7 +2,6 @@
 import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { Input } from '@/components/ui/input'
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useRouter } from 'next/navigation'
 
 import type { ListContactsItem } from '@/types/api'

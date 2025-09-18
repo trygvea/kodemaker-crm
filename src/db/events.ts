@@ -60,7 +60,8 @@ export async function createEventWithContext(
     }
   } catch {}
 
-  const context = `${verb} på ${contactName ? `${contactName} / ` : ''}${companyName ?? ''}`.trim()
+  const useDash = contactName && companyName
+  const context = `${verb} på ${contactName} ${useDash ? ' / ' : ''} ${companyName ?? ''}`.trim()
   const desc = options?.excerpt ? `${context}: ${options.excerpt}` : context
   return createEvent(entity, entityId, desc)
 }

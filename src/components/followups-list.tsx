@@ -58,13 +58,13 @@ export function FollowupsList({
                     {' '}
                     · På{' '}
                     {f.contact ? (
-                      <a className="underline" href={`/contacts/${(f.contact as any).id}`}>
+                      <a className="underline" href={`/contacts/${(f.contact).id}`}>
                         {(f.contact.firstName ?? '') + ' ' + (f.contact.lastName ?? '')}
                       </a>
                     ) : null}
                     {f.contact && f.company ? ' / ' : ''}
                     {f.company ? (
-                      <a className="underline" href={`/customers/${(f.company as any).id}`}>
+                      <a className="underline" href={`/customers/${(f.company).id}`}>
                         {f.company.name}
                       </a>
                     ) : null}

@@ -9,7 +9,6 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 
 type Company = {
   id: number
