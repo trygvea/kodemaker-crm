@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { comments } from '@/db/schema'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 import { z } from 'zod'
 import { desc } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
@@ -31,10 +31,16 @@ export async function POST(req: NextRequest) {
     .insert(comments)
     .values({ ...parsed.data, createdByUserId: userId })
     .returning()
-  await createEvent(
-    parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact',
+  const entity = parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact'
+  await createEventWithContext(
+    entity,
     (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
-    'Ny kommentar'
+    'Ny kommentar',
+    {
+      companyId: parsed.data.companyId ?? undefined,
+      contactId: parsed.data.contactId ?? undefined,
+      excerpt: created.content.slice(0, 80),
+    }
   )
   return NextResponse.json(created)
 }

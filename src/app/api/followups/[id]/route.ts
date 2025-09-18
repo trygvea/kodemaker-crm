@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { followups } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 
 export async function PATCH(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
@@ -22,7 +22,16 @@ export async function PATCH(_req: NextRequest, { params }: { params: Promise<{ i
   const entity = row.leadId ? 'lead' : row.companyId ? 'company' : 'contact'
   const entityId = row.leadId || row.companyId || row.contactId
   if (entityId) {
-    await createEvent(entity as 'lead' | 'company' | 'contact', entityId, 'Oppfølging utført')
+    await createEventWithContext(
+      entity as 'lead' | 'company' | 'contact',
+      entityId,
+      'Oppfølging utført',
+      {
+        companyId: row.companyId ?? undefined,
+        contactId: row.contactId ?? undefined,
+        excerpt: row.note.slice(0, 80),
+      }
+    )
   }
 
   return NextResponse.json(updated)

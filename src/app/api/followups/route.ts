@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { and, asc, desc, eq, isNull } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 
 const createFollowupSchema = z.object({
   note: z.string().min(1),
@@ -78,10 +78,16 @@ export async function POST(req: NextRequest) {
       createdByUserId: userId,
     })
     .returning()
-  await createEvent(
-    parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact',
+  const entity = parsed.data.leadId ? 'lead' : parsed.data.companyId ? 'company' : 'contact'
+  await createEventWithContext(
+    entity,
     (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
-    'Ny oppfølging'
+    'Ny oppfølging',
+    {
+      companyId: parsed.data.companyId ?? undefined,
+      contactId: parsed.data.contactId ?? undefined,
+      excerpt: created.note.slice(0, 80),
+    }
   )
   return NextResponse.json(created)
 }

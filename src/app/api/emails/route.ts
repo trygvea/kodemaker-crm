@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
 import { companies, contactCompanyHistory, contacts, emails, users } from '@/db/schema'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import { postmarkInboundSchema, parsePostmarkInboundEmail } from './parse-mail'
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       .values({ firstName, lastName, email: parsedMail.contactEmail })
       .returning()
     contactId = created.id
-    await createEvent('contact', created.id, `Ny kontakt: ${created.firstName} ${created.lastName}`)
+    await createEventWithContext('contact', created.id, 'Ny kontakt', { contactId: created.id })
   }
 
   // Find or create contactHistory (and company if not found)
@@ -106,7 +106,9 @@ export async function POST(req: NextRequest) {
         .returning()
       companyId = createdCompany.id
       logger.info({ route: '/api/emails', method: 'POST' }, `Create company ${capitalizedName}`)
-      await createEvent('company', createdCompany.id, `Ny organisasjon: ${capitalizedName}`)
+      await createEventWithContext('company', createdCompany.id, 'Ny organisasjon', {
+        companyId: createdCompany.id,
+      })
     }
     // Now, create contactHistory
     await db
@@ -142,11 +144,11 @@ export async function POST(req: NextRequest) {
 
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, contactId))
   const type = parsedMail.mode === 'BCC' ? 'BCC' : 'videresendt'
-  await createEvent(
-    'contact',
-    contactId!,
-    `Ny e-post (${type}) to ${contact.firstName} ${contact.lastName}: ${parsedMail.subject}`
-  )
+  await createEventWithContext('contact', contactId!, 'Ny e-post', {
+    contactId: contactId!,
+    companyId: undefined,
+    excerpt: `${type}: ${parsedMail.subject ?? ''}`.trim(),
+  })
 
   logger.info(
     { route: '/api/emails', method: 'POST' },

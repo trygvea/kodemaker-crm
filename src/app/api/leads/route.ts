@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 
 const createLeadSchema = z.object({
   companyId: z.number().int(),
@@ -67,6 +67,10 @@ export async function POST(req: NextRequest) {
     .insert(leads)
     .values({ ...parsed.data, createdByUserId: userId })
     .returning()
-  await createEvent('lead', created.id, `Ny lead for kunde ${company.name}`)
+  await createEventWithContext('lead', created.id, 'Ny lead', {
+    companyId: company.id,
+    contactId: parsed.data.contactId,
+    excerpt: parsed.data.description.slice(0, 80),
+  })
   return NextResponse.json(created)
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { contacts, contactCompanyHistory } from '@/db/schema'
 import { z } from 'zod'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 import { listContacts } from '@/db/contacts'
 
 const createContactSchema = z.object({
@@ -30,7 +30,10 @@ export async function POST(req: NextRequest) {
   }
   const { companyId, startDate, ...values } = parsed.data
   const [created] = await db.insert(contacts).values(values).returning()
-  await createEvent('contact', created.id, `Ny kontakt: ${created.firstName} ${created.lastName}`)
+  await createEventWithContext('contact', created.id, 'Ny kontakt', {
+    contactId: created.id,
+    companyId: companyId ?? undefined,
+  })
   if (companyId && startDate) {
     await db.insert(contactCompanyHistory).values({ companyId, contactId: created.id, startDate })
   }

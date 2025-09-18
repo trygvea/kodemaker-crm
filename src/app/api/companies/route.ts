@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { companies, leads } from '@/db/schema'
-import { createEvent } from '@/db/events'
+import { createEventWithContext } from '@/db/events'
 import { z } from 'zod'
 import { ilike, inArray, sql } from 'drizzle-orm'
 
@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
   const [created] = await db.insert(companies).values(parsed.data).returning()
-  await createEvent('company', created.id, `Ny organisasjon: ${created.name}`)
+  await createEventWithContext('company', created.id, 'Ny organisasjon', {
+    companyId: created.id,
+  })
   return NextResponse.json(created)
 }
