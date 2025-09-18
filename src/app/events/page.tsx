@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 
+
 type Event = {
   id: number
   entity: 'company' | 'contact' | 'lead'

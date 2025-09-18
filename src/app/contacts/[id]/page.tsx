@@ -1,5 +1,5 @@
 'use client'
-import useSWR from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -20,6 +20,7 @@ export default function ContactDetailPage() {
   const id = Number(params.id)
   const router = useRouter()
   const { data, mutate } = useSWR<GetContactDetailResponse>(id ? `/api/contacts/${id}` : null)
+  const { mutate: globalMutate } = useSWRConfig()
   const [newComment, setNewComment] = useState('')
   const [newFollowupNote, setNewFollowupNote] = useState('')
   const [newFollowupDue, setNewFollowupDue] = useState(() => {
@@ -61,6 +62,7 @@ export default function ContactDetailPage() {
       const mm = pad(d.getMinutes())
       setNewFollowupDue(`${y}-${m}-${day}T${hh}:${mm}`)
       mutate()
+      globalMutate(`/api/followups?contactId=${contact.id}`)
     }
   }
 
