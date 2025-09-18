@@ -16,7 +16,7 @@ jest.mock('next/navigation', () => ({
 describe('CustomersPage', () => {
   it('renders heading and search field', () => {
     render(<CustomersPage />)
-    expect(screen.getByText('Kunder')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Søk i kunder')).toBeInTheDocument()
+    expect(screen.getByText('Organisasjoner')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Søk i organisasjoner')).toBeInTheDocument()
   })
 })
