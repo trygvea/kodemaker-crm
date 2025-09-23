@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     )
     const [created] = await db
       .insert(contacts)
-      .values({ firstName, lastName, email: parsedMail.contactEmail })
+      .values({ firstName, lastName })
       .returning()
     contactId = created.id
     

@@ -91,7 +91,7 @@ export default function ContactDetailPage() {
           </a>
         </div>
         <div className="text-sm text-muted-foreground space-y-1 mt-1">
-          {/* Display contact emails from the new table */}
+          {/* Display contact emails */}
           {contactEmails.length > 0 && (
             <div className="space-y-1">
               {contactEmails.map((email) => (
@@ -106,8 +106,6 @@ export default function ContactDetailPage() {
               ))}
             </div>
           )}
-          {/* Fallback to legacy email field if no contact emails */}
-          {contactEmails.length === 0 && contact.email && <div>{contact.email}</div>}
           {contact.phone ? <div>{contact.phone}</div> : null}
           {contact.linkedInUrl ? (
             <a className="underline" href={contact.linkedInUrl} target="_blank" rel="noreferrer">

@@ -132,15 +132,40 @@ export async function listContacts(query: string | null) {
         or(
           ilike(contacts.firstName, `%${query}%`),
           ilike(contacts.lastName, `%${query}%`),
-          ilike(companies.name, `%${query}%`),
-          ilike(contacts.email, `%${query}%`)
+          ilike(companies.name, `%${query}%`)
         )
       )
     : await base
 
+  // If searching, also get contacts that match by email from contact_emails table
+  let emailMatches: typeof rows = []
+  if (isSearch) {
+    emailMatches = await db
+      .select({
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        email: contacts.email,
+        company: { id: companies.id, name: companies.name },
+      })
+      .from(contacts)
+      .innerJoin(contactEmails, eq(contactEmails.contactId, contacts.id))
+      .leftJoin(
+        contactCompanyHistory,
+        and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
+      )
+      .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
+      .where(ilike(contactEmails.email, `%${query}%`))
+      .orderBy(asc(contacts.lastName), asc(contacts.firstName))
+      .limit(limit)
+  }
+
+  // Combine and deduplicate results
+  const allRows = [...rows, ...emailMatches]
+
   // De-duplicate by id
   const seen = new Set<number>()
-  const data = rows.filter((r) => {
+  const data = allRows.filter((r) => {
     if (seen.has(r.id)) return false
     seen.add(r.id)
     return true
