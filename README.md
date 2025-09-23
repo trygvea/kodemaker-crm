@@ -150,6 +150,8 @@ Highlights:
 
 This project was created with Cursor in Agent mode with the gpt-5-high-fast model, and bootstrapped with the LLM prompt below. After that, there has been a lot of vibe coding, but also some manual coding.
 
+The [AGENTS.md](AGENTS.md) is generated and should be kept updated. It gives a great overview of the project, its techstack, and how to interact with it.
+
 ## Initial prompt
 
 ### Techstack
