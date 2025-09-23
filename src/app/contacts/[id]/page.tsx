@@ -298,14 +298,14 @@ export default function ContactDetailPage() {
                   <AccordionItem value={`email-${e.id}`}>
                     <AccordionTrigger className="group hover:no-underline text-left font-normal">
                       <div
-                        className="whitespace-pre-wrap text-sm group-data-[state=open]:hidden"
+                        className="whitespace-pre-wrap break-all text-sm group-data-[state=open]:hidden flex-1 min-w-0"
                         style={{ maxHeight: '4.5em', overflow: 'hidden' }}
                       >
                         {e.content}
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="whitespace-pre-wrap text-sm">{e.content}</div>
+                      <div className="whitespace-pre-wrap break-all text-sm">{e.content}</div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
