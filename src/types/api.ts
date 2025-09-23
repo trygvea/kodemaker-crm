@@ -41,6 +41,13 @@ export type ApiEmail = {
   createdAt: string
 }
 
+export type ApiContactEmail = {
+  id: number
+  email: string
+  active: boolean
+  createdAt: string
+}
+
 export type GetContactDetailResponse = {
   contact: ApiContact
   currentCompany: ApiCompanyBrief | null
@@ -49,6 +56,7 @@ export type GetContactDetailResponse = {
   followups: ApiFollowup[]
   leads: ApiLead[]
   emails: ApiEmail[]
+  contactEmails: ApiContactEmail[]
   history: Array<{
     id: number
     startDate: string

@@ -7,6 +7,7 @@ import {
   varchar,
   integer,
   date,
+  boolean,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
@@ -42,6 +43,16 @@ export const contacts = pgTable('contacts', {
   email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   linkedInUrl: text('linkedin_url'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const contactEmails = pgTable('contact_emails', {
+  id: serial('id').primaryKey(),
+  contactId: integer('contact_id')
+    .notNull()
+    .references(() => contacts.id, { onDelete: 'cascade' }),
+  email: varchar('email', { length: 255 }).notNull(),
+  active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -142,6 +153,14 @@ export const contactsRelations = relations(contacts, ({ many }) => ({
   comments: many(comments),
   emails: many(emails),
   history: many(contactCompanyHistory),
+  contactEmails: many(contactEmails),
+}))
+
+export const contactEmailsRelations = relations(contactEmails, ({ one }) => ({
+  contact: one(contacts, {
+    fields: [contactEmails.contactId],
+    references: [contacts.id],
+  }),
 }))
 
 export const leadsRelations = relations(leads, ({ one, many }) => ({

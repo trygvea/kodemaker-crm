@@ -3,6 +3,7 @@ import {
   companies,
   contactCompanyHistory,
   contacts,
+  contactEmails,
   leads,
   emails,
   comments,
@@ -46,7 +47,18 @@ export async function getContactDetail(id: number) {
     .where(eq(leads.contactId, id))
     .orderBy(desc(leads.createdAt))
 
-  const contactEmails = await db
+  const contactEmailAddresses = await db
+    .select({
+      id: contactEmails.id,
+      email: contactEmails.email,
+      active: contactEmails.active,
+      createdAt: contactEmails.createdAt,
+    })
+    .from(contactEmails)
+    .where(eq(contactEmails.contactId, id))
+    .orderBy(desc(contactEmails.createdAt))
+
+  const contactEmailsData = await db
     .select()
     .from(emails)
     .where(eq(emails.recipientContactId, id))
@@ -89,7 +101,8 @@ export async function getContactDetail(id: number) {
     followups: openFollowups,
     comments: contactComments,
     leads: contactLeads,
-    emails: contactEmails,
+    emails: contactEmailsData,
+    contactEmails: contactEmailAddresses,
     history,
   }
 }
@@ -119,7 +132,8 @@ export async function listContacts(query: string | null) {
         or(
           ilike(contacts.firstName, `%${query}%`),
           ilike(contacts.lastName, `%${query}%`),
-          ilike(companies.name, `%${query}%`)
+          ilike(companies.name, `%${query}%`),
+          ilike(contacts.email, `%${query}%`)
         )
       )
     : await base

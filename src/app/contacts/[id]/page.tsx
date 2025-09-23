@@ -37,7 +37,7 @@ export default function ContactDetailPage() {
   })
 
   if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, comments, leads, emails } = data
+  const { contact, currentCompany, previousCompanies, comments, leads, emails, contactEmails } = data
   async function saveComment() {
     const body = { content: newComment, contactId: contact.id }
     const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
@@ -91,7 +91,23 @@ export default function ContactDetailPage() {
           </a>
         </div>
         <div className="text-sm text-muted-foreground space-y-1 mt-1">
-          {contact.email ? <div>{contact.email}</div> : null}
+          {/* Display contact emails from the new table */}
+          {contactEmails.length > 0 && (
+            <div className="space-y-1">
+              {contactEmails.map((email) => (
+                <div key={email.id} className="flex items-center gap-2">
+                  <span>{email.email}</span>
+                  {!email.active && (
+                    <span className="text-xs bg-gray-100 text-gray-600 px-1 py-0.5 rounded">
+                      inaktiv
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Fallback to legacy email field if no contact emails */}
+          {contactEmails.length === 0 && contact.email && <div>{contact.email}</div>}
           {contact.phone ? <div>{contact.phone}</div> : null}
           {contact.linkedInUrl ? (
             <a className="underline" href={contact.linkedInUrl} target="_blank" rel="noreferrer">
