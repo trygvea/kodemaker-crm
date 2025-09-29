@@ -98,6 +98,6 @@ export type ListContactsItem = {
   id: number
   firstName: string
   lastName: string
-  email?: string | null
+  emails: string
   company?: { id: number; name: string } | null
 }
