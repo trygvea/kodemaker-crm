@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
-import { companies, contactCompanyHistory, contacts, emails, users } from '@/db/schema'
+import { companies, contactCompanyHistory, contacts, contactEmails, emails, users } from '@/db/schema'
 import { createEventWithContext } from '@/db/events'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
@@ -61,12 +61,17 @@ export async function POST(req: NextRequest) {
   }
 
   // Find or create contact
-  const [maybeContact] = await db
-    .select()
-    .from(contacts)
-    .where(eq(contacts.email, parsedMail.contactEmail))
-  let contactId = maybeContact?.id
-  if (!maybeContact) {
+  const [maybeContactEmail] = await db
+    .select({
+      contactId: contactEmails.contactId,
+      email: contactEmails.email,
+    })
+    .from(contactEmails)
+    .where(eq(contactEmails.email, parsedMail.contactEmail))
+    .limit(1)
+  
+  let contactId = maybeContactEmail?.contactId
+  if (!maybeContactEmail) {
     const localPart = parsedMail.contactEmail.split('@')[0]
     const { firstName, lastName } = deriveNamesFromEmailLocalPart(localPart)
     logger.info(
@@ -75,9 +80,15 @@ export async function POST(req: NextRequest) {
     )
     const [created] = await db
       .insert(contacts)
-      .values({ firstName, lastName, email: parsedMail.contactEmail })
+      .values({ firstName, lastName })
       .returning()
     contactId = created.id
+    
+    // Also create the contact email record
+    await db
+      .insert(contactEmails)
+      .values({ contactId: created.id, email: parsedMail.contactEmail, active: true })
+    
     await createEventWithContext('contact', created.id, 'Ny kontakt', { contactId: created.id })
   }
 

@@ -3,13 +3,14 @@ import {
   companies,
   contactCompanyHistory,
   contacts,
+  contactEmails,
   leads,
   emails,
   comments,
   followups,
   users,
 } from '@/db/schema'
-import { and, asc, desc, eq, ilike, isNull, isNotNull, or } from 'drizzle-orm'
+import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray } from 'drizzle-orm'
 
 export async function getContactDetail(id: number) {
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1)
@@ -46,7 +47,18 @@ export async function getContactDetail(id: number) {
     .where(eq(leads.contactId, id))
     .orderBy(desc(leads.createdAt))
 
-  const contactEmails = await db
+  const contactEmailAddresses = await db
+    .select({
+      id: contactEmails.id,
+      email: contactEmails.email,
+      active: contactEmails.active,
+      createdAt: contactEmails.createdAt,
+    })
+    .from(contactEmails)
+    .where(eq(contactEmails.contactId, id))
+    .orderBy(desc(contactEmails.createdAt))
+
+  const contactEmailsData = await db
     .select()
     .from(emails)
     .where(eq(emails.recipientContactId, id))
@@ -89,7 +101,8 @@ export async function getContactDetail(id: number) {
     followups: openFollowups,
     comments: contactComments,
     leads: contactLeads,
-    emails: contactEmails,
+    emails: contactEmailsData,
+    contactEmails: contactEmailAddresses,
     history,
   }
 }
@@ -97,12 +110,13 @@ export async function getContactDetail(id: number) {
 export async function listContacts(query: string | null) {
   const isSearch = query && query.trim().length >= 1
   const limit = isSearch ? 200 : 100
-  const base = db
+  
+  // First, get the basic contact info with company
+  const baseContacts = await db
     .select({
       id: contacts.id,
       firstName: contacts.firstName,
       lastName: contacts.lastName,
-      email: contacts.email,
       company: { id: companies.id, name: companies.name },
     })
     .from(contacts)
@@ -111,26 +125,77 @@ export async function listContacts(query: string | null) {
       and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
     )
     .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
+    .where(
+      isSearch
+        ? or(
+            ilike(contacts.firstName, `%${query}%`),
+            ilike(contacts.lastName, `%${query}%`),
+            ilike(companies.name, `%${query}%`)
+          )
+        : undefined
+    )
     .orderBy(asc(contacts.lastName), asc(contacts.firstName))
     .limit(limit)
 
-  const rows = isSearch
-    ? await base.where(
-        or(
-          ilike(contacts.firstName, `%${query}%`),
-          ilike(contacts.lastName, `%${query}%`),
-          ilike(companies.name, `%${query}%`)
-        )
+  // If searching, also get contacts that match by email from contact_emails table
+  let emailMatchContacts: typeof baseContacts = []
+  if (isSearch) {
+    emailMatchContacts = await db
+      .select({
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        company: { id: companies.id, name: companies.name },
+      })
+      .from(contacts)
+      .innerJoin(contactEmails, eq(contactEmails.contactId, contacts.id))
+      .leftJoin(
+        contactCompanyHistory,
+        and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
       )
-    : await base
+      .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
+      .where(ilike(contactEmails.email, `%${query}%`))
+      .orderBy(asc(contacts.lastName), asc(contacts.firstName))
+      .limit(limit)
+  }
 
-  // De-duplicate by id
+  // Combine and deduplicate results
+  const allContacts = [...baseContacts, ...emailMatchContacts]
   const seen = new Set<number>()
-  const data = rows.filter((r) => {
+  const uniqueContacts = allContacts.filter((r) => {
     if (seen.has(r.id)) return false
     seen.add(r.id)
     return true
   })
 
-  return data
+  // Now get all emails for these contacts
+  const contactIds = uniqueContacts.map(c => c.id)
+  if (contactIds.length === 0) {
+    return []
+  }
+
+  const contactEmailsData = await db
+    .select({
+      contactId: contactEmails.contactId,
+      email: contactEmails.email,
+      active: contactEmails.active,
+    })
+    .from(contactEmails)
+    .where(inArray(contactEmails.contactId, contactIds))
+    .orderBy(contactEmails.createdAt)
+
+  // Group emails by contact ID and concatenate them
+  const emailsByContactId = contactEmailsData.reduce((acc, ce) => {
+    if (!acc[ce.contactId]) {
+      acc[ce.contactId] = []
+    }
+    acc[ce.contactId].push(ce.email)
+    return acc
+  }, {} as Record<number, string[]>)
+
+  // Add concatenated emails to each contact
+  return uniqueContacts.map(contact => ({
+    ...contact,
+    emails: emailsByContactId[contact.id]?.join('; ') || '',
+  }))
 }

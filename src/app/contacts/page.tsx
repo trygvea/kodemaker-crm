@@ -49,7 +49,7 @@ export default function ContactsSearchPage() {
                 <div className="font-medium">
                   {r.firstName} {r.lastName}
                 </div>
-                <div className="text-xs text-muted-foreground">{r.email}</div>
+                <div className="text-xs text-muted-foreground">{r.emails}</div>
               </div>
               {r.company ? (
                 <a
