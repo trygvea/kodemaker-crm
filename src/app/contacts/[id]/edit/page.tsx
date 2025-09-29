@@ -59,7 +59,7 @@ export default function EditContactPage() {
   const [lastName, setLastName] = useState(contact?.lastName || '')
   const [phone, setPhone] = useState(contact?.phone || '')
   const [linkedInUrl, setLinkedInUrl] = useState(contact?.linkedInUrl || '')
-  
+
   // Email management state
   const [emails, setEmails] = useState<ContactEmail[]>([])
   const [newEmailAddress, setNewEmailAddress] = useState('')
@@ -84,11 +84,8 @@ export default function EditContactPage() {
     setLastName(contact.lastName || '')
     setPhone(contact.phone || '')
     setLinkedInUrl(contact.linkedInUrl || '')
-  }, [contact])
-
-  useEffect(() => {
     setEmails(contactEmails)
-  }, [contactEmails])
+  }, [contact])
 
   async function save() {
     const res = await fetch(`/api/contacts/${id}`, {
@@ -102,12 +99,12 @@ export default function EditContactPage() {
 
   async function addEmail() {
     if (!newEmailAddress.trim()) return
-    
+
     const res = await fetch(`/api/contacts/${id}/emails`, {
       method: 'POST',
       body: JSON.stringify({ email: newEmailAddress.trim(), active: true }),
     })
-    
+
     if (res.ok) {
       setNewEmailAddress('')
       await mutate()
@@ -122,7 +119,7 @@ export default function EditContactPage() {
       method: 'PATCH',
       body: JSON.stringify({ email, active }),
     })
-    
+
     if (res.ok) {
       setEditingEmailId(null)
       setEditingEmailAddress('')
@@ -135,11 +132,11 @@ export default function EditContactPage() {
 
   async function deleteEmail(emailId: number) {
     if (!confirm('Delete this email address?')) return
-    
+
     const res = await fetch(`/api/contacts/${id}/emails/${emailId}`, {
       method: 'DELETE',
     })
-    
+
     if (res.ok) {
       await mutate()
     } else {
@@ -167,7 +164,7 @@ export default function EditContactPage() {
     if (res.ok) {
       const result = await res.json()
       alert(result.message || 'Merge completed successfully')
-      
+
       if (mergeData.deleteSourceContact) {
         // If source contact was deleted, redirect to contacts list
         router.push('/contacts')
@@ -243,7 +240,9 @@ export default function EditContactPage() {
                       Aktiv
                     </label>
                     <button
-                      onClick={() => updateEmail(emailItem.id, editingEmailAddress, emailItem.active)}
+                      onClick={() =>
+                        updateEmail(emailItem.id, editingEmailAddress, emailItem.active)
+                      }
                       className="text-green-600 hover:text-green-700"
                     >
                       <Check className="h-4 w-4" />
@@ -261,11 +260,13 @@ export default function EditContactPage() {
                 ) : (
                   <>
                     <span className="flex-1 text-sm">{emailItem.email}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${
-                      emailItem.active 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded ${
+                        emailItem.active
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
                       {emailItem.active ? 'Aktiv' : 'Inaktiv'}
                     </span>
                     <button
