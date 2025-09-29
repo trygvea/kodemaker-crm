@@ -20,6 +20,13 @@ jest.mock('@/db/schema', () => ({
     companyId: 'cch.companyId',
     endDate: 'cch.endDate',
   },
+  contactEmails: {
+    id: 'contact_emails.id',
+    contactId: 'contact_emails.contactId',
+    email: 'contact_emails.email',
+    active: 'contact_emails.active',
+    createdAt: 'contact_emails.createdAt',
+  },
 }))
 jest.mock('drizzle-orm', () => ({
   asc: (x: any) => x,
@@ -28,6 +35,7 @@ jest.mock('drizzle-orm', () => ({
   or: (...args: any[]) => args,
   isNull: (x: any) => x,
   and: (...args: any[]) => args,
+  inArray: (a: any, b: any) => [a, b],
 }))
 
 // Lightweight fake builder to simulate .select().from().leftJoin()....limit()
@@ -53,6 +61,9 @@ class FakeQuery {
   }
   limit() {
     return Promise.resolve(this.rows)
+  }
+  then(onFulfilled: (value: any) => any, onRejected?: (reason: any) => any) {
+    return Promise.resolve(this.rows).then(onFulfilled, onRejected)
   }
 }
 
