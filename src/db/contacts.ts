@@ -10,7 +10,7 @@ import {
   followups,
   users,
 } from '@/db/schema'
-import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray } from 'drizzle-orm'
+import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray, count, sql } from 'drizzle-orm'
 
 export async function getContactDetail(id: number) {
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1)
@@ -198,4 +198,40 @@ export async function listContacts(query: string | null) {
     ...contact,
     emails: emailsByContactId[contact.id]?.join('; ') || '',
   }))
+}
+
+export async function getContactCounts(contactId: number) {
+  // Get count of related items for merge dialog
+  const [emailAddressesCount] = await db
+    .select({ count: count(contactEmails.id) })
+    .from(contactEmails)
+    .where(eq(contactEmails.contactId, contactId))
+
+  const [emailsCount] = await db
+    .select({ count: count(emails.id) })
+    .from(emails)
+    .where(eq(emails.recipientContactId, contactId))
+
+  const [leadsCount] = await db
+    .select({ count: count(leads.id) })
+    .from(leads)
+    .where(eq(leads.contactId, contactId))
+
+  const [commentsCount] = await db
+    .select({ count: count(comments.id) })
+    .from(comments)
+    .where(eq(comments.contactId, contactId))
+
+  const [followupsCount] = await db
+    .select({ count: count(followups.id) })
+    .from(followups)
+    .where(eq(followups.contactId, contactId))
+
+  return {
+    emailAddresses: emailAddressesCount?.count || 0,
+    emails: emailsCount?.count || 0,
+    leads: leadsCount?.count || 0,
+    events: commentsCount?.count || 0, // Using comments as events for now
+    followups: followupsCount?.count || 0,
+  }
 }

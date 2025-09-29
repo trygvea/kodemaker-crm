@@ -12,7 +12,8 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Button } from '@/components/ui/button'
-import { Save, X, Trash2, Plus, Edit2, Check } from 'lucide-react'
+import { Save, X, Trash2, Plus, Edit2, Check, GitMerge } from 'lucide-react'
+import { MergeContactsDialog } from '@/components/merge-contacts-dialog'
 
 type Contact = {
   id: number
@@ -64,6 +65,16 @@ export default function EditContactPage() {
   const [newEmailAddress, setNewEmailAddress] = useState('')
   const [editingEmailId, setEditingEmailId] = useState<number | null>(null)
   const [editingEmailAddress, setEditingEmailAddress] = useState('')
+
+  // Merge dialog state
+  const [mergeDialogOpen, setMergeDialogOpen] = useState(false)
+  const { data: contactCounts } = useSWR<{
+    emailAddresses: number
+    emails: number
+    leads: number
+    events: number
+    followups: number
+  }>(id ? `/api/contacts/${id}/counts` : null)
 
   // Re-sync local state when data loads
   useEffect(() => {
@@ -133,6 +144,39 @@ export default function EditContactPage() {
     } else {
       const error = await res.json()
       alert(error.error || 'Failed to delete email')
+    }
+  }
+
+  async function handleMerge(mergeData: {
+    targetContactId: number
+    mergeEmailAddresses: boolean
+    mergeEmails: boolean
+    mergeLeads: boolean
+    mergeEvents: boolean
+    mergeFollowups: boolean
+    deleteSourceContact: boolean
+  }) {
+    const res = await fetch(`/api/contacts/${id}/merge`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mergeData),
+    })
+
+    if (res.ok) {
+      const result = await res.json()
+      alert(result.message || 'Merge completed successfully')
+      
+      if (mergeData.deleteSourceContact) {
+        // If source contact was deleted, redirect to contacts list
+        router.push('/contacts')
+      } else {
+        // Otherwise redirect to the contact view page
+        router.push(`/contacts/${id}`)
+      }
+    } else {
+      const error = await res.json()
+      alert(error.error || 'Failed to merge contacts')
+      throw new Error(error.error || 'Failed to merge contacts')
     }
   }
 
@@ -291,18 +335,26 @@ export default function EditContactPage() {
           />
         </div>
         <div className="flex justify-between gap-2">
-          <button
-            className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1.5"
-            onClick={async () => {
-              if (!confirm('Slette kontakt? Dette kan ikke angres.')) return
-              const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' })
-              if (res.ok) {
-                router.push('/contacts')
-              }
-            }}
-          >
-            <Trash2 className="h-4 w-4" /> Slett
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1.5"
+              onClick={async () => {
+                if (!confirm('Slette kontakt? Dette kan ikke angres.')) return
+                const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' })
+                if (res.ok) {
+                  router.push('/contacts')
+                }
+              }}
+            >
+              <Trash2 className="h-4 w-4" /> Slett
+            </button>
+            <button
+              className="px-3 py-1.5 text-sm rounded bg-orange-600 text-white hover:bg-orange-700 inline-flex items-center gap-1.5"
+              onClick={() => setMergeDialogOpen(true)}
+            >
+              <GitMerge className="h-4 w-4" /> Merge inn i...
+            </button>
+          </div>
           <div className="flex gap-2">
             <button
               className="px-3 py-1.5 text-sm border rounded inline-flex items-center gap-1.5"
@@ -319,6 +371,21 @@ export default function EditContactPage() {
           </div>
         </div>
       </div>
+
+      {/* Merge Contacts Dialog */}
+      {contact && contactCounts && (
+        <MergeContactsDialog
+          open={mergeDialogOpen}
+          onOpenChange={setMergeDialogOpen}
+          sourceContact={{
+            id: contact.id,
+            firstName: contact.firstName,
+            lastName: contact.lastName,
+          }}
+          contactCounts={contactCounts}
+          onMerge={handleMerge}
+        />
+      )}
 
       <div className="text-sm text-muted-foreground">Endring av firmatilknytninger kommer her.</div>
       <section className="space-y-2">
