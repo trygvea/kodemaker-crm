@@ -2,12 +2,13 @@ Bugs
 
 - Incoming Mail: FWD: Lag noe logikk som sjekker om to-adresse er @kodemaker.no.
 - Incoming Mail: FWD: insert crmUser hvis det ikke finnes og @kodemaker.no
+- Ny kontakt: Ikke bruk legacy email!
 
 Features
 
 - ? Hendelseslogg: Bør kanskje ha created by?
 - Flere slette-knapper. Email, kommentar, lead, oppfølging, kunde
-- En kontakt må kunne ha flere eposter.
+  v En kontakt må kunne ha flere eposter.
 
 PROD Deployment
 
