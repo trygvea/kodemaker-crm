@@ -3,6 +3,7 @@ import { db } from '@/db/client'
 import { contactEmails } from '@/db/schema'
 import { eq, and, ne } from 'drizzle-orm'
 import { z } from 'zod'
+import { createEventWithContext } from '@/db/events'
 
 const updateContactEmailSchema = z.object({
   email: z.string().email().optional(),
@@ -68,6 +69,22 @@ export async function PATCH(
     .where(and(eq(contactEmails.id, emailId), eq(contactEmails.contactId, contactId)))
     .returning()
 
+  // Log event for email update
+  const changes: string[] = []
+  if (parsed.data.email && parsed.data.email !== existing[0].email) {
+    changes.push(`adresse: ${existing[0].email} → ${parsed.data.email}`)
+  }
+  if (parsed.data.active !== undefined && parsed.data.active !== existing[0].active) {
+    changes.push(`status: ${existing[0].active ? 'aktiv' : 'inaktiv'} → ${parsed.data.active ? 'aktiv' : 'inaktiv'}`)
+  }
+  
+  if (changes.length > 0) {
+    await createEventWithContext('contact', contactId, 'Oppdaterte e-postadresse', {
+      contactId,
+      excerpt: changes.join(', '),
+    })
+  }
+
   return NextResponse.json(updated)
 }
 
@@ -105,6 +122,12 @@ export async function DELETE(
   if (!deleted) {
     return NextResponse.json({ error: 'Email not found' }, { status: 404 })
   }
+
+  // Log event for email deletion
+  await createEventWithContext('contact', contactId, 'Fjernet e-postadresse', {
+    contactId,
+    excerpt: deleted.email,
+  })
 
   return NextResponse.json({ ok: true })
 }
