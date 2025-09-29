@@ -12,7 +12,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Button } from '@/components/ui/button'
-import { Save, X, Trash2 } from 'lucide-react'
+import { Save, X, Trash2, Plus, Edit2, Check } from 'lucide-react'
 
 type Contact = {
   id: number
@@ -23,12 +23,20 @@ type Contact = {
   linkedInUrl?: string | null
 }
 
+type ContactEmail = {
+  id: number
+  email: string
+  active: boolean
+  createdAt: string
+}
+
 export default function EditContactPage() {
   const params = useParams<{ id: string }>()
   const id = Number(params.id)
   const router = useRouter()
   const { data, mutate } = useSWR<{
     contact: Contact
+    contactEmails: ContactEmail[]
     history: Array<{
       id: number
       startDate: string
@@ -37,6 +45,7 @@ export default function EditContactPage() {
     }>
   }>(id ? `/api/contacts/${id}` : null)
   const contact = data?.contact
+  const contactEmails = data?.contactEmails || []
   const history = data?.history || []
   type Company = { id: number; name: string; emailDomain?: string | null }
   const [open, setOpen] = useState(false)
@@ -47,28 +56,84 @@ export default function EditContactPage() {
   )
   const [firstName, setFirstName] = useState(contact?.firstName || '')
   const [lastName, setLastName] = useState(contact?.lastName || '')
-  const [email, setEmail] = useState(contact?.email || '')
   const [phone, setPhone] = useState(contact?.phone || '')
   const [linkedInUrl, setLinkedInUrl] = useState(contact?.linkedInUrl || '')
+  
+  // Email management state
+  const [emails, setEmails] = useState<ContactEmail[]>([])
+  const [newEmailAddress, setNewEmailAddress] = useState('')
+  const [editingEmailId, setEditingEmailId] = useState<number | null>(null)
+  const [editingEmailAddress, setEditingEmailAddress] = useState('')
 
   // Re-sync local state when data loads
   useEffect(() => {
     if (!contact) return
     setFirstName(contact.firstName || '')
     setLastName(contact.lastName || '')
-    setEmail(contact.email || '')
     setPhone(contact.phone || '')
     setLinkedInUrl(contact.linkedInUrl || '')
   }, [contact])
 
+  useEffect(() => {
+    setEmails(contactEmails)
+  }, [contactEmails])
+
   async function save() {
     const res = await fetch(`/api/contacts/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ firstName, lastName, email, phone, linkedInUrl }),
+      body: JSON.stringify({ firstName, lastName, phone, linkedInUrl }),
     })
     if (!res.ok) return
     await mutate()
     router.push(`/contacts/${id}`)
+  }
+
+  async function addEmail() {
+    if (!newEmailAddress.trim()) return
+    
+    const res = await fetch(`/api/contacts/${id}/emails`, {
+      method: 'POST',
+      body: JSON.stringify({ email: newEmailAddress.trim(), active: true }),
+    })
+    
+    if (res.ok) {
+      setNewEmailAddress('')
+      await mutate()
+    } else {
+      const error = await res.json()
+      alert(error.error || 'Failed to add email')
+    }
+  }
+
+  async function updateEmail(emailId: number, email: string, active: boolean) {
+    const res = await fetch(`/api/contacts/${id}/emails/${emailId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ email, active }),
+    })
+    
+    if (res.ok) {
+      setEditingEmailId(null)
+      setEditingEmailAddress('')
+      await mutate()
+    } else {
+      const error = await res.json()
+      alert(error.error || 'Failed to update email')
+    }
+  }
+
+  async function deleteEmail(emailId: number) {
+    if (!confirm('Delete this email address?')) return
+    
+    const res = await fetch(`/api/contacts/${id}/emails/${emailId}`, {
+      method: 'DELETE',
+    })
+    
+    if (res.ok) {
+      await mutate()
+    } else {
+      const error = await res.json()
+      alert(error.error || 'Failed to delete email')
+    }
   }
 
   if (!contact) return <div className="p-6">Laster…</div>
@@ -100,12 +165,114 @@ export default function EditContactPage() {
           />
         </div>
         <div>
-          <label className="block text-sm mb-1">E-post</label>
-          <input
-            className="w-full border rounded p-2 text-sm"
-            value={email ?? ''}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <label className="block text-sm mb-1">E-postadresser</label>
+          <div className="space-y-2">
+            {emails.map((emailItem) => (
+              <div key={emailItem.id} className="flex items-center gap-2 p-2 border rounded">
+                {editingEmailId === emailItem.id ? (
+                  <>
+                    <input
+                      className="flex-1 border rounded p-1 text-sm"
+                      value={editingEmailAddress}
+                      onChange={(e) => setEditingEmailAddress(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          updateEmail(emailItem.id, editingEmailAddress, emailItem.active)
+                        } else if (e.key === 'Escape') {
+                          setEditingEmailId(null)
+                          setEditingEmailAddress('')
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <label className="flex items-center text-sm">
+                      <input
+                        type="checkbox"
+                        checked={emailItem.active}
+                        onChange={(e) =>
+                          updateEmail(emailItem.id, editingEmailAddress, e.target.checked)
+                        }
+                        className="mr-1"
+                      />
+                      Aktiv
+                    </label>
+                    <button
+                      onClick={() => updateEmail(emailItem.id, editingEmailAddress, emailItem.active)}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingEmailId(null)
+                        setEditingEmailAddress('')
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-sm">{emailItem.email}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded ${
+                      emailItem.active 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {emailItem.active ? 'Aktiv' : 'Inaktiv'}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setEditingEmailId(emailItem.id)
+                        setEditingEmailAddress(emailItem.email)
+                      }}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await updateEmail(emailItem.id, emailItem.email, !emailItem.active)
+                      }}
+                      className={`text-sm px-2 py-1 rounded ${
+                        emailItem.active
+                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          : 'bg-green-200 text-green-700 hover:bg-green-300'
+                      }`}
+                    >
+                      {emailItem.active ? 'Deaktiver' : 'Aktiver'}
+                    </button>
+                    <button
+                      onClick={() => deleteEmail(emailItem.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+            <div className="flex items-center gap-2">
+              <input
+                className="flex-1 border rounded p-2 text-sm"
+                placeholder="Legg til ny e-postadresse..."
+                value={newEmailAddress}
+                onChange={(e) => setNewEmailAddress(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addEmail()
+                  }
+                }}
+              />
+              <button
+                onClick={addEmail}
+                className="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 inline-flex items-center gap-1.5"
+              >
+                <Plus className="h-4 w-4" /> Legg til
+              </button>
+            </div>
+          </div>
         </div>
         <div>
           <label className="block text-sm mb-1">Telefon</label>
