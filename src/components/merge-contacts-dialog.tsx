@@ -34,6 +34,7 @@ type MergeContactsDialogProps = {
     emailAddresses: number
     emails: number
     leads: number
+    comments: number
     events: number
     followups: number
   }
@@ -42,6 +43,7 @@ type MergeContactsDialogProps = {
     mergeEmailAddresses: boolean
     mergeEmails: boolean
     mergeLeads: boolean
+    mergeComments: boolean
     mergeEvents: boolean
     mergeFollowups: boolean
     deleteSourceContact: boolean
@@ -62,6 +64,7 @@ export function MergeContactsDialog({
   const [mergeEmailAddresses, setMergeEmailAddresses] = useState(contactCounts.emailAddresses > 0)
   const [mergeEmails, setMergeEmails] = useState(contactCounts.emails > 0)
   const [mergeLeads, setMergeLeads] = useState(contactCounts.leads > 0)
+  const [mergeComments, setMergeComments] = useState(contactCounts.comments > 0)
   const [mergeEvents, setMergeEvents] = useState(contactCounts.events > 0)
   const [mergeFollowups, setMergeFollowups] = useState(contactCounts.followups > 0)
   const [deleteSourceContact, setDeleteSourceContact] = useState(false)
@@ -85,6 +88,7 @@ export function MergeContactsDialog({
         mergeEmailAddresses,
         mergeEmails,
         mergeLeads,
+        mergeComments,
         mergeEvents,
         mergeFollowups,
         deleteSourceContact,
@@ -96,6 +100,7 @@ export function MergeContactsDialog({
       setMergeEmailAddresses(contactCounts.emailAddresses > 0)
       setMergeEmails(contactCounts.emails > 0)
       setMergeLeads(contactCounts.leads > 0)
+      setMergeComments(contactCounts.comments > 0)
       setMergeEvents(contactCounts.events > 0)
       setMergeFollowups(contactCounts.followups > 0)
       setDeleteSourceContact(false)
@@ -212,6 +217,19 @@ export function MergeContactsDialog({
                 />
                 <span className={contactCounts.leads === 0 ? 'text-gray-400' : ''}>
                   Leads ({contactCounts.leads})
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={mergeComments}
+                  onChange={(e) => setMergeComments(e.target.checked)}
+                  disabled={contactCounts.comments === 0}
+                  className="rounded"
+                />
+                <span className={contactCounts.comments === 0 ? 'text-gray-400' : ''}>
+                  Kommentarer ({contactCounts.comments})
                 </span>
               </label>
               

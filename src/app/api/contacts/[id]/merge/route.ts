@@ -10,6 +10,7 @@ const mergeContactSchema = z.object({
   mergeEmailAddresses: z.boolean().default(false),
   mergeEmails: z.boolean().default(false),
   mergeLeads: z.boolean().default(false),
+  mergeComments: z.boolean().default(false),
   mergeEvents: z.boolean().default(false),
   mergeFollowups: z.boolean().default(false),
   deleteSourceContact: z.boolean().default(false),
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const { targetContactId, mergeEmailAddresses, mergeEmails, mergeLeads, mergeEvents, mergeFollowups, deleteSourceContact } = parsed.data
+  const { targetContactId, mergeEmailAddresses, mergeEmails, mergeLeads, mergeComments, mergeEvents, mergeFollowups, deleteSourceContact } = parsed.data
 
   // Verify both contacts exist
   const [sourceContact] = await db.select().from(contacts).where(eq(contacts.id, sourceContactId)).limit(1)
@@ -68,10 +69,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
 
       // Merge comments
-      if (mergeEvents) {
+      if (mergeComments) {
         await tx.update(comments)
           .set({ contactId: targetContactId })
           .where(eq(comments.contactId, sourceContactId))
+      }
+
+      // Merge events (note: events table has entityId, not contactId)
+      if (mergeEvents) {
+        await tx.update(events)
+          .set({ entityId: targetContactId })
+          .where(eq(events.entityId, sourceContactId))
       }
 
       // Merge followups
@@ -79,13 +87,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         await tx.update(followups)
           .set({ contactId: targetContactId })
           .where(eq(followups.contactId, sourceContactId))
-      }
-
-      // Merge events
-      if (mergeEvents) {
-        await tx.update(events)
-          .set({ entityId: targetContactId })
-          .where(eq(events.entityId, sourceContactId))
       }
 
       // Create merge event

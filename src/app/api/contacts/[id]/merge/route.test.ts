@@ -136,6 +136,7 @@ describe('/api/contacts/[id]/merge', () => {
         mergeEmailAddresses: true,
         mergeEmails: false,
         mergeLeads: false,
+        mergeComments: false,
         mergeEvents: false,
         mergeFollowups: false,
         deleteSourceContact: false,
@@ -162,5 +163,72 @@ describe('/api/contacts/[id]/merge', () => {
         excerpt: expect.stringContaining('Merged contact John Doe'),
       })
     )
+  })
+
+  it('should successfully merge comments when requested', async () => {
+    // Mock transaction that tracks what gets merged
+    const mockUpdateCalls: any[] = []
+    const mockTransaction = jest.fn().mockImplementation(async (callback) => {
+      await callback({
+        update: jest.fn().mockImplementation((table) => {
+          const updateCall = { table }
+          mockUpdateCalls.push(updateCall)
+          return {
+            set: jest.fn().mockReturnValue({
+              where: jest.fn(),
+            }),
+          }
+        }),
+        delete: jest.fn().mockReturnValue({
+          where: jest.fn(),
+        }),
+      })
+    })
+    
+    db.transaction = mockTransaction
+
+    // Mock contacts exist and are different
+    let callCount = 0
+    db.select.mockReturnValue({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockImplementation(() => {
+            callCount++
+            if (callCount === 1) {
+              return Promise.resolve([{ id: 1, firstName: 'John', lastName: 'Doe' }])
+            } else {
+              return Promise.resolve([{ id: 2, firstName: 'Jane', lastName: 'Smith' }])
+            }
+          }),
+        }),
+      }),
+    })
+
+    const params = Promise.resolve({ id: '1' })
+    const req = {
+      json: jest.fn().mockResolvedValue({
+        targetContactId: 2,
+        mergeEmailAddresses: false,
+        mergeEmails: false,
+        mergeLeads: false,
+        mergeComments: true, // Only merge comments
+        mergeEvents: false,
+        mergeFollowups: false,
+        deleteSourceContact: false,
+      }),
+    }
+
+    const response = await POST(req as any, { params })
+    expect(response.status).toBe(200)
+    
+    const data = await response.json()
+    expect(data.success).toBe(true)
+    expect(data.message).toContain('Successfully merged')
+    
+    // Verify transaction was called
+    expect(mockTransaction).toHaveBeenCalled()
+    
+    // Should have called update once for comments
+    expect(mockUpdateCalls).toHaveLength(1)
   })
 })

@@ -72,6 +72,7 @@ export default function EditContactPage() {
     emailAddresses: number
     emails: number
     leads: number
+    comments: number
     events: number
     followups: number
   }>(id ? `/api/contacts/${id}/counts` : null)
@@ -152,6 +153,7 @@ export default function EditContactPage() {
     mergeEmailAddresses: boolean
     mergeEmails: boolean
     mergeLeads: boolean
+    mergeComments: boolean
     mergeEvents: boolean
     mergeFollowups: boolean
     deleteSourceContact: boolean

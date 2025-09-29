@@ -8,6 +8,7 @@ import {
   emails,
   comments,
   followups,
+  events,
   users,
 } from '@/db/schema'
 import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray, count, sql } from 'drizzle-orm'
@@ -227,11 +228,18 @@ export async function getContactCounts(contactId: number) {
     .from(followups)
     .where(eq(followups.contactId, contactId))
 
+  // Get actual events count (from events table where entity = 'contact')
+  const [eventsCount] = await db
+    .select({ count: count(events.id) })
+    .from(events)
+    .where(eq(events.entityId, contactId))
+
   return {
     emailAddresses: emailAddressesCount?.count || 0,
     emails: emailsCount?.count || 0,
     leads: leadsCount?.count || 0,
-    events: commentsCount?.count || 0, // Using comments as events for now
+    comments: commentsCount?.count || 0,
+    events: eventsCount?.count || 0,
     followups: followupsCount?.count || 0,
   }
 }
