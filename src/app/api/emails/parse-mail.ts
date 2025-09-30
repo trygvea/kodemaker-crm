@@ -60,10 +60,13 @@ export function parsePostmarkInboundEmail(
         error: 'No forwarded messages found',
       }
     }
+    const forwardFrom = extractFirstEmailFromAddressList(forwarded[0].headers.from)
+    const forwardTo = extractFirstEmailFromAddressList(forwarded[0].headers.to)
+    const contactEmail = forwardFrom?.endsWith('@kodemaker.no') ? forwardTo : forwardFrom
     return {
       mode: 'FORWARDED',
       crmUser,
-      contactEmail: extractFirstEmailFromAddressList(forwarded[0].headers.from),
+      contactEmail,
       date,
       subject,
       body: forwarded[0].body,
