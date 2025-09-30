@@ -79,7 +79,7 @@ export async function PATCH(
   }
   
   if (changes.length > 0) {
-    await createEventWithContext('contact', contactId, 'Oppdaterte e-postadresse', {
+    await createEventWithContext('contact', contactId, 'Oppdatert e-postadresse', {
       contactId,
       excerpt: changes.join(', '),
     })

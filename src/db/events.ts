@@ -61,7 +61,7 @@ export async function createEventWithContext(
   } catch {}
 
   const useDash = contactName && companyName
-  const context = `${verb} på ${contactName} ${useDash ? ' / ' : ''} ${companyName ?? ''}`.trim()
+  const context = `${verb}: ${contactName} ${useDash ? ' / ' : ''} ${companyName ?? ''}`.trim()
   const desc = options?.excerpt ? `${context}: ${options.excerpt}` : context
   return createEvent(entity, entityId, desc)
 }

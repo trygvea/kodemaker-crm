@@ -93,7 +93,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       await createEventWithContext(
         'contact',
         targetContactId,
-        'merged',
+        'Merge',
         {
           contactId: targetContactId,
           excerpt: `Merged contact ${sourceContact.firstName} ${sourceContact.lastName} (ID: ${sourceContactId}) into ${targetContact.firstName} ${targetContact.lastName}`,
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         await createEventWithContext(
           'contact',
           sourceContactId,
-          'deleted',
+          'Slettet',
           {
             contactId: sourceContactId,
             excerpt: `Contact ${sourceContact.firstName} ${sourceContact.lastName} deleted after merge into ${targetContact.firstName} ${targetContact.lastName}`,
