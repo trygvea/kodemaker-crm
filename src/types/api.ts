@@ -81,6 +81,7 @@ export type GetCompanyDetailResponse = {
     lastName: string
     phone?: string | null
     linkedInUrl?: string | null
+    emails: string
   }>
   comments: ApiComment[]
   leads: Array<{

@@ -106,6 +106,7 @@ export default function CompanyDetailPage() {
                 <div className="font-medium">
                   {c.firstName} {c.lastName}
                 </div>
+                <div className="text-sm text-muted-foreground">{c.emails}</div>
               </div>
               <div
                 className="space-x-2 flex items-center"
