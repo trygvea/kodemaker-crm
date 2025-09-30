@@ -40,7 +40,6 @@ export const contacts = pgTable('contacts', {
   id: serial('id').primaryKey(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
-  email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   linkedInUrl: text('linkedin_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

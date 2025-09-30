@@ -12,7 +12,6 @@ jest.mock('@/db/schema', () => ({
     id: 'contacts.id',
     firstName: 'contacts.firstName',
     lastName: 'contacts.lastName',
-    email: 'contacts.email',
   },
   companies: { id: 'companies.id', name: 'companies.name' },
   contactCompanyHistory: {
@@ -73,9 +72,9 @@ describe('GET /api/contacts de-dup', () => {
     db.select = jest.fn(
       () =>
         new FakeQuery([
-          { id: 1, firstName: 'A', lastName: 'B', email: 'a@b', company: { id: 11, name: 'X' } },
-          { id: 1, firstName: 'A', lastName: 'B', email: 'a@b', company: { id: 12, name: 'Y' } },
-          { id: 2, firstName: 'C', lastName: 'D', email: 'c@d', company: null },
+          { id: 1, firstName: 'A', lastName: 'B', company: { id: 11, name: 'X' } },
+          { id: 1, firstName: 'A', lastName: 'B', company: { id: 12, name: 'Y' } },
+          { id: 2, firstName: 'C', lastName: 'D', company: null },
         ])
     )
     const req = { url: 'https://x.local/api/contacts' }

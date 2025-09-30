@@ -11,7 +11,6 @@ export async function getCompanyDetail(id: number) {
       id: contacts.id,
       firstName: contacts.firstName,
       lastName: contacts.lastName,
-      email: contacts.email,
       phone: contacts.phone,
       linkedInUrl: contacts.linkedInUrl,
     })
