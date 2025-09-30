@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { db } from '@/db/client'
-import { companies, contactCompanyHistory, contacts, contactEmails, emails, users } from '@/db/schema'
+import {
+  companies,
+  contactCompanyHistory,
+  contacts,
+  contactEmails,
+  emails,
+  users,
+} from '@/db/schema'
 import { createEventWithContext } from '@/db/events'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
@@ -50,11 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing contact mail' }, { status: 400 })
   }
 
-  if (!parsedMail.body) {
-    logger.error({ route: '/api/emails', method: 'POST' }, 'No text in body')
-    return NextResponse.json({ error: 'No text in body' }, { status: 400 })
-  }
-
   if (!parsedMail.crmUser) {
     logger.error({ route: '/api/emails', method: 'POST' }, 'Crm user not found')
     return NextResponse.json({ error: 'Crm user not found' }, { status: 400 })
@@ -69,7 +71,7 @@ export async function POST(req: NextRequest) {
     .from(contactEmails)
     .where(eq(contactEmails.email, parsedMail.contactEmail))
     .limit(1)
-  
+
   let contactId = maybeContactEmail?.contactId
   if (!maybeContactEmail) {
     const localPart = parsedMail.contactEmail.split('@')[0]
@@ -78,17 +80,14 @@ export async function POST(req: NextRequest) {
       { route: '/api/emails', method: 'POST' },
       'creating contact for email ' + parsedMail.contactEmail
     )
-    const [created] = await db
-      .insert(contacts)
-      .values({ firstName, lastName })
-      .returning()
+    const [created] = await db.insert(contacts).values({ firstName, lastName }).returning()
     contactId = created.id
-    
+
     // Also create the contact email record
     await db
       .insert(contactEmails)
       .values({ contactId: created.id, email: parsedMail.contactEmail, active: true })
-    
+
     await createEventWithContext('contact', created.id, 'Ny kontakt', { contactId: created.id })
   }
 
@@ -146,7 +145,7 @@ export async function POST(req: NextRequest) {
   const [createdEmail] = await db
     .insert(emails)
     .values({
-      content: parsedMail.body,
+      content: parsedMail.body || '',
       subject: parsedMail.subject,
       recipientContactId: contactId,
       sourceUserId: createdByUser.id,
