@@ -3,7 +3,6 @@ export type ApiContact = {
   id: number
   firstName: string
   lastName: string
-  email?: string | null
   phone?: string | null
   linkedInUrl?: string | null
 }
@@ -80,9 +79,9 @@ export type GetCompanyDetailResponse = {
     id: number
     firstName: string
     lastName: string
-    email?: string | null
     phone?: string | null
     linkedInUrl?: string | null
+    emails: string[]
   }>
   comments: ApiComment[]
   leads: Array<{

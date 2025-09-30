@@ -29,6 +29,13 @@
       "when": 1758630833211,
       "tag": "0003_workable_mysterio",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1759226451345,
+      "tag": "0004_migrate_contact_emails",
+      "breakpoints": true
     }
   ]
 }
