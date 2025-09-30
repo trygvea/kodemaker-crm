@@ -11,7 +11,7 @@ import {
   events,
   users,
 } from '@/db/schema'
-import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray, count, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray, count } from 'drizzle-orm'
 
 export async function getContactDetail(id: number) {
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1)

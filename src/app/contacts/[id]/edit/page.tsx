@@ -46,7 +46,6 @@ export default function EditContactPage() {
     }>
   }>(id ? `/api/contacts/${id}` : null)
   const contact = data?.contact
-  const contactEmails = data?.contactEmails || []
   const history = data?.history || []
   type Company = { id: number; name: string; emailDomain?: string | null }
   const [open, setOpen] = useState(false)
@@ -84,8 +83,12 @@ export default function EditContactPage() {
     setLastName(contact.lastName || '')
     setPhone(contact.phone || '')
     setLinkedInUrl(contact.linkedInUrl || '')
-    setEmails(contactEmails)
   }, [contact])
+
+  useEffect(() => {
+    const contactEmails = data?.contactEmails || []
+    setEmails(contactEmails)
+  }, [data?.contactEmails])
 
   async function save() {
     const res = await fetch(`/api/contacts/${id}`, {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { contacts, contactCompanyHistory } from '@/db/schema'
+import { contacts, contactCompanyHistory, contactEmails } from '@/db/schema'
 import { z } from 'zod'
 import { createEventWithContext } from '@/db/events'
 import { listContacts } from '@/db/contacts'
@@ -28,12 +28,25 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
-  const { companyId, startDate, ...values } = parsed.data
+  const { companyId, startDate, email, ...values } = parsed.data
+  
+  // Create contact without legacy email field
   const [created] = await db.insert(contacts).values(values).returning()
+  
+  // If email is provided, create entry in contactEmails table
+  if (email && email.trim()) {
+    await db.insert(contactEmails).values({
+      contactId: created.id,
+      email: email.trim(),
+      active: true,
+    })
+  }
+  
   await createEventWithContext('contact', created.id, 'Ny kontakt', {
     contactId: created.id,
     companyId: companyId ?? undefined,
   })
+  
   if (companyId && startDate) {
     await db.insert(contactCompanyHistory).values({ companyId, contactId: created.id, startDate })
   }

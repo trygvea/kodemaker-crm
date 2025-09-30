@@ -10,11 +10,6 @@ const createContactEmailSchema = z.object({
   active: z.boolean().optional().default(true),
 })
 
-const updateContactEmailSchema = z.object({
-  email: z.string().email().optional(),
-  active: z.boolean().optional(),
-})
-
 // GET /api/contacts/[id]/emails - Get all emails for a contact
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = await params
