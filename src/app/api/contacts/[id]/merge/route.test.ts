@@ -20,8 +20,8 @@ jest.mock('@/db/events', () => ({
   createEventWithContext: jest.fn(),
 }))
 
-const { db } = require('@/db/client')
-const { createEventWithContext } = require('@/db/events')
+const { db } = jest.requireMock('@/db/client') as any
+const { createEventWithContext } = jest.requireMock('@/db/events') as any
 
 describe('/api/contacts/[id]/merge', () => {
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe('/api/contacts/[id]/merge', () => {
 
     const response = await POST(req as any, { params })
     expect(response.status).toBe(400)
-    
+
     const data = await response.json()
     expect(data.error).toBeDefined()
   })
@@ -63,7 +63,7 @@ describe('/api/contacts/[id]/merge', () => {
 
     const response = await POST(req as any, { params })
     expect(response.status).toBe(404)
-    
+
     const data = await response.json()
     expect(data.error).toBe('Source contact not found')
   })
@@ -73,7 +73,9 @@ describe('/api/contacts/[id]/merge', () => {
     db.select.mockReturnValue({
       from: jest.fn().mockReturnValue({
         where: jest.fn().mockReturnValue({
-          limit: jest.fn().mockResolvedValueOnce([{ id: 1, firstName: 'John', lastName: 'Doe' }])
+          limit: jest
+            .fn()
+            .mockResolvedValueOnce([{ id: 1, firstName: 'John', lastName: 'Doe' }])
             .mockResolvedValueOnce([{ id: 1, firstName: 'John', lastName: 'Doe' }]),
         }),
       }),
@@ -90,7 +92,7 @@ describe('/api/contacts/[id]/merge', () => {
 
     const response = await POST(req as any, { params })
     expect(response.status).toBe(400)
-    
+
     const data = await response.json()
     expect(data.error).toBe('Cannot merge contact with itself')
   })
@@ -109,7 +111,7 @@ describe('/api/contacts/[id]/merge', () => {
         }),
       })
     })
-    
+
     db.transaction = mockTransaction
 
     // Mock contacts exist and are different
@@ -145,14 +147,14 @@ describe('/api/contacts/[id]/merge', () => {
 
     const response = await POST(req as any, { params })
     expect(response.status).toBe(200)
-    
+
     const data = await response.json()
     expect(data.success).toBe(true)
     expect(data.message).toContain('Successfully merged')
-    
+
     // Verify transaction was called
     expect(mockTransaction).toHaveBeenCalled()
-    
+
     // Verify event was created
     expect(createEventWithContext).toHaveBeenCalledWith(
       'contact',
@@ -184,7 +186,7 @@ describe('/api/contacts/[id]/merge', () => {
         }),
       })
     })
-    
+
     db.transaction = mockTransaction
 
     // Mock contacts exist and are different
@@ -220,14 +222,14 @@ describe('/api/contacts/[id]/merge', () => {
 
     const response = await POST(req as any, { params })
     expect(response.status).toBe(200)
-    
+
     const data = await response.json()
     expect(data.success).toBe(true)
     expect(data.message).toContain('Successfully merged')
-    
+
     // Verify transaction was called
     expect(mockTransaction).toHaveBeenCalled()
-    
+
     // Should have called update once for comments
     expect(mockUpdateCalls).toHaveLength(1)
   })
