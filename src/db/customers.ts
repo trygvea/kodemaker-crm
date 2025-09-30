@@ -35,7 +35,7 @@ export async function getCompanyDetail(id: number) {
       .orderBy(contactEmails.createdAt)
   }
 
-  // Group emails by contact ID and concatenate them
+  // Group emails by contact ID
   const emailsByContactId = contactEmailsData.reduce((acc, ce) => {
     if (!acc[ce.contactId]) {
       acc[ce.contactId] = []
@@ -44,10 +44,10 @@ export async function getCompanyDetail(id: number) {
     return acc
   }, {} as Record<number, string[]>)
 
-  // Add concatenated emails to each contact
+  // Add emails array to each contact
   const contactsWithEmails = companyContacts.map(contact => ({
     ...contact,
-    emails: emailsByContactId[contact.id]?.join('; ') || '',
+    emails: emailsByContactId[contact.id] || [],
   }))
 
   const companyLeads = await db
