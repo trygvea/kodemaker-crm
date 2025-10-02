@@ -159,7 +159,7 @@ describe('/api/contacts/[id]/merge', () => {
     expect(createEventWithContext).toHaveBeenCalledWith(
       'contact',
       2,
-      'merged',
+      'Merge',
       expect.objectContaining({
         contactId: 2,
         excerpt: expect.stringContaining('Merged contact John Doe'),
