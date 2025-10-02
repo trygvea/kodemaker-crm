@@ -30,6 +30,12 @@ File/Folder Conventions
 - `__tests__/api` and `__tests__/ui` (if present): keep tests organized by layer.
 - Strings: Norwegian product copy; use “Organisasjon/Organisasjoner” instead of “Kunde/Kunder”.
 
+Contacts and Emails
+
+- Contacts' email addresses now live in `contact_emails` (see `contactEmails` in `src/db/schema.ts`).
+- Do not read/write `contacts.email` in new code; aggregate via `contact_emails`.
+- UI lists concatenate a contact's active and inactive addresses server-side where needed.
+
 Agent Playbooks
 
 1. Add or change an API route
@@ -40,6 +46,12 @@ Agent Playbooks
 - Create rich event with `createEventWithContext`.
 - Update or add tests in `__tests__/api`.
 - If shape changes, update UI callers and types.
+
+Merging Contacts
+
+- Endpoint: `POST /api/contacts/[id]/merge` merges a source contact into a target.
+- Supports selective merging of email addresses, emails, leads, comments, events, followups.
+- Always create an event describing the merge; consider redacting sensitive email content.
 
 2. Modify a page layout
 
@@ -71,6 +83,12 @@ Testing
 - If user-facing text changes, update tests accordingly (e.g., “Organisasjoner”).
 - API tests should mock NextResponse where necessary (see `jest.setup.ts`).
 - Keep tests fast and hermetic; avoid real network/DB unless integration is explicit.
+
+Jest/TS Patterns
+
+- Tests run under `ts-jest` with CommonJS; prefer ESM `import` in test files.
+- When accessing mocked modules, use `jest.requireMock('<path>')` to get the mocked object with types relaxed.
+- Mock Drizzle builders at the call-site level (e.g., chain `.select().from().where().limit()` returning promises).
 
 Migrations
 

@@ -13,8 +13,9 @@ It was created with Cursor in Agent mode with the gpt-5-high-fast model, and boo
 - Contacts
   - New search page `/contacts` with incremental search (from first character)
   - De‑duplicated list (unique contacts even with multiple company histories)
+  - Contact email addresses are modeled in `contact_emails`; lists concatenate addresses
   - Contact detail page: comments, open followups, leads, emails; “Endre” button to edit
-  - Contact edit page: update fields and manage company affiliations with searchable picker
+  - Contact edit page: update fields, manage email addresses, and company affiliations with searchable picker
 - Companies
   - Company detail page: comments, contacts, leads; “Endre” button to edit
   - Company edit page: update name, website, email domain, contact email
@@ -97,6 +98,10 @@ Note: If you add/alter enums, ensure migrations do not recreate an existing enum
 - `GET /api/contacts` — list/search (top 100 or top 200 on search; unique by contact)
 - `GET /api/contacts/:id` — contact details (sorted lists)
 - `PATCH /api/contacts/:id` — update contact
+- `POST /api/contacts/:id/emails` — add email address for a contact
+- `PATCH /api/contacts/:id/emails/:emailId` — update email address (email/active)
+- `DELETE /api/contacts/:id/emails/:emailId` — delete email address
+- `POST /api/contacts/:id/merge` — merge a contact into another
 - `GET /api/companies/:id` — company details
 - `PATCH /api/companies/:id` — update company
 - `POST /api/emails` — inbound email (Postmark) parsing and persistence
@@ -142,7 +147,7 @@ npm test
 Highlights:
 
 - Unit tests for email parsing and name derivation
-- API tests for contacts de‑dup and company updates
+- API tests for contacts de‑dup, contact merge, and company updates
 - Events test for Postgres NOTIFY path
 - UI tests for `/events` highlight lifecycle and `/contacts` navigation
 
