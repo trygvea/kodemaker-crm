@@ -15,6 +15,7 @@ import { createHmac } from 'crypto'
 import { postmarkInboundSchema, parsePostmarkInboundEmail } from './parse-mail'
 
 import { deriveNamesFromEmailLocalPart } from './name-utils'
+import bcrypt from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
   logger.info({ route: '/api/emails', method: 'POST' }, 'api call')
@@ -128,17 +129,31 @@ export async function POST(req: NextRequest) {
       .returning()
   }
 
-  // Find created by user
-  const [createdByUser] = await db.select().from(users).where(eq(users.email, parsedMail.crmUser))
+  // Find or create CRM user (auto-provision if missing)
+  const crmEmail = parsedMail.crmUser
+  const [existingUser] = await db.select().from(users).where(eq(users.email, crmEmail))
+  let createdByUser = existingUser
   if (!createdByUser) {
-    logger.error(
-      { route: '/api/emails', method: 'POST' },
-      `User with email ${parsedMail.crmUser} not in user db`
-    )
-    return NextResponse.json(
-      { error: `User with email ${parsedMail.crmUser} not in user db` },
-      { status: 400 }
-    )
+    const domain = crmEmail.split('@')[1]?.toLowerCase()
+    if (domain !== 'kodemaker.no') {
+      logger.error(
+        { route: '/api/emails', method: 'POST' },
+        `User with email ${crmEmail} has unsupported domain`
+      )
+      return NextResponse.json(
+        { error: `User with email ${crmEmail} not allowed` },
+        { status: 400 }
+      )
+    }
+    const local = crmEmail.split('@')[0]
+    const { firstName, lastName } = deriveNamesFromEmailLocalPart(local)
+    const passwordHash = await bcrypt.hash('google-login', 8)
+    const [createdUser] = await db
+      .insert(users)
+      .values({ firstName, lastName, email: crmEmail, passwordHash, role: 'user' })
+      .returning()
+    createdByUser = createdUser
+    logger.info({ route: '/api/emails', method: 'POST' }, `Auto-provisioned CRM user ${crmEmail}`)
   }
 
   // Insert email
