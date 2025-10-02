@@ -100,10 +100,10 @@ export function parseForwardedMessages(bodyText: string): ForwardedMessage[] {
     }
 
     const headers = {
-      from: all['from'],
+      from: all['from'] || all['fra'],
       date: all['date'],
       subject: all['subject'],
-      to: all['to'],
+      to: all['to'] || all['til'],
     }
 
     const body = lines.slice(i).join('\n').trim()
