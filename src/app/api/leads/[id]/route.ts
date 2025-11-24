@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { companies, contacts, leads, comments } from '@/db/schema'
+import { companies, contacts, leads, comments, users } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { createEvent } from '@/db/events'
@@ -17,6 +17,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       status: leads.status,
       createdAt: leads.createdAt,
       updatedAt: leads.updatedAt,
+      createdBy: {
+        firstName: users.firstName,
+        lastName: users.lastName,
+      },
       company: {
         id: companies.id,
         name: companies.name,
@@ -28,6 +32,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       },
     })
     .from(leads)
+    .leftJoin(users, eq(leads.createdByUserId, users.id))
     .leftJoin(companies, eq(leads.companyId, companies.id))
     .leftJoin(contacts, eq(leads.contactId, contacts.id))
     .where(eq(leads.id, id))

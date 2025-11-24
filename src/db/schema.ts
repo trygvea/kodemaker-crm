@@ -33,6 +33,9 @@ export const companies = pgTable('companies', {
   websiteUrl: text('website_url'),
   emailDomain: text('email_domain'),
   contactEmail: text('contact_email'),
+  createdByUserId: integer('created_by_user_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -42,6 +45,9 @@ export const contacts = pgTable('contacts', {
   lastName: text('last_name').notNull(),
   phone: varchar('phone', { length: 50 }),
   linkedInUrl: text('linkedin_url'),
+  createdByUserId: integer('created_by_user_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 

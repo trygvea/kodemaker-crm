@@ -4,6 +4,8 @@ import { companies, leads } from '@/db/schema'
 import { createEventWithContext } from '@/db/events'
 import { z } from 'zod'
 import { ilike, inArray, sql } from 'drizzle-orm'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 const createCompanySchema = z.object({
   name: z.string().min(1),
@@ -48,12 +50,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  const userId = session?.user?.id ? Number(session.user.id) : undefined
   const json = await req.json()
   const parsed = createCompanySchema.safeParse(json)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
-  const [created] = await db.insert(companies).values(parsed.data).returning()
+  const [created] = await db
+    .insert(companies)
+    .values({ ...parsed.data, createdByUserId: userId })
+    .returning()
   await createEventWithContext('company', created.id, 'Ny organisasjon', {
     companyId: created.id,
   })

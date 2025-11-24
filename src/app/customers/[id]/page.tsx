@@ -7,6 +7,7 @@ import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
 import { Pencil } from 'lucide-react'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
+import { CreatedBy } from '@/components/created-by'
 
 import type { GetCompanyDetailResponse } from '@/types/api'
 
@@ -237,6 +238,7 @@ export default function CompanyDetailPage() {
           ))}
         </div>
       </section>
+      <CreatedBy createdAt={company.createdAt} createdBy={data.createdBy} />
     </div>
   )
 }

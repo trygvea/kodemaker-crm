@@ -4,6 +4,8 @@ import { contacts, contactCompanyHistory, contactEmails } from '@/db/schema'
 import { z } from 'zod'
 import { createEventWithContext } from '@/db/events'
 import { listContacts } from '@/db/contacts'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 const createContactSchema = z.object({
   firstName: z.string().min(1),
@@ -23,16 +25,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  const userId = session?.user?.id ? Number(session.user.id) : undefined
   const json = await req.json()
   const parsed = createContactSchema.safeParse(json)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
   const { companyId, startDate, email, ...values } = parsed.data
-  
+
   // Create contact without legacy email field
-  const [created] = await db.insert(contacts).values(values).returning()
-  
+  const [created] = await db
+    .insert(contacts)
+    .values({ ...values, createdByUserId: userId })
+    .returning()
+
   // If email is provided, create entry in contactEmails table
   if (email && email.trim()) {
     await db.insert(contactEmails).values({
@@ -41,12 +48,12 @@ export async function POST(req: NextRequest) {
       active: true,
     })
   }
-  
+
   await createEventWithContext('contact', created.id, 'Ny kontakt', {
     contactId: created.id,
     companyId: companyId ?? undefined,
   })
-  
+
   if (companyId && startDate) {
     await db.insert(contactCompanyHistory).values({ companyId, contactId: created.id, startDate })
   }

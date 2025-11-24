@@ -16,6 +16,15 @@ import { and, asc, desc, eq, ilike, isNull, isNotNull, or, inArray, count } from
 export async function getContactDetail(id: number) {
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1)
   if (!contact) return null
+  let createdBy: { firstName: string | null; lastName: string | null } | null = null
+  if (contact.createdByUserId) {
+    const [u] = await db
+      .select({ firstName: users.firstName, lastName: users.lastName })
+      .from(users)
+      .where(eq(users.id, contact.createdByUserId))
+      .limit(1)
+    if (u) createdBy = u
+  }
 
   const [current] = await db
     .select({
@@ -105,13 +114,14 @@ export async function getContactDetail(id: number) {
     emails: contactEmailsData,
     contactEmails: contactEmailAddresses,
     history,
+    createdBy,
   }
 }
 
 export async function listContacts(query: string | null) {
   const isSearch = query && query.trim().length >= 1
   const limit = isSearch ? 200 : 100
-  
+
   // First, get the basic contact info with company
   const baseContacts = await db
     .select({
@@ -170,7 +180,7 @@ export async function listContacts(query: string | null) {
   })
 
   // Now get all emails for these contacts
-  const contactIds = uniqueContacts.map(c => c.id)
+  const contactIds = uniqueContacts.map((c) => c.id)
   if (contactIds.length === 0) {
     return []
   }
@@ -186,16 +196,19 @@ export async function listContacts(query: string | null) {
     .orderBy(contactEmails.createdAt)
 
   // Group emails by contact ID and concatenate them
-  const emailsByContactId = contactEmailsData.reduce((acc, ce) => {
-    if (!acc[ce.contactId]) {
-      acc[ce.contactId] = []
-    }
-    acc[ce.contactId].push(ce.email)
-    return acc
-  }, {} as Record<number, string[]>)
+  const emailsByContactId = contactEmailsData.reduce(
+    (acc, ce) => {
+      if (!acc[ce.contactId]) {
+        acc[ce.contactId] = []
+      }
+      acc[ce.contactId].push(ce.email)
+      return acc
+    },
+    {} as Record<number, string[]>
+  )
 
   // Add concatenated emails to each contact
-  return uniqueContacts.map(contact => ({
+  return uniqueContacts.map((contact) => ({
     ...contact,
     emails: emailsByContactId[contact.id]?.join('; ') || '',
   }))

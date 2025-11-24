@@ -14,6 +14,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { FollowupsList } from '@/components/followups-list'
+import { CreatedBy } from '@/components/created-by'
 
 export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
@@ -37,7 +38,8 @@ export default function ContactDetailPage() {
   })
 
   if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, comments, leads, emails, contactEmails } = data
+  const { contact, currentCompany, previousCompanies, comments, leads, emails, contactEmails } =
+    data
   async function saveComment() {
     const body = { content: newComment, contactId: contact.id }
     const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
@@ -330,6 +332,7 @@ export default function ContactDetailPage() {
           )}
         </div>
       </section>
+      <CreatedBy createdAt={contact.createdAt} createdBy={data.createdBy} />
     </div>
   )
 }

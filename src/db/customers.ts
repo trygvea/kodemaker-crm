@@ -1,10 +1,27 @@
 import { db } from '@/db/client'
-import { companies, contacts, contactCompanyHistory, leads, comments, contactEmails } from '@/db/schema'
+import {
+  companies,
+  contacts,
+  contactCompanyHistory,
+  leads,
+  comments,
+  users,
+  contactEmails,
+} from '@/db/schema'
 import { and, desc, eq, isNull, inArray } from 'drizzle-orm'
 
 export async function getCompanyDetail(id: number) {
   const [company] = await db.select().from(companies).where(eq(companies.id, id)).limit(1)
   if (!company) return null
+  let createdBy: { firstName: string | null; lastName: string | null } | null = null
+  if (company.createdByUserId) {
+    const [u] = await db
+      .select({ firstName: users.firstName, lastName: users.lastName })
+      .from(users)
+      .where(eq(users.id, company.createdByUserId))
+      .limit(1)
+    if (u) createdBy = u
+  }
 
   const companyContacts = await db
     .select({
@@ -20,9 +37,9 @@ export async function getCompanyDetail(id: number) {
     .orderBy(desc(contacts.id))
 
   // Fetch contact emails for all contacts
-  const contactIds = companyContacts.map(c => c.id)
+  const contactIds = companyContacts.map((c) => c.id)
   let contactEmailsData: Array<{ contactId: number; email: string; active: boolean }> = []
-  
+
   if (contactIds.length > 0) {
     contactEmailsData = await db
       .select({
@@ -36,16 +53,19 @@ export async function getCompanyDetail(id: number) {
   }
 
   // Group emails by contact ID
-  const emailsByContactId = contactEmailsData.reduce((acc, ce) => {
-    if (!acc[ce.contactId]) {
-      acc[ce.contactId] = []
-    }
-    acc[ce.contactId].push(ce.email)
-    return acc
-  }, {} as Record<number, string[]>)
+  const emailsByContactId = contactEmailsData.reduce(
+    (acc, ce) => {
+      if (!acc[ce.contactId]) {
+        acc[ce.contactId] = []
+      }
+      acc[ce.contactId].push(ce.email)
+      return acc
+    },
+    {} as Record<number, string[]>
+  )
 
   // Add emails array to each contact
-  const contactsWithEmails = companyContacts.map(contact => ({
+  const contactsWithEmails = companyContacts.map((contact) => ({
     ...contact,
     emails: emailsByContactId[contact.id] || [],
   }))
@@ -62,5 +82,11 @@ export async function getCompanyDetail(id: number) {
     .where(eq(comments.companyId, id))
     .orderBy(desc(comments.createdAt))
 
-  return { company, contacts: contactsWithEmails, leads: companyLeads, comments: companyComments }
+  return {
+    company,
+    contacts: contactsWithEmails,
+    leads: companyLeads,
+    comments: companyComments,
+    createdBy,
+  }
 }

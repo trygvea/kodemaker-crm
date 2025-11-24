@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
+import { CreatedBy } from '@/components/created-by'
 import {
   Form,
   FormControl,
@@ -41,6 +42,7 @@ export default function LeadDetailPage() {
     status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
     createdAt: string
     updatedAt: string
+    createdBy?: { firstName?: string | null; lastName?: string | null } | null
     company?: { id: number; name: string } | null
     contact?: { id: number; firstName: string; lastName: string } | null
     comments: Array<{ id: number; content: string; createdAt: string }>
@@ -113,7 +115,6 @@ export default function LeadDetailPage() {
               </a>
             </div>
           ) : null}
-          <div>Opprettet: {new Date(data.createdAt).toLocaleString()}</div>
           <div>Sist endret: {new Date(data.updatedAt).toLocaleString()}</div>
         </div>
       </section>
@@ -199,6 +200,7 @@ export default function LeadDetailPage() {
           </form>
         </Form>
       </section>
+      <CreatedBy createdAt={data.createdAt} createdBy={data.createdBy} />
     </div>
   )
 }

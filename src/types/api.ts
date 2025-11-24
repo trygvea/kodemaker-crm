@@ -5,6 +5,7 @@ export type ApiContact = {
   lastName: string
   phone?: string | null
   linkedInUrl?: string | null
+  createdAt: string
 }
 
 type ApiCompanyBrief = {
@@ -62,6 +63,7 @@ export type GetContactDetailResponse = {
     endDate?: string | null
     company: { id: number; name: string }
   }>
+  createdBy?: { firstName?: string | null; lastName?: string | null } | null
 }
 
 // Companies
@@ -71,6 +73,7 @@ export type ApiCompany = {
   websiteUrl?: string | null
   emailDomain?: string | null
   contactEmail?: string | null
+  createdAt: string
 }
 
 export type GetCompanyDetailResponse = {
@@ -90,6 +93,7 @@ export type GetCompanyDetailResponse = {
     description: string
     contactId?: number | null
   }>
+  createdBy?: { firstName?: string | null; lastName?: string | null } | null
 }
 
 // Contacts list
