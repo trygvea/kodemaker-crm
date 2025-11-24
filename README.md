@@ -45,7 +45,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Environment variables
 
-Create a `.env.local` with (examples):
+Create a `.env` with (examples):
 
 ```
 DATABASE_URL=postgres://postgres:postgres@localhost:5440/crm3
@@ -75,11 +75,11 @@ npm run db:migrate
 
 If you intend to change the database schema, you must use database migrations provides by drizzle.
 
-#### Edit schema
+##### Edit schema
 
 Make your changes in src/db/schema.ts.
 
-#### Generate migration
+##### Generate migration
 
 This creates a new migration file in drizzle/000X\__.sql and updates drizzle/meta/_.
 
