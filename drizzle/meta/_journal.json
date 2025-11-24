@@ -43,6 +43,13 @@
       "when": 1759226461345,
       "tag": "0005_add_created_by_to_companies_contacts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1763994670540,
+      "tag": "0006_smart_adam_destine",
+      "breakpoints": true
     }
   ]
 }

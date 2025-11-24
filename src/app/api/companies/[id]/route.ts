@@ -20,6 +20,7 @@ const updateCompanySchema = z.object({
   websiteUrl: z.string().url().optional().or(z.literal('')),
   emailDomain: z.string().optional().or(z.literal('')),
   contactEmail: z.string().email().optional().or(z.literal('')),
+  description: z.string().optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -36,6 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (parsed.data.websiteUrl !== undefined) values.websiteUrl = parsed.data.websiteUrl || null
   if (parsed.data.emailDomain !== undefined) values.emailDomain = parsed.data.emailDomain || null
   if (parsed.data.contactEmail !== undefined) values.contactEmail = parsed.data.contactEmail || null
+  if (parsed.data.description !== undefined) values.description = parsed.data.description || null
   const [updated] = await db.update(companies).set(values).where(eq(companies.id, id)).returning()
   return NextResponse.json(updated)
 }

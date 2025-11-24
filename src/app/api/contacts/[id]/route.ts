@@ -21,6 +21,7 @@ const updateContactSchema = z.object({
   lastName: z.string().min(1).optional(),
   phone: z.string().optional().or(z.literal('')),
   linkedInUrl: z.string().url().optional().or(z.literal('')),
+  description: z.string().optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -37,6 +38,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (parsed.data.lastName !== undefined) values.lastName = parsed.data.lastName
   if (parsed.data.phone !== undefined) values.phone = parsed.data.phone
   if (parsed.data.linkedInUrl !== undefined) values.linkedInUrl = parsed.data.linkedInUrl
+  if (parsed.data.description !== undefined) values.description = parsed.data.description || null
   const [updated] = await db.update(contacts).set(values).where(eq(contacts.id, id)).returning()
   return NextResponse.json(updated)
 }

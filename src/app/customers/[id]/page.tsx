@@ -72,6 +72,12 @@ export default function CompanyDetailPage() {
             ) : null}
             {company.emailDomain ? <div>@{company.emailDomain}</div> : null}
             {company.contactEmail ? <div>{company.contactEmail}</div> : null}
+            {company.description ? (
+              <div className="mt-2 pt-2 border-t">
+                <div className="font-medium text-foreground mb-1">Beskrivelse</div>
+                <div className="whitespace-pre-wrap">{company.description}</div>
+              </div>
+            ) : null}
           </div>
         </div>
         <a

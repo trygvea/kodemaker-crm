@@ -11,6 +11,7 @@ type Company = {
   websiteUrl?: string | null
   emailDomain?: string | null
   contactEmail?: string | null
+  description?: string | null
 }
 
 export default function EditCompanyPage() {
@@ -23,6 +24,7 @@ export default function EditCompanyPage() {
   const [websiteUrl, setWebsiteUrl] = useState(company?.websiteUrl || '')
   const [emailDomain, setEmailDomain] = useState(company?.emailDomain || '')
   const [contactEmail, setContactEmail] = useState(company?.contactEmail || '')
+  const [description, setDescription] = useState(company?.description || '')
 
   useEffect(() => {
     if (!company) return
@@ -30,12 +32,13 @@ export default function EditCompanyPage() {
     setWebsiteUrl(company.websiteUrl || '')
     setEmailDomain(company.emailDomain || '')
     setContactEmail(company.contactEmail || '')
+    setDescription(company.description || '')
   }, [company])
 
   async function save() {
     const res = await fetch(`/api/companies/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ name, websiteUrl, emailDomain, contactEmail }),
+      body: JSON.stringify({ name, websiteUrl, emailDomain, contactEmail, description }),
     })
     if (!res.ok) return
     await mutate()
@@ -84,6 +87,16 @@ export default function EditCompanyPage() {
             className="w-full border rounded p-2 text-sm"
             value={contactEmail ?? ''}
             onChange={(e) => setContactEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Beskrivelse</label>
+          <textarea
+            className="w-full border rounded p-2 text-sm resize-y"
+            rows={3}
+            value={description ?? ''}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Beskrivelse..."
           />
         </div>
         <div className="flex justify-between gap-2">

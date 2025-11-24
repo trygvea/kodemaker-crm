@@ -5,6 +5,7 @@ export type ApiContact = {
   lastName: string
   phone?: string | null
   linkedInUrl?: string | null
+  description?: string | null
   createdAt: string
 }
 
@@ -73,6 +74,7 @@ export type ApiCompany = {
   websiteUrl?: string | null
   emailDomain?: string | null
   contactEmail?: string | null
+  description?: string | null
   createdAt: string
 }
 

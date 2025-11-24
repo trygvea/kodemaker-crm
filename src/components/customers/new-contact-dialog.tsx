@@ -4,6 +4,7 @@ import { useEffect, useState, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Save } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
@@ -55,6 +56,7 @@ export function NewContactDialog({
       email: z.string().email().optional().or(z.literal('')),
       phone: z.string().optional(),
       linkedInUrl: z.string().url().optional().or(z.literal('')),
+      description: z.string().optional(),
       companyId: z.number().optional(),
       startDate: z.string().optional(),
     })
@@ -70,6 +72,7 @@ export function NewContactDialog({
       email: '',
       phone: '',
       linkedInUrl: '',
+      description: '',
       companyId,
       startDate: new Date().toISOString().slice(0, 10),
     },
@@ -308,6 +311,19 @@ export function NewContactDialog({
                   <FormLabel>LinkedIn</FormLabel>
                   <FormControl>
                     <Input placeholder="https://linkedin.com/in/..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Beskrivelse</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Beskrivelse..." rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

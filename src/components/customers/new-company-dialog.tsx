@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -30,6 +31,7 @@ const companySchema = z.object({
   websiteUrl: z.string().url('Ugyldig URL').optional().or(z.literal('')),
   emailDomain: z.string().optional(),
   contactEmail: z.string().email('Ugyldig epost').optional(),
+  description: z.string().optional(),
 })
 
 export function NewCompanyDialog({
@@ -42,7 +44,7 @@ export function NewCompanyDialog({
   const { mutate } = useSWRConfig()
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
-    defaultValues: { name: '', websiteUrl: '', emailDomain: '', contactEmail: '' },
+    defaultValues: { name: '', websiteUrl: '', emailDomain: '', contactEmail: '', description: '' },
   })
 
   const [websiteEdited, setWebsiteEdited] = useState(false)
@@ -206,6 +208,19 @@ export function NewCompanyDialog({
                         field.onChange(e)
                       }}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Beskrivelse</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Beskrivelse..." rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

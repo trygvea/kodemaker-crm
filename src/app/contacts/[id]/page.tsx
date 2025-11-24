@@ -114,6 +114,12 @@ export default function ContactDetailPage() {
               LinkedIn
             </a>
           ) : null}
+          {contact.description ? (
+            <div className="mt-2 pt-2 border-t">
+              <div className="font-medium text-foreground mb-1">Beskrivelse</div>
+              <div className="whitespace-pre-wrap">{contact.description}</div>
+            </div>
+          ) : null}
         </div>
       </section>
 

@@ -22,6 +22,7 @@ type Contact = {
   email?: string | null
   phone?: string | null
   linkedInUrl?: string | null
+  description?: string | null
 }
 
 type ContactEmail = {
@@ -58,6 +59,7 @@ export default function EditContactPage() {
   const [lastName, setLastName] = useState(contact?.lastName || '')
   const [phone, setPhone] = useState(contact?.phone || '')
   const [linkedInUrl, setLinkedInUrl] = useState(contact?.linkedInUrl || '')
+  const [description, setDescription] = useState(contact?.description || '')
 
   // Email management state
   const [emails, setEmails] = useState<ContactEmail[]>([])
@@ -83,6 +85,7 @@ export default function EditContactPage() {
     setLastName(contact.lastName || '')
     setPhone(contact.phone || '')
     setLinkedInUrl(contact.linkedInUrl || '')
+    setDescription(contact.description || '')
   }, [contact])
 
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function EditContactPage() {
   async function save() {
     const res = await fetch(`/api/contacts/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ firstName, lastName, phone, linkedInUrl }),
+      body: JSON.stringify({ firstName, lastName, phone, linkedInUrl, description }),
     })
     if (!res.ok) return
     await mutate()
@@ -338,6 +341,16 @@ export default function EditContactPage() {
             className="w-full border rounded p-2 text-sm"
             value={linkedInUrl ?? ''}
             onChange={(e) => setLinkedInUrl(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Beskrivelse</label>
+          <textarea
+            className="w-full border rounded p-2 text-sm resize-y"
+            rows={3}
+            value={description ?? ''}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Beskrivelse..."
           />
         </div>
         <div className="flex justify-between gap-2">
