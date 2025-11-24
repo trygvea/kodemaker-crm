@@ -48,7 +48,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Create a `.env.local` with (examples):
 
 ```
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/crm3
+DATABASE_URL=postgres://postgres:postgres@localhost:5440/crm3
 
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=dev-secret-change
