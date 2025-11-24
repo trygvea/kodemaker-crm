@@ -63,24 +63,45 @@ POSTMARK_WEBHOOK_SECRET=...
 
 ### Database migrations
 
-If you change any database schema, you must remember to generate migrations.
-The workflow is to first create a new migration, then check it in to git, and then apply it.
+#### Initial migration
 
-Run the following command to create a new migration:
-
-```bash
-npm run db:generate-migrations
-```
-
-Run the following command to apply the migration:
+Run the following command the first time you run the app:
 
 ```bash
 npm run db:migrate
 ```
 
-On Scalingo, checked in migrations will be run automatically when the app is deployed.
+#### Changing the database schema
+
+If you intend to change the database schema, you must use database migrations provides by drizzle.
+
+#### Edit schema
+
+Make your changes in src/db/schema.ts.
+
+#### Generate migration
+
+This creates a new migration file in drizzle/000X\__.sql and updates drizzle/meta/_.
+
+NOTE: Sometimes LLM tools like Cursor may generate the drizzle/000X\__.sql file, without updating the drizzle/meta/_.json file. This is a reciept for trouble.
+
+In stead, run the following command to create a new migration:
+
+```bash
+npm run db:generate-migrations
+```
+
+Verify that the drizzle/000X\_\*.sql is ok. When everything is ok,run the following command to apply the migration:
+
+```bash
+npm run db:migrate
+```
 
 Note: If you add/alter enums, ensure migrations do not recreate an existing enum (common Postgres gotcha).
+
+#### Apply migration on scalingo
+
+On Scalingo, checked in migrations will be run automatically when the app is deployed. You should not need to do anything here.
 
 ### Real‑time Events (SSE)
 
