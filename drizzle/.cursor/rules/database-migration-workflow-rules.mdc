@@ -1,36 +1,50 @@
-# Database Migration Workflow Rules
+---
+description: Database Migration Workflow
+alwaysApply: false
+---
+
+# Database Migration Workflow
 
 ## CRITICAL: Always follow this workflow when changing the database schema
 
 ### Step 1: Update Schema First
+
 - **ALWAYS** edit `src/db/schema.ts` first before making any other changes
 - Never manually edit migration files in `drizzle/` directory
 - Never skip schema changes and try to write migrations manually
 
 ### Step 2: Generate Migration
+
 After updating `src/db/schema.ts`, **ALWAYS** run:
+
 ```bash
 npm run db:generate-migrations
 ```
 
 This will:
+
 - Create a new migration file in `drizzle/000X_*.sql`
 - Update `drizzle/meta/_journal.json` and snapshot files
 - Ensure consistency between schema and migrations
 
 ### Step 3: Review Migration
+
 - Check the generated migration file in `drizzle/000X_*.sql`
 - Verify it matches your intended changes
 - Pay special attention to enum changes (common Postgres gotcha - don't recreate existing enums)
 
 ### Step 4: Apply Migration
+
 After reviewing, apply the migration:
+
 ```bash
 npm run db:migrate
 ```
 
 ### Step 5: Update Code
+
 Only after the migration is applied, update:
+
 - API routes (`src/app/api/**/route.ts`) - add new fields to Zod schemas
 - Type definitions (`src/types/api.ts`) - add new fields to types
 - UI components - add form fields and display logic
@@ -39,7 +53,7 @@ Only after the migration is applied, update:
 ## Common Mistakes to Avoid
 
 1. ❌ **DON'T** edit migration files manually
-2. ❌ **DON'T** skip `npm run db:generate-migrations` 
+2. ❌ **DON'T** skip `npm run db:generate-migrations`
 3. ❌ **DON'T** update code before schema changes
 4. ❌ **DON'T** forget to update both `drizzle/meta/_journal.json` and migration files (let drizzle-kit handle this)
 5. ❌ **DON'T** recreate existing enums in migrations
@@ -47,6 +61,7 @@ Only after the migration is applied, update:
 ## When Working with This Directory
 
 If you're asked to modify the database schema:
+
 1. Start with `src/db/schema.ts`
 2. Run `npm run db:generate-migrations`
 3. Review the generated migration
@@ -54,4 +69,3 @@ If you're asked to modify the database schema:
 5. Then update application code
 
 This ensures database migrations are always in sync with the schema definition.
-
