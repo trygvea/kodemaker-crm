@@ -1,22 +1,24 @@
-import { render, screen } from '@testing-library/react'
-import CustomersPage from './page'
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import CustomersPage from "./page";
+import { describe, expect, it, vi } from "vitest";
 
-jest.mock('swr', () => ({ __esModule: true, default: () => ({ data: [] }) }))
-jest.mock('next/navigation', () => ({
-  __esModule: true,
+vi.mock("swr", () => ({ default: () => ({ data: [] }) }));
+vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
   }),
-}))
+}));
 
-describe('CustomersPage', () => {
-  it('renders heading and search field', () => {
-    render(<CustomersPage />)
-    expect(screen.getByText('Organisasjoner')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Søk i organisasjoner')).toBeInTheDocument()
-  })
-})
+describe("CustomersPage", () => {
+  it("renders heading and search field", () => {
+    render(<CustomersPage />);
+    expect(screen.getByText("Organisasjoner")).toBeDefined();
+    expect(screen.getByPlaceholderText("Søk i organisasjoner"))
+      .toBeDefined();
+  });
+});

@@ -1,14 +1,15 @@
 import { GET } from "./route";
 import { NextRequest } from "next/server";
+import { describe, expect, it, vi } from "vitest";
 
-jest.mock("@/db/client", () => ({ db: {} }));
-jest.mock("next-auth", () => ({
-  getServerSession: jest.fn(),
+vi.mock("@/db/client", () => ({ db: {} }));
+vi.mock("next-auth", () => ({
+  getServerSession: vi.fn(),
 }));
-jest.mock("@/app/api/auth/[...nextauth]/route", () => ({
+vi.mock("@/app/api/auth/[...nextauth]/route", () => ({
   authOptions: {},
 }));
-jest.mock("next/server", () => ({
+vi.mock("next/server", () => ({
   NextResponse: {
     json: (data: any, init?: any) => ({
       json: async () => data,
@@ -16,7 +17,7 @@ jest.mock("next/server", () => ({
     }),
   },
 }));
-jest.mock("@/db/schema", () => ({
+vi.mock("@/db/schema", () => ({
   contacts: {
     id: "contacts.id",
     firstName: "contacts.firstName",
@@ -36,7 +37,7 @@ jest.mock("@/db/schema", () => ({
     createdAt: "contact_emails.createdAt",
   },
 }));
-jest.mock("drizzle-orm", () => ({
+vi.mock("drizzle-orm", () => ({
   asc: (x: any) => x,
   eq: (a: any, b: any) => [a, b],
   ilike: (a: any, b: any) => [a, b],
@@ -77,8 +78,8 @@ class FakeQuery {
 
 describe("GET /api/contacts de-dup", () => {
   it("deduplicates contacts by id in default list", async () => {
-    const { db } = jest.requireMock("@/db/client") as any;
-    db.select = jest.fn(
+    const { db } = await vi.importMock<any>("@/db/client");
+    db.select = vi.fn(
       () =>
         new FakeQuery([
           {

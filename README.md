@@ -159,7 +159,7 @@ Scalingo is set up to automatically run generated migrations when the app is dep
 
 ## Testing
 
-Jest + Testing Library are configured.
+Vitest + Testing Library are configured.
 
 ```
 npm test

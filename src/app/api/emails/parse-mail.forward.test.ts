@@ -1,34 +1,36 @@
-import { parsePostmarkInboundEmail } from './parse-mail'
+import { parsePostmarkInboundEmail } from "./parse-mail";
+import { describe, expect, it } from "vitest";
 
-describe('parsePostmarkInboundEmail', () => {
-  it('FORWARD a message to postmark after receiving from customer', () => {
+describe("parsePostmarkInboundEmail", () => {
+  it("FORWARD a message to postmark after receiving from customer", () => {
     const postMarkMail = {
-      FromName: 'Trygve Amundsen',
-      MessageStream: 'inbound',
-      From: 'trygve@kodemaker.no',
+      FromName: "Trygve Amundsen",
+      MessageStream: "inbound",
+      From: "trygve@kodemaker.no",
       FromFull: {
-        Email: 'trygve@kodemaker.no',
-        Name: 'Trygve Amundsen',
-        MailboxHash: '',
+        Email: "trygve@kodemaker.no",
+        Name: "Trygve Amundsen",
+        MailboxHash: "",
       },
-      To: '4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com',
+      To: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
       ToFull: [
         {
-          Email: '4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com',
-          Name: '',
-          MailboxHash: '',
+          Email: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+          Name: "",
+          MailboxHash: "",
         },
       ],
-      Cc: '',
+      Cc: "",
       CcFull: [],
-      Bcc: '',
+      Bcc: "",
       BccFull: [],
-      OriginalRecipient: '4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com',
-      Subject: 'Fwd: Viktig melding',
-      MessageID: '1356bdc5-004c-42b0-8f18-8fd5052dea65',
-      ReplyTo: '',
-      MailboxHash: '',
-      Date: 'Thu, 11 Sep 2025 17:14:12 +0200',
+      OriginalRecipient:
+        "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+      Subject: "Fwd: Viktig melding",
+      MessageID: "1356bdc5-004c-42b0-8f18-8fd5052dea65",
+      ReplyTo: "",
+      MailboxHash: "",
+      Date: "Thu, 11 Sep 2025 17:14:12 +0200",
       TextBody: `
 (Body lagt på ved forwarding)
 
@@ -43,54 +45,54 @@ Viktig melding (original body)
 `,
       HtmlBody: '<div">Not used in this test</div>',
       StrippedTextReply:
-        '(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------',
-    }
+        "(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------",
+    };
 
-    const parsed = parsePostmarkInboundEmail(postMarkMail)
+    const parsed = parsePostmarkInboundEmail(postMarkMail);
 
-    expect(parsed.mode).toBe('FORWARDED')
-    if (parsed.mode === 'FORWARDED') {
+    expect(parsed.mode).toBe("FORWARDED");
+    if (parsed.mode === "FORWARDED") {
       expect(parsed).toEqual({
-        mode: 'FORWARDED',
-        crmUser: 'trygve@kodemaker.no',
-        contactEmail: 'kunde.knutsen@gmail.com',
-        date: 'Thu, 11 Sep 2025 17:14:12 +0200',
-        subject: 'Fwd: Viktig melding',
-        body: 'Viktig melding (original body)',
-        forwardComment:
-          '(Body lagt på ved forwarding)',
-      })
+        mode: "FORWARDED",
+        crmUser: "trygve@kodemaker.no",
+        contactEmail: "kunde.knutsen@gmail.com",
+        date: "Thu, 11 Sep 2025 17:14:12 +0200",
+        subject: "Fwd: Viktig melding",
+        body: "Viktig melding (original body)",
+        forwardComment: "(Body lagt på ved forwarding)",
+      });
     }
-  })
+  });
 
-  it('FORWARD a message that you sent to the customer earlier (but forgot to BCC)', () => {
+  it("FORWARD a message that you sent to the customer earlier (but forgot to BCC)", () => {
     const postMarkMail = {
-      FromName: 'Trygve Amundsen',
-      MessageStream: 'inbound',
-      From: 'trygve@kodemaker.no',
+      FromName: "Trygve Amundsen",
+      MessageStream: "inbound",
+      From: "trygve@kodemaker.no",
       FromFull: {
-        Email: 'trygve@kodemaker.no',
-        Name: 'Trygve Amundsen',
-        MailboxHash: '',
+        Email: "trygve@kodemaker.no",
+        Name: "Trygve Amundsen",
+        MailboxHash: "",
       },
-      To: '4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com',
+      To: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
       ToFull: [
         {
-          Email: '4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com',
-          Name: '',
-          MailboxHash: '',
+          Email: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+          Name: "",
+          MailboxHash: "",
         },
       ],
-      Cc: '',
+      Cc: "",
       CcFull: [],
-      Bcc: '',
+      Bcc: "",
       BccFull: [],
-      OriginalRecipient: '4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com',
-      Subject: 'Fwd: Viktig melding',
-      MessageID: '1356bdc5-004c-42b0-8f18-8fd5052dea65',
-      ReplyTo: '',
-      MailboxHash: '',
-      Date: 'Thu, 11 Sep 2025 17:14:12 +0200',
+      OriginalRecipient:
+        "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+      Subject: "Fwd: Viktig melding",
+      MessageID: "1356bdc5-004c-42b0-8f18-8fd5052dea65",
+      ReplyTo: "",
+      MailboxHash: "",
+      Date: "Thu, 11 Sep 2025 17:14:12 +0200",
       TextBody: `
 (Body lagt på ved forwarding)
 
@@ -105,23 +107,22 @@ Viktig melding (original body)
 `,
       HtmlBody: '<div">Not used in this test</div>',
       StrippedTextReply:
-        '(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------',
-    }
+        "(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------",
+    };
 
-    const parsed = parsePostmarkInboundEmail(postMarkMail)
+    const parsed = parsePostmarkInboundEmail(postMarkMail);
 
-    expect(parsed.mode).toBe('FORWARDED')
-    if (parsed.mode === 'FORWARDED') {
+    expect(parsed.mode).toBe("FORWARDED");
+    if (parsed.mode === "FORWARDED") {
       expect(parsed).toEqual({
-        mode: 'FORWARDED',
-        crmUser: 'trygve@kodemaker.no',
-        contactEmail: 'kunde.knutsen@gmail.com',
-        date: 'Thu, 11 Sep 2025 17:14:12 +0200',
-        subject: 'Fwd: Viktig melding',
-        body: 'Viktig melding (original body)',
-        forwardComment:
-          '(Body lagt på ved forwarding)',
-      })
+        mode: "FORWARDED",
+        crmUser: "trygve@kodemaker.no",
+        contactEmail: "kunde.knutsen@gmail.com",
+        date: "Thu, 11 Sep 2025 17:14:12 +0200",
+        subject: "Fwd: Viktig melding",
+        body: "Viktig melding (original body)",
+        forwardComment: "(Body lagt på ved forwarding)",
+      });
     }
-  })
-})
+  });
+});

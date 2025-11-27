@@ -80,15 +80,17 @@ Coding Standards
 
 Testing
 
-- If user-facing text changes, update tests accordingly (e.g., “Organisasjoner”).
-- API tests should mock NextResponse where necessary (see `jest.setup.ts`).
+- If user-facing text changes, update tests accordingly (e.g., "Organisasjoner").
+- API tests should mock NextResponse where necessary (see `vitest.setup.ts`).
 - Keep tests fast and hermetic; avoid real network/DB unless integration is explicit.
 
-Jest/TS Patterns
+Vitest/TS Patterns
 
-- Tests run under `ts-jest` with CommonJS; prefer ESM `import` in test files.
-- When accessing mocked modules, use `jest.requireMock('<path>')` to get the mocked object with types relaxed.
+- Tests run under Vitest with native ESM support.
+- Use `vi.mock()` for mocking modules and `vi.fn()` for mock functions.
+- When accessing mocked modules, use `await vi.importMock<any>('<path>')`.
 - Mock Drizzle builders at the call-site level (e.g., chain `.select().from().where().limit()` returning promises).
+- For fake timers with async code, use `vi.useFakeTimers({ shouldAdvanceTime: true })`.
 
 Migrations
 
@@ -125,7 +127,7 @@ CI Expectations
 
 - `npm test` passes.
 - Lint passes with zero warnings.
-- No TypeScript errors in app code; tests can relax strictness via `tsconfig.jest.json`.
+- No TypeScript errors in app code.
 
 Contacts
 
