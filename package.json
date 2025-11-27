@@ -39,7 +39,7 @@
     "date-fns": "^4.1.0",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.5",
-    "email-reply-parser": "^2.0.1",
+    "email-reply-parser": "2.0.1",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
     "next-auth": "^4.24.11",
