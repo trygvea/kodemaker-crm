@@ -133,8 +133,6 @@ The app is deployed to Scalingo, and the database is deployed to Scalingo Postgr
 Login is handled by NextAuth with Google login.
 Inbound email is handled by Postmark Inbound Email that feeds the `/api/emails` route.
 
-TODO Currently, Trygve has set up Scalingo, Google login, Postmark on his account. We need to transfer these to Kodemaker.
-
 ### Email inbound
 
 Use 4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com as the crm email address.
