@@ -41,6 +41,15 @@ Then, run the development server:
 npm run dev
 ```
 
+To browse and document UI components in isolation, you can also run React Cosmos:
+
+```bash
+npm run cosmos
+```
+
+This starts a component explorer with fixtures that mirror the design‑system components
+in `src/components/ui` and selected app‑level components in `src/components`.
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ### Environment variables
