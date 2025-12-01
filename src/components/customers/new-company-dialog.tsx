@@ -55,6 +55,7 @@ export function NewCompanyDialog({
     },
   });
 
+  const [open, setOpen] = useState(false);
   const [websiteEdited, setWebsiteEdited] = useState(false);
   const [domainEdited, setDomainEdited] = useState(false);
   const [contactEdited, setContactEdited] = useState(false);
@@ -138,11 +139,12 @@ export function NewCompanyDialog({
     toast.success("Organisasjon opprettet");
     form.reset();
     await mutate("/api/companies");
+    setOpen(false);
     onCreated?.();
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? <Button>Ny organisasjon</Button>}
       </DialogTrigger>
