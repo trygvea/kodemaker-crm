@@ -8,6 +8,12 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      incident_mode:
+        description: "Run dependency install with --ignore-scripts (Shai Hulud/emergency mode)"
+        required: false
+        type: boolean
 
 jobs:
   build:
@@ -24,14 +30,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci
+          cache: "pnpm"
+
+      - name: Enable corepack and pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.4 --activate
+
+      - name: Install dependencies (pnpm, with optional emergency --ignore-scripts)
+        env:
+          INCIDENT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.incident_mode == 'true' }}
+        run: |
+          if [ "$INCIDENT_MODE" = "true" ]; then
+            echo "Running pnpm install in emergency mode with --ignore-scripts"
+            pnpm install --frozen-lockfile --ignore-scripts
+          else
+            pnpm install --frozen-lockfile
+          fi
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm run typecheck
       - name: Build
-        run: npm run build --if-present
+        run: pnpm run build --if-present
       - name: Test
-        run: npm test
+        run: pnpm test

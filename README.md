@@ -32,19 +32,19 @@ It was created with Cursor in Agent mode with the gpt-5-high-fast model, and boo
 First, start the database:
 
 ```bash
-npm run db:up
+pnpm run db:up
 ```
 
 Then, run the development server:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 To browse and document UI components in isolation, you can also run React Cosmos:
 
 ```bash
-npm run cosmos
+pnpm run cosmos
 ```
 
 This starts a component explorer with fixtures that mirror the design‑system components
@@ -77,7 +77,7 @@ POSTMARK_WEBHOOK_SECRET=...
 Run the following command the first time you run the app:
 
 ```bash
-npm run db:migrate
+pnpm run db:migrate
 ```
 
 #### Changing the database schema
@@ -97,13 +97,13 @@ NOTE: Sometimes LLM tools like Cursor may generate the drizzle/000X\__.sql file,
 In stead, run the following command to create a new migration:
 
 ```bash
-npm run db:generate-migrations
+pnpm run db:generate-migrations
 ```
 
 Verify that the drizzle/000X\_\*.sql is ok. When everything is ok,run the following command to apply the migration:
 
 ```bash
-npm run db:migrate
+pnpm run db:migrate
 ```
 
 Note: If you add/alter enums, ensure migrations do not recreate an existing enum (common Postgres gotcha).
@@ -169,8 +169,59 @@ Scalingo is set up to automatically run generated migrations when the app is dep
 Vitest + Testing Library are configured.
 
 ```
-npm test
+pnpm test
 ```
+
+## Package management, pnpm and supply-chain safety
+
+This project uses `pnpm` as the package manager (see the `packageManager` field in `package.json`).
+
+- To install dependencies, run:
+
+```bash
+pnpm install
+```
+
+- To add a new dependency, run:
+
+```bash
+pnpm add <package>
+```
+
+- To add a new devDependency, run:
+
+```bash
+pnpm add -D <package>
+```
+
+### Supply-chain hardening
+
+This repo is configured with:
+
+- `pnpm-workspace.yaml` that sets `minimumReleaseAge: 10080`, so new versions of packages must be at least 7 days old before they can be installed. This is to reduce blast radius from supply-chain attacks like Shai Hulud ([article](https://www.kode24.no/artikkel/ga-beskjed-til-70-utviklere-etter-shai-hulud-20-stopp-alt/250482)).
+- Exact dependency versions in `package.json` (no `^`/`~` ranges) so the lockfile + versions define a deterministic dependency graph.
+
+### What to do in an acute supply-chain incident (Shai Hulud-style)
+
+If there is a new npm ecosystem incident like Shai Hulud:
+
+- Stopp all Node-related deploys (Scalingo) and let CI only run on the existing `pnpm-lock.yaml`.
+- Do not change dependencies or the lockfile until the incident is understood.
+- In GitHub Actions, you can manually dispatch the `Node.js CI` workflow with `incident_mode: true`. This makes the install step run:
+  - `pnpm install --frozen-lockfile --ignore-scripts`
+  - which blocks all `preinstall`/`postinstall` scripts while still honoring the current lockfile.
+- If you need extra protection locally, you can create a temporary `.pnpmrc` with:
+
+```ini
+ignore-scripts=true
+```
+
+and then run `pnpm install` to reuse the existing lockfile without running any install scripts.
+
+### Notes on secrets
+
+- GitHub Actions is configured so that package installation runs without any extra secrets beyond what GitHub provides by default.
+- If you add new secrets, keep them scoped and avoid using them in the dependency-install step unless strictly necessary.
 
 Highlights:
 
