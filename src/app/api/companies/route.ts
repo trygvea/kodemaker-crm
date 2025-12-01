@@ -9,9 +9,11 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const createCompanySchema = z.object({
   name: z.string().min(1),
-  websiteUrl: z.string().url().optional().or(z.literal("")),
+  websiteUrl: z.url({ error: "Ugyldig URL" }).optional().or(z.literal("")),
   emailDomain: z.string().optional(),
-  contactEmail: z.string().email().optional(),
+  contactEmail: z.email({ error: "Ugyldig epost" }).optional().or(
+    z.literal(""),
+  ),
   description: z.string().optional(),
 });
 

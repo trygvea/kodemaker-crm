@@ -1,15 +1,15 @@
-'use client'
-import { useSWRConfig } from 'swr'
-import { ReactNode, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Save } from 'lucide-react'
+"use client";
+import { useSWRConfig } from "swr";
+import { ReactNode, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -17,122 +17,135 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'sonner'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Description } from '@radix-ui/react-dialog'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Description } from "@radix-ui/react-dialog";
 
 const companySchema = z.object({
-  name: z.string().min(1, 'Skriv navn'),
-  websiteUrl: z.string().url('Ugyldig URL').optional().or(z.literal('')),
+  name: z.string().min(1, "Skriv navn"),
+  websiteUrl: z.url({ error: "Ugyldig URL" }).optional().or(z.literal("")),
   emailDomain: z.string().optional(),
-  contactEmail: z.string().email('Ugyldig epost').optional(),
+  contactEmail: z.email({ error: "Ugyldig epost" }).optional().or(
+    z.literal(""),
+  ),
   description: z.string().optional(),
-})
+});
 
 export function NewCompanyDialog({
   onCreated,
   trigger,
 }: {
-  onCreated?: () => void
-  trigger?: ReactNode
+  onCreated?: () => void;
+  trigger?: ReactNode;
 }) {
-  const { mutate } = useSWRConfig()
+  const { mutate } = useSWRConfig();
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
-    defaultValues: { name: '', websiteUrl: '', emailDomain: '', contactEmail: '', description: '' },
-  })
+    defaultValues: {
+      name: "",
+      websiteUrl: "",
+      emailDomain: "",
+      contactEmail: "",
+      description: "",
+    },
+  });
 
-  const [websiteEdited, setWebsiteEdited] = useState(false)
-  const [domainEdited, setDomainEdited] = useState(false)
-  const [contactEdited, setContactEdited] = useState(false)
+  const [websiteEdited, setWebsiteEdited] = useState(false);
+  const [domainEdited, setDomainEdited] = useState(false);
+  const [contactEdited, setContactEdited] = useState(false);
 
-  const nameValue = form.watch('name')
-  const websiteUrlValue = form.watch('websiteUrl')
-  const emailDomainValue = form.watch('emailDomain')
+  const nameValue = form.watch("name");
+  const websiteUrlValue = form.watch("websiteUrl");
+  const emailDomainValue = form.watch("emailDomain");
 
   function normalizeForHost(value: string): string {
     return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
   }
 
   function ensureUrl(value: string): string | undefined {
-    if (!value) return undefined
+    if (!value) return undefined;
     try {
-      return new URL(value).toString()
+      return new URL(value).toString();
     } catch {
       try {
-        return new URL(`https://${value}`).toString()
+        return new URL(`https://${value}`).toString();
       } catch {
-        return undefined
+        return undefined;
       }
     }
   }
 
   function extractDomainFromUrl(value: string): string | undefined {
-    const url = ensureUrl(value)
-    if (!url) return undefined
+    const url = ensureUrl(value);
+    if (!url) return undefined;
     try {
-      const u = new URL(url)
-      const host = u.hostname.replace(/^www\./, '')
-      return host || undefined
+      const u = new URL(url);
+      const host = u.hostname.replace(/^www\./, "");
+      return host || undefined;
     } catch {
-      return undefined
+      return undefined;
     }
   }
 
   // Suggest website from name
   useEffect(() => {
     if (!websiteEdited) {
-      const host = normalizeForHost(nameValue || '')
-      const suggested = host ? `https://${host}.no` : ''
-      form.setValue('websiteUrl', suggested, { shouldDirty: true })
+      const host = normalizeForHost(nameValue || "");
+      const suggested = host ? `https://${host}.no` : "";
+      form.setValue("websiteUrl", suggested, { shouldDirty: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nameValue])
+  }, [nameValue]);
 
   // Suggest email domain from website
   useEffect(() => {
-    if (domainEdited) return
-    const domain = extractDomainFromUrl(websiteUrlValue || '')
+    if (domainEdited) return;
+    const domain = extractDomainFromUrl(websiteUrlValue || "");
     if (domain) {
-      form.setValue('emailDomain', domain, { shouldDirty: true })
+      form.setValue("emailDomain", domain, { shouldDirty: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [websiteUrlValue, domainEdited])
+  }, [websiteUrlValue, domainEdited]);
 
   // Suggest contact email from email domain
   useEffect(() => {
-    if (contactEdited) return
-    const domain = (emailDomainValue || '').replace(/^@/, '')
+    if (contactEdited) return;
+    const domain = (emailDomainValue || "").replace(/^@/, "");
     if (domain) {
-      form.setValue('contactEmail', `kontakt@${domain}`, { shouldDirty: true })
+      form.setValue("contactEmail", `kontakt@${domain}`, { shouldDirty: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emailDomainValue, contactEdited])
+  }, [emailDomainValue, contactEdited]);
 
   async function onSubmit(values: z.infer<typeof companySchema>) {
-    const res = await fetch('/api/companies', { method: 'POST', body: JSON.stringify(values) })
+    const res = await fetch("/api/companies", {
+      method: "POST",
+      body: JSON.stringify(values),
+    });
     if (!res.ok) {
-      toast.error('Kunne ikke opprette organisasjon')
-      return
+      toast.error("Kunne ikke opprette organisasjon");
+      return;
     }
-    toast.success('Organisasjon opprettet')
-    form.reset()
-    await mutate('/api/companies')
-    onCreated?.()
+    toast.success("Organisasjon opprettet");
+    form.reset();
+    await mutate("/api/companies");
+    onCreated?.();
   }
 
   return (
     <Dialog>
-      <DialogTrigger asChild>{trigger ?? <Button>Ny organisasjon</Button>}</DialogTrigger>
+      <DialogTrigger asChild>
+        {trigger ?? <Button>Ny organisasjon</Button>}
+      </DialogTrigger>
       <DialogContent>
         <Description>Ny organisasjon</Description>
         <DialogHeader>
@@ -164,8 +177,8 @@ export function NewCompanyDialog({
                       placeholder="https://example.com"
                       {...field}
                       onChange={(e) => {
-                        setWebsiteEdited(true)
-                        field.onChange(e)
+                        setWebsiteEdited(true);
+                        field.onChange(e);
                       }}
                     />
                   </FormControl>
@@ -184,8 +197,8 @@ export function NewCompanyDialog({
                       placeholder="example.com"
                       {...field}
                       onChange={(e) => {
-                        setDomainEdited(true)
-                        field.onChange(e)
+                        setDomainEdited(true);
+                        field.onChange(e);
                       }}
                     />
                   </FormControl>
@@ -204,8 +217,8 @@ export function NewCompanyDialog({
                       placeholder="kontakt@example.com"
                       {...field}
                       onChange={(e) => {
-                        setContactEdited(true)
-                        field.onChange(e)
+                        setContactEdited(true);
+                        field.onChange(e);
                       }}
                     />
                   </FormControl>
@@ -220,14 +233,21 @@ export function NewCompanyDialog({
                 <FormItem>
                   <FormLabel>Beskrivelse</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Beskrivelse..." rows={3} {...field} />
+                    <Textarea
+                      placeholder="Beskrivelse..."
+                      rows={3}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit" className="inline-flex items-center gap-1.5">
+              <Button
+                type="submit"
+                className="inline-flex items-center gap-1.5"
+              >
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>
@@ -235,5 +255,5 @@ export function NewCompanyDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
