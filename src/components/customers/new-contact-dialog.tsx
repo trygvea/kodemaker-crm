@@ -44,15 +44,21 @@ type Company = {
   emailDomain?: string | null;
 };
 
+export interface NewContactDialogProps {
+  companyId?: number;
+  companyName?: string;
+  trigger?: ReactNode | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
 export function NewContactDialog({
   companyId,
   companyName,
   trigger,
-}: {
-  companyId?: number;
-  companyName?: string;
-  trigger?: ReactNode;
-}) {
+  open,
+  onOpenChange,
+}: NewContactDialogProps) {
   const schema = z
     .object({
       firstName: z.string().min(1),
@@ -83,7 +89,9 @@ export function NewContactDialog({
       startDate: new Date().toISOString().slice(0, 10),
     },
   });
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const dialogOpen = isControlled ? open : internalOpen;
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companyQuery, setCompanyQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<
@@ -154,6 +162,13 @@ export function NewContactDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domainFromSelection, firstNameValue, lastNameValue, emailManuallyEdited]);
 
+  function handleOpenChange(next: boolean) {
+    if (!isControlled) {
+      setInternalOpen(next);
+    }
+    onOpenChange?.(next);
+  }
+
   async function onSubmit(values: z.infer<typeof schema>) {
     const res = await fetch("/api/contacts", {
       method: "POST",
@@ -167,14 +182,16 @@ export function NewContactDialog({
       // Refresh company detail cache to show the new contact immediately
       await globalMutate(`/api/companies/${idToRefresh}`);
     }
-    setOpen(false);
+    handleOpenChange(false);
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? <Button variant="secondary">Ny kontakt</Button>}
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      {trigger !== null && (
+        <DialogTrigger asChild>
+          {trigger ?? <Button variant="secondary">Ny kontakt</Button>}
+        </DialogTrigger>
+      )}
       <DialogContent>
         <Description>Ny kontakt</Description>
         <DialogHeader>

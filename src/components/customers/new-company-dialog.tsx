@@ -36,13 +36,19 @@ const companySchema = z.object({
   description: z.string().optional(),
 });
 
+export interface NewCompanyDialogProps {
+  onCreated?: () => void;
+  trigger?: ReactNode | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
 export function NewCompanyDialog({
   onCreated,
   trigger,
-}: {
-  onCreated?: () => void;
-  trigger?: ReactNode;
-}) {
+  open,
+  onOpenChange,
+}: NewCompanyDialogProps) {
   const { mutate } = useSWRConfig();
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -55,7 +61,9 @@ export function NewCompanyDialog({
     },
   });
 
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const dialogOpen = isControlled ? open : internalOpen;
   const [websiteEdited, setWebsiteEdited] = useState(false);
   const [domainEdited, setDomainEdited] = useState(false);
   const [contactEdited, setContactEdited] = useState(false);
@@ -127,6 +135,13 @@ export function NewCompanyDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailDomainValue, contactEdited]);
 
+  function handleOpenChange(next: boolean) {
+    if (!isControlled) {
+      setInternalOpen(next);
+    }
+    onOpenChange?.(next);
+  }
+
   async function onSubmit(values: z.infer<typeof companySchema>) {
     const res = await fetch("/api/companies", {
       method: "POST",
@@ -139,15 +154,17 @@ export function NewCompanyDialog({
     toast.success("Organisasjon opprettet");
     form.reset();
     await mutate("/api/companies");
-    setOpen(false);
+    handleOpenChange(false);
     onCreated?.();
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? <Button>Ny organisasjon</Button>}
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      {trigger !== null && (
+        <DialogTrigger asChild>
+          {trigger ?? <Button>Ny organisasjon</Button>}
+        </DialogTrigger>
+      )}
       <DialogContent>
         <Description>Ny organisasjon</Description>
         <DialogHeader>
