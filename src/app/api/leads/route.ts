@@ -23,7 +23,9 @@ export async function GET(req: NextRequest) {
     const statuses = statusParam
       .split(',')
       .map((s) => s.trim().toUpperCase())
-      .filter((s) => allowedStatuses.has(s)) as Array<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'>
+      .filter((s) => allowedStatuses.has(s)) as Array<
+      'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'
+    >
     if (statuses.length > 0) {
       filters.push(inArray(leads.status, statuses))
     }
@@ -67,6 +69,11 @@ export async function POST(req: NextRequest) {
     .insert(leads)
     .values({ ...parsed.data, createdByUserId: userId })
     .returning()
-  await createEventLeadCreated(created.id, company.id, parsed.data.contactId, parsed.data.description)
+  await createEventLeadCreated(
+    created.id,
+    company.id,
+    parsed.data.contactId,
+    parsed.data.description
+  )
   return NextResponse.json(created)
 }

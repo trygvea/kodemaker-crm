@@ -58,16 +58,19 @@ export async function GET(req: NextRequest) {
     .orderBy(asc(followups.dueAt))
     .limit(200)
 
-  // Resolve missing company/contact via lead references
+  // Resolve missing company/contact via lead references and get lead info
   const leadIds = Array.from(new Set(rows.map((r) => r.leadId).filter(Boolean))) as number[]
-  const leadsById: Record<number, { companyId: number | null; contactId: number | null }> = {}
+  const leadsById: Record<
+    number,
+    { companyId: number | null; contactId: number | null; description: string }
+  > = {}
   if (leadIds.length) {
     const leadRows = await db
-      .select({ id: leads.id, companyId: leads.companyId, contactId: leads.contactId })
+      .select({ id: leads.id, companyId: leads.companyId, contactId: leads.contactId, description: leads.description })
       .from(leads)
       .where(inArray(leads.id, leadIds))
     for (const l of leadRows)
-      leadsById[l.id] = { companyId: l.companyId ?? null, contactId: l.contactId ?? null }
+      leadsById[l.id] = { companyId: l.companyId ?? null, contactId: l.contactId ?? null, description: l.description }
   }
 
   const resolvedCompanyIds = new Set<number>()
@@ -108,6 +111,12 @@ export async function GET(req: NextRequest) {
     createdBy: r.createdBy,
     company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
     contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
+    lead: r.leadId
+      ? {
+          id: r.leadId,
+          description: leadsById[r.leadId]?.description ?? '',
+        }
+      : null,
   }))
 
   return NextResponse.json(data)

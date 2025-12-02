@@ -25,7 +25,10 @@ export default function CompanyDetailPage() {
       number
     >
     for (const l of leadsList) {
-      if (l.status && c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'] !== undefined) {
+      if (
+        l.status &&
+        c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'] !== undefined
+      ) {
         c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'] += 1
       }
     }
@@ -33,7 +36,10 @@ export default function CompanyDetailPage() {
   }, [leadsList])
 
   const contactLeadCounts = useMemo(() => {
-    const map: Record<number, { NEW: number; IN_PROGRESS: number; LOST: number; WON: number; BORTFALT: number }> = {}
+    const map: Record<
+      number,
+      { NEW: number; IN_PROGRESS: number; LOST: number; WON: number; BORTFALT: number }
+    > = {}
     for (const l of leadsList) {
       const cid = l.contactId as number | null | undefined
       const status = l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT' | undefined

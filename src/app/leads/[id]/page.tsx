@@ -25,8 +25,9 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
-import { Save, MessageSquarePlus } from 'lucide-react'
+import { Save, MessageSquarePlus, CalendarPlus } from 'lucide-react'
 import { toast } from 'sonner'
+import { FollowupsList } from '@/components/followups-list'
 
 const schema = z.object({
   description: z.string().min(1),
@@ -50,6 +51,19 @@ export default function LeadDetailPage() {
   const { mutate } = useSWRConfig()
   const router = useRouter()
   const [newComment, setNewComment] = useState('')
+  const [newFollowupNote, setNewFollowupNote] = useState('')
+  const [newFollowupDue, setNewFollowupDue] = useState(() => {
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+    const d = new Date()
+    d.setDate(d.getDate() + 7)
+    d.setHours(9, 0, 0, 0)
+    const y = d.getFullYear()
+    const m = pad(d.getMonth() + 1)
+    const day = pad(d.getDate())
+    const hh = pad(d.getHours())
+    const mm = pad(d.getMinutes())
+    return `${y}-${m}-${day}T${hh}:${mm}`
+  })
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -77,6 +91,25 @@ export default function LeadDetailPage() {
     if (!res.ok) return toast.error('Kunne ikke lagre kommentar')
     setNewComment('')
     await mutate(`/api/leads/${id}`)
+  }
+
+  async function saveFollowup() {
+    const body = { note: newFollowupNote, dueAt: newFollowupDue, leadId: id }
+    const res = await fetch('/api/followups', { method: 'POST', body: JSON.stringify(body) })
+    if (!res.ok) return toast.error('Kunne ikke lagre oppfølgning')
+    toast.success('Oppfølgning opprettet')
+    setNewFollowupNote('')
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+    const d = new Date()
+    d.setDate(d.getDate() + 7)
+    d.setHours(9, 0, 0, 0)
+    const y = d.getFullYear()
+    const m = pad(d.getMonth() + 1)
+    const day = pad(d.getDate())
+    const hh = pad(d.getHours())
+    const mm = pad(d.getMinutes())
+    setNewFollowupDue(`${y}-${m}-${day}T${hh}:${mm}`)
+    await mutate(`/api/followups?leadId=${id}`)
   }
 
   if (!data) return <div className="p-6">Laster...</div>
@@ -201,6 +234,42 @@ export default function LeadDetailPage() {
           </form>
         </Form>
       </section>
+
+      <section>
+        <h2 className="text-lg font-medium mb-2">Oppfølgninger</h2>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <textarea
+              rows={3}
+              className="w-full border rounded p-2 text-sm resize-y"
+              placeholder="Notat…"
+              value={newFollowupNote}
+              onChange={(e) => setNewFollowupNote(e.target.value)}
+            />
+          </div>
+          <div className="w-48">
+            <label className="block text-xs text-muted-foreground mb-1">Frist</label>
+            <input
+              type="datetime-local"
+              className="w-full border rounded p-2 text-sm"
+              value={newFollowupDue}
+              onChange={(e) => setNewFollowupDue(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="flex justify-end mt-2">
+          <button
+            className="inline-flex items-center rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm disabled:opacity-50"
+            disabled={!newFollowupNote.trim() || !newFollowupDue}
+            onClick={saveFollowup}
+          >
+            <CalendarPlus className="h-4 w-4 mr-1.5" />
+            Lagre oppfølgning
+          </button>
+        </div>
+        <FollowupsList endpoint={`/api/followups?leadId=${id}`} />
+      </section>
+
       <CreatedBy createdAt={data.createdAt} createdBy={data.createdBy} />
     </div>
   )

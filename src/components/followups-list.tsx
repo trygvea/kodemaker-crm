@@ -9,6 +9,7 @@ export type FollowupItem = {
   createdBy?: { firstName?: string | null; lastName?: string | null } | null
   company?: { id: number; name: string } | null
   contact?: { id: number; firstName: string | null; lastName: string | null } | null
+  lead?: { id: number; description: string } | null
 }
 
 export function useDueBgStyle() {
@@ -53,10 +54,18 @@ export function FollowupsList({
                 {f.createdBy
                   ? `· Av: ${f.createdBy.firstName ?? ''} ${f.createdBy.lastName ?? ''}`
                   : ''}
-                {f.contact || f.company ? (
+                {f.contact || f.company || f.lead ? (
                   <span>
                     {' '}
                     · På{' '}
+                    {f.lead ? (
+                      <a className="underline" href={`/leads/${f.lead.id}`}>
+                        {f.lead.description.length > 50
+                          ? `${f.lead.description.slice(0, 50)}…`
+                          : f.lead.description}
+                      </a>
+                    ) : null}
+                    {f.lead && (f.contact || f.company) ? ' / ' : ''}
                     {f.contact ? (
                       <a className="underline" href={`/contacts/${(f.contact).id}`}>
                         {(f.contact.firstName ?? '') + ' ' + (f.contact.lastName ?? '')}
