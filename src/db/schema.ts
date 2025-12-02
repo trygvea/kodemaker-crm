@@ -12,7 +12,7 @@ import {
 import { relations } from 'drizzle-orm'
 
 export const userRoleEnum = pgEnum('user_role', ['admin', 'user'])
-export const leadStatusEnum = pgEnum('lead_status', ['NEW', 'IN_PROGRESS', 'LOST', 'WON'])
+export const leadStatusEnum = pgEnum('lead_status', ['NEW', 'IN_PROGRESS', 'LOST', 'WON', 'BORTFALT'])
 export const emailModeEnum = pgEnum('email_mode', ['FORWARDED', 'BCC'])
 export const eventEntityEnum = pgEnum('event_entity', ['company', 'contact', 'lead'])
 

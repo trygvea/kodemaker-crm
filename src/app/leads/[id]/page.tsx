@@ -30,7 +30,7 @@ import { toast } from 'sonner'
 
 const schema = z.object({
   description: z.string().min(1),
-  status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON']),
+  status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON', 'BORTFALT']),
 })
 
 export default function LeadDetailPage() {
@@ -39,7 +39,7 @@ export default function LeadDetailPage() {
   const { data } = useSWR<{
     id: number
     description: string
-    status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
+    status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'
     createdAt: string
     updatedAt: string
     createdBy?: { firstName?: string | null; lastName?: string | null } | null
@@ -150,6 +150,7 @@ export default function LeadDetailPage() {
                       <SelectItem value="IN_PROGRESS">Under arbeid</SelectItem>
                       <SelectItem value="LOST">Tapt</SelectItem>
                       <SelectItem value="WON">Vunnet</SelectItem>
+                      <SelectItem value="BORTFALT">Bortfalt</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

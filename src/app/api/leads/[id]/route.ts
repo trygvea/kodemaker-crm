@@ -52,7 +52,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 const updateLeadSchema = z.object({
   description: z.string().min(1).optional(),
-  status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON']).optional(),
+  status: z.enum(['NEW', 'IN_PROGRESS', 'LOST', 'WON', 'BORTFALT']).optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

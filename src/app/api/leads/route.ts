@@ -16,14 +16,14 @@ const createLeadSchema = z.object({
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const statusParam = searchParams.get('status')
-  const allowedStatuses = new Set(['NEW', 'IN_PROGRESS', 'LOST', 'WON'])
+  const allowedStatuses = new Set(['NEW', 'IN_PROGRESS', 'LOST', 'WON', 'BORTFALT'])
 
   const filters: Array<ReturnType<typeof inArray>> = []
   if (statusParam) {
     const statuses = statusParam
       .split(',')
       .map((s) => s.trim().toUpperCase())
-      .filter((s) => allowedStatuses.has(s)) as Array<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'>
+      .filter((s) => allowedStatuses.has(s)) as Array<'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'>
     if (statuses.length > 0) {
       filters.push(inArray(leads.status, statuses))
     }

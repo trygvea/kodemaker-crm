@@ -32,7 +32,7 @@ export type ApiFollowup = {
 export type ApiLead = {
   id: number
   description: string
-  status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
+  status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'
 }
 
 export type ApiEmail = {
@@ -91,7 +91,7 @@ export type GetCompanyDetailResponse = {
   comments: ApiComment[]
   leads: Array<{
     id: number
-    status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON'
+    status: 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'
     description: string
     contactId?: number | null
   }>

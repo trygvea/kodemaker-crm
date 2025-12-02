@@ -278,7 +278,9 @@ export default function ContactDetailPage() {
                           ? 'bg-amber-100 text-amber-800'
                           : l.status === 'LOST'
                             ? 'bg-red-100 text-red-700'
-                            : 'bg-green-100 text-green-700'
+                            : l.status === 'WON'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {l.status === 'NEW'
@@ -287,7 +289,9 @@ export default function ContactDetailPage() {
                         ? 'Under arbeid'
                         : l.status === 'LOST'
                           ? 'Tapt'
-                          : 'Vunnet'}
+                          : l.status === 'WON'
+                            ? 'Vunnet'
+                            : 'Bortfalt'}
                   </span>
                 </div>
               </a>
