@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { contactCompanyHistory, contactEmails, contacts } from "@/db/schema";
 import { z } from "zod";
-import { createEventWithContext } from "@/db/events";
+import { createEventContactCreated } from "@/db/events";
 import { listContacts } from "@/db/contacts";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -52,10 +52,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  await createEventWithContext("contact", created.id, "Ny kontakt", {
-    contactId: created.id,
-    companyId: companyId ?? undefined,
-  });
+  await createEventContactCreated(created.id, companyId);
 
   if (companyId && startDate) {
     await db.insert(contactCompanyHistory).values({

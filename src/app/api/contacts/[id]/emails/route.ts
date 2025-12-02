@@ -3,7 +3,7 @@ import { db } from '@/db/client'
 import { contactEmails } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { z } from 'zod'
-import { createEventWithContext } from '@/db/events'
+import { createEventContactEmailAdded } from '@/db/events'
 
 const createContactEmailSchema = z.object({
   email: z.string().email(),
@@ -58,10 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .returning()
 
   // Log event for email creation
-  await createEventWithContext('contact', contactId, 'Ny e-postadresse', {
-    contactId,
-    excerpt: `${parsed.data.email}${parsed.data.active === false ? ' (inaktiv)' : ''}`,
-  })
+  await createEventContactEmailAdded(contactId, parsed.data.email, parsed.data.active ?? true)
 
   return NextResponse.json(created)
 }

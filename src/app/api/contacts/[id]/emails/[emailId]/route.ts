@@ -3,7 +3,7 @@ import { db } from '@/db/client'
 import { contactEmails } from '@/db/schema'
 import { eq, and, ne } from 'drizzle-orm'
 import { z } from 'zod'
-import { createEventWithContext } from '@/db/events'
+import { createEventContactEmailUpdated, createEventContactEmailRemoved } from '@/db/events'
 
 const updateContactEmailSchema = z.object({
   email: z.string().email().optional(),
@@ -79,10 +79,7 @@ export async function PATCH(
   }
   
   if (changes.length > 0) {
-    await createEventWithContext('contact', contactId, 'Oppdatert e-postadresse', {
-      contactId,
-      excerpt: changes.join(', '),
-    })
+    await createEventContactEmailUpdated(contactId, changes.join(', '))
   }
 
   return NextResponse.json(updated)
@@ -124,10 +121,7 @@ export async function DELETE(
   }
 
   // Log event for email deletion
-  await createEventWithContext('contact', contactId, 'Fjernet e-postadresse', {
-    contactId,
-    excerpt: deleted.email,
-  })
+  await createEventContactEmailRemoved(contactId, deleted.email)
 
   return NextResponse.json({ ok: true })
 }

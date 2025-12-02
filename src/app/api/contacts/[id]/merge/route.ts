@@ -3,7 +3,7 @@ import { db } from '@/db/client'
 import { contacts, contactEmails, emails, leads, comments, followups, events } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { createEventWithContext } from '@/db/events'
+import { createEventContactMerged, createEventContactDeleted } from '@/db/events'
 
 const mergeContactSchema = z.object({
   targetContactId: z.number().int().positive(),
@@ -45,6 +45,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   try {
+    const sourceContactName = `${sourceContact.firstName} ${sourceContact.lastName}`
+    const targetContactName = `${targetContact.firstName} ${targetContact.lastName}`
+
     // Start a transaction to ensure data consistency
     await db.transaction(async (tx) => {
       // Merge email addresses
@@ -90,29 +93,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
 
       // Create merge event
-      await createEventWithContext(
-        'contact',
-        targetContactId,
-        'Merge',
-        {
-          contactId: targetContactId,
-          excerpt: `Merged contact ${sourceContact.firstName} ${sourceContact.lastName} (ID: ${sourceContactId}) into ${targetContact.firstName} ${targetContact.lastName}`,
-        }
-      )
+      await createEventContactMerged(targetContactId, sourceContactName, sourceContactId)
 
       // Delete source contact if requested
       if (deleteSourceContact) {
         await tx.delete(contacts).where(eq(contacts.id, sourceContactId))
-        
-        await createEventWithContext(
-          'contact',
-          sourceContactId,
-          'Slettet',
-          {
-            contactId: sourceContactId,
-            excerpt: `Contact ${sourceContact.firstName} ${sourceContact.lastName} deleted after merge into ${targetContact.firstName} ${targetContact.lastName}`,
-          }
-        )
+        await createEventContactDeleted(sourceContactId, sourceContactName, targetContactName)
       }
     })
 

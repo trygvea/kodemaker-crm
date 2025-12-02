@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { companies, leads } from "@/db/schema";
-import { createEventWithContext } from "@/db/events";
+import { createEventCompanyCreated } from "@/db/events";
 import { z } from "zod";
 import { ilike, inArray, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth";
@@ -68,8 +68,6 @@ export async function POST(req: NextRequest) {
     .insert(companies)
     .values({ ...parsed.data, createdByUserId: userId })
     .returning();
-  await createEventWithContext("company", created.id, "Ny organisasjon", {
-    companyId: created.id,
-  });
+  await createEventCompanyCreated(created.id);
   return NextResponse.json(created);
 }

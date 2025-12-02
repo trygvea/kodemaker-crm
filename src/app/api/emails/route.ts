@@ -9,7 +9,7 @@ import {
   emails,
   users,
 } from '@/db/schema'
-import { createEventWithContext } from '@/db/events'
+import { createEventContactCreated, createEventCompanyCreated, createEventEmailReceived } from '@/db/events'
 import { eq } from 'drizzle-orm'
 import { createHmac } from 'crypto'
 import { postmarkInboundSchema, parsePostmarkInboundEmail } from './parse-mail'
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       .insert(contactEmails)
       .values({ contactId: created.id, email: parsedMail.contactEmail, active: true })
 
-    await createEventWithContext('contact', created.id, 'Ny kontakt', { contactId: created.id })
+    await createEventContactCreated(created.id)
   }
 
   // Find or create contactHistory (and company if not found)
@@ -118,9 +118,7 @@ export async function POST(req: NextRequest) {
         .returning()
       companyId = createdCompany.id
       logger.info({ route: '/api/emails', method: 'POST' }, `Create company ${capitalizedName}`)
-      await createEventWithContext('company', createdCompany.id, 'Ny organisasjon', {
-        companyId: createdCompany.id,
-      })
+      await createEventCompanyCreated(createdCompany.id)
     }
     // Now, create contactHistory
     await db
@@ -168,12 +166,7 @@ export async function POST(req: NextRequest) {
     })
     .returning()
 
-  const type = parsedMail.mode === 'BCC' ? 'BCC' : 'videresendt'
-  await createEventWithContext('contact', contactId!, 'Ny e-post', {
-    contactId,
-    companyId,
-    excerpt: `${type}: ${parsedMail.subject ?? ''}`.trim(),
-  })
+  await createEventEmailReceived(contactId!, companyId, parsedMail.subject ?? '', parsedMail.mode)
 
   logger.info(
     { route: '/api/emails', method: 'POST' },
