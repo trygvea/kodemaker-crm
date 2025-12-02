@@ -162,7 +162,7 @@ export function SidebarSheetContent() {
   } = useSidebarContext();
 
   return (
-    <div className="p-3">
+    <div className="p-3 pt-12">
       <div className="mb-3">
         <CreateNewMenu
           companyId={headerCompanyId}
