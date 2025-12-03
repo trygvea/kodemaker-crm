@@ -50,7 +50,12 @@ export default function ContactDetailPage() {
     }
   }
   async function saveFollowup() {
-    const body = { note: newFollowupNote, dueAt: newFollowupDue, contactId: contact.id }
+    const body = {
+      note: newFollowupNote,
+      dueAt: newFollowupDue,
+      contactId: contact.id,
+      companyId: currentCompany?.id,
+    }
     const res = await fetch('/api/followups', { method: 'POST', body: JSON.stringify(body) })
     if (res.ok) {
       setNewFollowupNote('')

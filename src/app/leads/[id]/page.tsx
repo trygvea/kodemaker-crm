@@ -101,7 +101,13 @@ export default function LeadDetailPage() {
   }
 
   async function saveFollowup() {
-    const body = { note: newFollowupNote, dueAt: newFollowupDue, leadId: id };
+    const body = {
+      note: newFollowupNote,
+      dueAt: newFollowupDue,
+      leadId: id,
+      contactId: data.contact?.id,
+      companyId: data.company?.id,
+    }
     const res = await fetch("/api/followups", {
       method: "POST",
       body: JSON.stringify(body),
