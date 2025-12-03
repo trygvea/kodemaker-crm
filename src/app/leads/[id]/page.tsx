@@ -105,8 +105,8 @@ export default function LeadDetailPage() {
       note: newFollowupNote,
       dueAt: newFollowupDue,
       leadId: id,
-      contactId: data.contact?.id,
-      companyId: data.company?.id,
+      contactId: data?.contact?.id,
+      companyId: data?.company?.id,
     }
     const res = await fetch("/api/followups", {
       method: "POST",
