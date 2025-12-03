@@ -1,12 +1,13 @@
 'use client'
 import useSWR, { useSWRConfig } from 'swr'
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
+import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
+import { ContactHeader } from '@/components/entity-summary-header'
 
 import type { GetContactDetailResponse } from '@/types/api'
-import { Pencil, MessageSquarePlus, CalendarPlus } from 'lucide-react'
+import { MessageSquarePlus, CalendarPlus } from 'lucide-react'
 import {
   Accordion,
   AccordionContent,
@@ -79,49 +80,12 @@ export default function ContactDetailPage() {
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs items={crumbs} />
-      <section>
-        <div className="flex items-start justify-between">
-          <h1 className="text-2xl font-semibold">
-            {contact.firstName} {contact.lastName}
-          </h1>
-          <a
-            href={`/contacts/${contact.id}/edit`}
-            className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
-          >
-            <Pencil className="h-4 w-4 mr-1.5" />
-            Endre
-          </a>
-        </div>
-        <div className="text-sm text-muted-foreground space-y-1 mt-1">
-          {/* Display contact emails */}
-          {contactEmails.length > 0 && (
-            <div className="space-y-1">
-              {contactEmails.map((email) => (
-                <div key={email.id} className="flex items-center gap-2">
-                  <span>{email.email}</span>
-                  {!email.active && (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-1 py-0.5 rounded">
-                      inaktiv
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          {contact.phone ? <div>{contact.phone}</div> : null}
-          {contact.linkedInUrl ? (
-            <a className="underline" href={contact.linkedInUrl} target="_blank" rel="noreferrer">
-              LinkedIn
-            </a>
-          ) : null}
-          {contact.description ? (
-            <div className="mt-2 pt-2 border-t">
-              <div className="font-medium text-foreground mb-1">Beskrivelse</div>
-              <div className="whitespace-pre-wrap">{contact.description}</div>
-            </div>
-          ) : null}
-        </div>
-      </section>
+      <ContactHeader
+        contact={contact}
+        contactEmails={contactEmails}
+        currentCompany={currentCompany}
+        editHref={`/contacts/${contact.id}/edit`}
+      />
 
       <section>
         <div className="flex items-center justify-between mb-2">

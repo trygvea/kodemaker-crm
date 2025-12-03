@@ -5,9 +5,9 @@ import { useParams, useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { NewContactDialog } from '@/components/customers/new-contact-dialog'
 import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
-import { Pencil } from 'lucide-react'
 import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
 import { CreatedBy } from '@/components/created-by'
+import { CompanyHeader } from '@/components/entity-summary-header'
 
 import type { GetCompanyDetailResponse } from '@/types/api'
 
@@ -61,33 +61,7 @@ export default function CompanyDetailPage() {
       <PageBreadcrumbs
         items={[{ label: 'Organisasjoner', href: '/customers' }, { label: company.name }]}
       />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">{company.name}</h1>
-          <div className="text-sm text-muted-foreground">
-            {company.websiteUrl ? (
-              <a href={company.websiteUrl} target="_blank" rel="noreferrer" className="underline">
-                {company.websiteUrl}
-              </a>
-            ) : null}
-            {company.emailDomain ? <div>@{company.emailDomain}</div> : null}
-            {company.contactEmail ? <div>{company.contactEmail}</div> : null}
-            {company.description ? (
-              <div className="mt-2 pt-2 border-t">
-                <div className="font-medium text-foreground mb-1">Beskrivelse</div>
-                <div className="whitespace-pre-wrap">{company.description}</div>
-              </div>
-            ) : null}
-          </div>
-        </div>
-        <a
-          href={`/customers/${company.id}/edit`}
-          className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
-        >
-          <Pencil className="h-4 w-4 mr-1.5" />
-          Endre
-        </a>
-      </div>
+      <CompanyHeader company={company} editHref={`/customers/${company.id}/edit`} />
 
       <section>
         <div className="flex items-center justify-between mb-2">

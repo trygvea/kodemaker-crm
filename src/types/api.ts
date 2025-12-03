@@ -3,6 +3,7 @@ export type ApiContact = {
   id: number
   firstName: string
   lastName: string
+  role?: string | null
   phone?: string | null
   linkedInUrl?: string | null
   description?: string | null

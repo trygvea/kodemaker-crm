@@ -27,6 +27,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Save, MessageSquarePlus } from 'lucide-react'
 import { toast } from 'sonner'
+import { LeadHeader } from '@/components/entity-summary-header'
 
 const schema = z.object({
   description: z.string().min(1),
@@ -96,28 +97,7 @@ export default function LeadDetailPage() {
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs items={crumbs} />
-      <section>
-        <h1 className="text-2xl font-semibold">Lead</h1>
-        <div className="text-sm text-muted-foreground space-y-1">
-          {data.contact ? (
-            <div>
-              Kontakt:{' '}
-              <a href={`/contacts/${data.contact.id}`} className="underline">
-                {data.contact.firstName} {data.contact.lastName}
-              </a>
-            </div>
-          ) : null}
-          {data.company ? (
-            <div>
-              Organisasjon:{' '}
-              <a href={`/customers/${data.company.id}`} className="underline">
-                {data.company.name}
-              </a>
-            </div>
-          ) : null}
-          <div>Sist endret: {new Date(data.updatedAt).toLocaleString()}</div>
-        </div>
-      </section>
+      <LeadHeader company={data.company ?? null} contact={data.contact ?? null} />
 
       <section>
         <Form {...form}>
