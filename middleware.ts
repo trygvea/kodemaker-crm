@@ -4,9 +4,8 @@ import { getToken } from 'next-auth/jwt'
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  // Allow public assets and auth endpoints
+  // Allow public assets
   if (
-    pathname.startsWith('/api/') ||
     pathname.startsWith('/login') ||
     pathname.startsWith('/_next/') ||
     pathname === '/favicon.ico' ||
@@ -16,6 +15,24 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Allow auth endpoints and email webhook without authentication
+  if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/emails')) {
+    return NextResponse.next()
+  }
+
+  // Require authentication for all API routes
+  if (pathname.startsWith('/api/')) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    const hasSessionCookie =
+      req.cookies.has('next-auth.session-token') ||
+      req.cookies.has('__Secure-next-auth.session-token')
+    if (!token && !hasSessionCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    return NextResponse.next()
+  }
+
+  // Require authentication for all other routes
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   const hasSessionCookie =
     req.cookies.has('next-auth.session-token') ||
@@ -32,5 +49,3 @@ export default async function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/:path*'],
 }
-
-
