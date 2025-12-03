@@ -16,7 +16,7 @@ type Company = {
   websiteUrl?: string | null
   emailDomain?: string | null
   contactEmail?: string | null
-  leadCounts?: { NEW: number; IN_PROGRESS: number; LOST: number; WON: number }
+  leadCounts?: { NEW: number; IN_PROGRESS: number; LOST: number; WON: number; BORTFALT: number }
 }
 
 const companySchema = z.object({
@@ -100,6 +100,9 @@ export default function CustomersPage() {
                   </span>
                   <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">
                     Vunnet {c.leadCounts.WON}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">
+                    Bortfalt {c.leadCounts.BORTFALT}
                   </span>
                 </div>
               ) : null}

@@ -57,6 +57,13 @@
       "when": 1764690066969,
       "tag": "0007_high_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764768706160,
+      "tag": "0008_slippery_roxanne_simpson",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
-  "id": "900f2373-e931-4756-b736-96fbc08e2069",
-  "prevId": "a985dc80-ccf5-4592-b830-783fbe5ae16a",
+  "id": "4192323c-971f-4194-955d-00c390b56190",
+  "prevId": "900f2373-e931-4756-b736-96fbc08e2069",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -872,7 +872,8 @@
         "NEW",
         "IN_PROGRESS",
         "LOST",
-        "WON"
+        "WON",
+        "BORTFALT"
       ]
     },
     "public.user_role": {
