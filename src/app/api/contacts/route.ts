@@ -15,7 +15,7 @@ const createContactSchema = z.object({
   linkedInUrl: z.string().url().optional().or(z.literal("")),
   description: z.string().optional(),
   companyId: z.number().int().optional(),
-  startDate: z.string().optional(),
+  role: z.string().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       status: 400,
     });
   }
-  const { companyId, startDate, email, ...values } = parsed.data;
+  const { companyId, email, ...values } = parsed.data;
 
   // Create contact without legacy email field
   const [created] = await db
@@ -54,11 +54,12 @@ export async function POST(req: NextRequest) {
 
   await createEventContactCreated(created.id, companyId);
 
-  if (companyId && startDate) {
+  if (companyId) {
+    const today = new Date().toISOString().slice(0, 10);
     await db.insert(contactCompanyHistory).values({
       companyId,
       contactId: created.id,
-      startDate,
+      startDate: today,
     });
   }
   return NextResponse.json(created);

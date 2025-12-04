@@ -70,12 +70,9 @@ export function NewContactDialog({
       linkedInUrl: z.url({ error: "Ugyldig URL" }).optional().or(z.literal("")),
       description: z.string().optional(),
       companyId: z.number().optional(),
-      startDate: z.string().optional(),
-    })
-    .refine((data) => !(data.companyId && !data.startDate), {
-      path: ["startDate"],
-      message: "Startdato kreves når kunde er valgt",
+      role: z.string().optional(),
     });
+
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -86,7 +83,7 @@ export function NewContactDialog({
       linkedInUrl: "",
       description: "",
       companyId,
-      startDate: new Date().toISOString().slice(0, 10),
+      role: "",
     },
   });
   const [internalOpen, setInternalOpen] = useState(false);
@@ -138,7 +135,6 @@ export function NewContactDialog({
     if (companyId) {
       setSelectedCompany({ id: companyId, name: companyName || "" });
       form.setValue("companyId", companyId);
-      form.setValue("startDate", new Date().toISOString().slice(0, 10));
     } else {
       setSelectedCompany(null);
       form.setValue("companyId", undefined);
@@ -301,12 +297,12 @@ export function NewContactDialog({
             />
             <FormField
               control={form.control}
-              name="startDate"
+              name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ansatt dato</FormLabel>
+                  <FormLabel>Rolle</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

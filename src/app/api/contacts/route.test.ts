@@ -22,11 +22,13 @@ vi.mock("@/db/schema", () => ({
     id: "contacts.id",
     firstName: "contacts.firstName",
     lastName: "contacts.lastName",
+    role: "contacts.role",
   },
   companies: { id: "companies.id", name: "companies.name" },
   contactCompanyHistory: {
     contactId: "cch.contactId",
     companyId: "cch.companyId",
+    startDate: "cch.startDate",
     endDate: "cch.endDate",
   },
   contactEmails: {

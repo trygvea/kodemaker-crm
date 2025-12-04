@@ -19,6 +19,7 @@ import { z } from 'zod'
 const updateContactSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
+  role: z.string().optional(),
   phone: z.string().optional().or(z.literal('')),
   linkedInUrl: z.string().url().optional().or(z.literal('')),
   description: z.string().optional(),
@@ -36,6 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const values: Record<string, unknown> = {}
   if (parsed.data.firstName !== undefined) values.firstName = parsed.data.firstName
   if (parsed.data.lastName !== undefined) values.lastName = parsed.data.lastName
+  if (parsed.data.role !== undefined) values.role = parsed.data.role
   if (parsed.data.phone !== undefined) values.phone = parsed.data.phone
   if (parsed.data.linkedInUrl !== undefined) values.linkedInUrl = parsed.data.linkedInUrl
   if (parsed.data.description !== undefined) values.description = parsed.data.description || null

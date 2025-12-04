@@ -19,6 +19,7 @@ type Contact = {
   id: number
   firstName: string
   lastName: string
+  role?: string | null
   email?: string | null
   phone?: string | null
   linkedInUrl?: string | null
@@ -57,6 +58,7 @@ export default function EditContactPage() {
   )
   const [firstName, setFirstName] = useState(contact?.firstName || '')
   const [lastName, setLastName] = useState(contact?.lastName || '')
+  const [role, setRole] = useState(contact?.role || '')
   const [phone, setPhone] = useState(contact?.phone || '')
   const [linkedInUrl, setLinkedInUrl] = useState(contact?.linkedInUrl || '')
   const [description, setDescription] = useState(contact?.description || '')
@@ -83,6 +85,7 @@ export default function EditContactPage() {
     if (!contact) return
     setFirstName(contact.firstName || '')
     setLastName(contact.lastName || '')
+    setRole(contact.role || '')
     setPhone(contact.phone || '')
     setLinkedInUrl(contact.linkedInUrl || '')
     setDescription(contact.description || '')
@@ -96,7 +99,7 @@ export default function EditContactPage() {
   async function save() {
     const res = await fetch(`/api/contacts/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ firstName, lastName, phone, linkedInUrl, description }),
+      body: JSON.stringify({ firstName, lastName, role, phone, linkedInUrl, description }),
     })
     if (!res.ok) return
     await mutate()
@@ -211,6 +214,14 @@ export default function EditContactPage() {
             className="w-full border rounded p-2 text-sm"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Rolle</label>
+          <input
+            className="w-full border rounded p-2 text-sm"
+            value={role ?? ''}
+            onChange={(e) => setRole(e.target.value)}
           />
         </div>
         <div>
