@@ -128,6 +128,7 @@ export async function listContacts(query: string | null) {
       id: contacts.id,
       firstName: contacts.firstName,
       lastName: contacts.lastName,
+      role: contacts.role,
       company: { id: companies.id, name: companies.name },
     })
     .from(contacts)
@@ -156,6 +157,7 @@ export async function listContacts(query: string | null) {
         id: contacts.id,
         firstName: contacts.firstName,
         lastName: contacts.lastName,
+        role: contacts.role,
         company: { id: companies.id, name: companies.name },
       })
       .from(contacts)

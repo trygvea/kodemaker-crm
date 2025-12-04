@@ -1,18 +1,20 @@
-'use client'
-import { useState, useMemo } from 'react'
-import useSWR from 'swr'
-import { Input } from '@/components/ui/input'
-import { useRouter } from 'next/navigation'
+"use client";
+import { useMemo, useState } from "react";
+import useSWR from "swr";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
-import type { ListContactsItem } from '@/types/api'
+import type { ListContactsItem } from "@/types/api";
 
 export default function ContactsSearchPage() {
-  const [q, setQ] = useState('')
-  const query = q.trim()
-  const url = query.length >= 1 ? `/api/contacts?q=${encodeURIComponent(query)}` : `/api/contacts`
-  const { data } = useSWR<ListContactsItem[]>(url)
-  const rows = useMemo(() => data || [], [data])
-  const router = useRouter()
+  const [q, setQ] = useState("");
+  const query = q.trim();
+  const url = query.length >= 1
+    ? `/api/contacts?q=${encodeURIComponent(query)}`
+    : `/api/contacts`;
+  const { data } = useSWR<ListContactsItem[]>(url);
+  const rows = useMemo(() => data || [], [data]);
+  const router = useRouter();
 
   return (
     <div className="p-6 space-y-4">
@@ -27,9 +29,9 @@ export default function ContactsSearchPage() {
         />
       </div>
       <div className="border rounded divide-y">
-        {rows.length === 0 ? (
-          <div className="p-3 text-sm text-muted-foreground">Ingen treff</div>
-        ) : null}
+        {rows.length === 0
+          ? <div className="p-3 text-sm text-muted-foreground">Ingen treff</div>
+          : null}
         {rows.map((r) => (
           <div
             key={r.id}
@@ -38,9 +40,9 @@ export default function ContactsSearchPage() {
             tabIndex={0}
             onClick={() => router.push(`/contacts/${r.id}`)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                router.push(`/contacts/${r.id}`)
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                router.push(`/contacts/${r.id}`);
               }
             }}
           >
@@ -49,21 +51,25 @@ export default function ContactsSearchPage() {
                 <div className="font-medium">
                   {r.firstName} {r.lastName}
                 </div>
-                <div className="text-xs text-muted-foreground">{r.emails}</div>
+                <div className="text-xs text-muted-foreground">
+                  {r.role ?? ""}
+                </div>
               </div>
-              {r.company ? (
-                <a
-                  href={`/customers/${r.company.id}`}
-                  className="text-sm underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {r.company.name}
-                </a>
-              ) : null}
+              {r.company
+                ? (
+                  <a
+                    href={`/customers/${r.company.id}`}
+                    className="text-sm underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {r.company.name}
+                  </a>
+                )
+                : null}
             </div>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,73 +1,48 @@
-'use client'
-import useSWR from 'swr'
-import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { useMemo } from 'react'
-import { NewContactDialog } from '@/components/customers/new-contact-dialog'
-import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
-import { CreatedBy } from '@/components/created-by'
-import { CompanyHeader } from '@/components/entity-summary-header'
+"use client";
+import useSWR from "swr";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { NewContactDialog } from "@/components/customers/new-contact-dialog";
+import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
+import { CreatedBy } from "@/components/created-by";
+import { CompanyHeader } from "@/components/entity-summary-header";
 
-import type { GetCompanyDetailResponse } from '@/types/api'
+import type { GetCompanyDetailResponse } from "@/types/api";
 
 export default function CompanyDetailPage() {
-  const params = useParams<{ id: string }>()
-  const id = Number(params.id)
-  const router = useRouter()
-  const { data, mutate } = useSWR<GetCompanyDetailResponse>(id ? `/api/companies/${id}` : null)
+  const params = useParams<{ id: string }>();
+  const id = Number(params.id);
+  const router = useRouter();
+  const { data, mutate } = useSWR<GetCompanyDetailResponse>(
+    id ? `/api/companies/${id}` : null,
+  );
+  const [newComment, setNewComment] = useState("");
 
-  // Ensure hooks run consistently on every render
-  const leadsList = useMemo(() => data?.leads ?? [], [data])
-  const leadCounts = useMemo(() => {
-    const c = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0, BORTFALT: 0 } as Record<
-      'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT',
-      number
-    >
-    for (const l of leadsList) {
-      if (
-        l.status &&
-        c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'] !== undefined
-      ) {
-        c[l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'] += 1
-      }
-    }
-    return c
-  }, [leadsList])
-
-  const contactLeadCounts = useMemo(() => {
-    const map: Record<
-      number,
-      { NEW: number; IN_PROGRESS: number; LOST: number; WON: number; BORTFALT: number }
-    > = {}
-    for (const l of leadsList) {
-      const cid = l.contactId as number | null | undefined
-      const status = l.status as 'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT' | undefined
-      if (!cid || !status) continue
-      if (!map[cid]) map[cid] = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0, BORTFALT: 0 }
-      if (map[cid][status] !== undefined) map[cid][status] += 1
-    }
-    return map
-  }, [leadsList])
-  const [newComment, setNewComment] = useState('')
-
-  if (!data) return <div className="p-6">Laster...</div>
-  const { company, contacts, comments, leads } = data
+  if (!data) return <div className="p-6">Laster...</div>;
+  const { company, contacts, comments, leads } = data;
   async function saveComment() {
-    const body = { content: newComment, companyId: company.id }
-    const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
+    const body = { content: newComment, companyId: company.id };
+    const res = await fetch("/api/comments", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
     if (res.ok) {
-      setNewComment('')
-      mutate()
+      setNewComment("");
+      mutate();
     }
   }
 
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs
-        items={[{ label: 'Organisasjoner', href: '/customers' }, { label: company.name }]}
+        items={[{ label: "Organisasjoner", href: "/customers" }, {
+          label: company.name,
+        }]}
       />
-      <CompanyHeader company={company} editHref={`/customers/${company.id}/edit`} />
+      <CompanyHeader
+        company={company}
+        editHref={`/customers/${company.id}/edit`}
+      />
 
       <section>
         <div className="flex items-center justify-between mb-2">
@@ -83,9 +58,9 @@ export default function CompanyDetailPage() {
               tabIndex={0}
               onClick={() => router.push(`/contacts/${c.id}`)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  router.push(`/contacts/${c.id}`)
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push(`/contacts/${c.id}`);
                 }
               }}
             >
@@ -93,48 +68,9 @@ export default function CompanyDetailPage() {
                 <div className="font-medium">
                   {c.firstName} {c.lastName}
                 </div>
-                <div className="text-sm text-muted-foreground">{c.emails.join('; ')}</div>
-              </div>
-              <div
-                className="space-x-2 flex items-center"
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-              >
-                {contactLeadCounts[c.id] ? (
-                  <div className="flex items-center gap-1 mr-2">
-                    {contactLeadCounts[c.id].NEW > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">
-                        Ny {contactLeadCounts[c.id].NEW}
-                      </span>
-                    ) : null}
-                    {contactLeadCounts[c.id].IN_PROGRESS > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">
-                        Under arbeid {contactLeadCounts[c.id].IN_PROGRESS}
-                      </span>
-                    ) : null}
-                    {contactLeadCounts[c.id].LOST > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">
-                        Tapt {contactLeadCounts[c.id].LOST}
-                      </span>
-                    ) : null}
-                    {contactLeadCounts[c.id].WON > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">
-                        Vunnet {contactLeadCounts[c.id].WON}
-                      </span>
-                    ) : null}
-                    {contactLeadCounts[c.id].BORTFALT > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">
-                        Bortfalt {contactLeadCounts[c.id].BORTFALT}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
-                <NewLeadDialog
-                  companyId={company.id}
-                  companyName={company.name}
-                  contactId={c.id}
-                  contactName={`${c.firstName} ${c.lastName}`}
-                />
+                <div className="text-sm text-muted-foreground">
+                  {c.role ?? ""}
+                </div>
               </div>
             </div>
           ))}
@@ -164,72 +100,53 @@ export default function CompanyDetailPage() {
           </div>
         </div>
         <div className="border rounded divide-y mt-3">
-          {comments.length ? (
-            comments.map((c) => (
-              <div key={c.id} className="p-3">
-                <div className="text-xs text-muted-foreground mb-1">
-                  {new Date(c.createdAt).toLocaleString()}
+          {comments.length
+            ? (
+              comments.map((c) => (
+                <div key={c.id} className="p-3">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {new Date(c.createdAt).toLocaleString()}
+                  </div>
+                  <div className="whitespace-pre-wrap text-sm">{c.content}</div>
                 </div>
-                <div className="whitespace-pre-wrap text-sm">{c.content}</div>
-              </div>
-            ))
-          ) : (
-            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-          )}
+              ))
+            )
+            : <div className="p-3 text-sm text-muted-foreground">Ingen</div>}
         </div>
       </section>
 
       <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-medium">Leads</h2>
-          <NewLeadDialog companyId={company.id} companyName={company.name} />
-        </div>
-        <div className="flex items-center gap-1 mb-2">
-          <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs">
-            Ny {leadCounts.NEW}
-          </span>
-          <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs">
-            Under arbeid {leadCounts.IN_PROGRESS}
-          </span>
-          <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">
-            Tapt {leadCounts.LOST}
-          </span>
-          <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">
-            Vunnet {leadCounts.WON}
-          </span>
-          <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">
-            Bortfalt {leadCounts.BORTFALT}
-          </span>
-        </div>
         <div className="border rounded divide-y">
           {leads.map((l) => (
             <a key={l.id} href={`/leads/${l.id}`} className="block p-3">
               <div className="flex items-center justify-between">
                 <div className="text-sm">
-                  {l.description.length > 100 ? `${l.description.slice(0, 100)}…` : l.description}
+                  {l.description.length > 100
+                    ? `${l.description.slice(0, 100)}…`
+                    : l.description}
                 </div>
                 <span
                   className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-                    l.status === 'NEW'
-                      ? 'bg-blue-100 text-blue-700'
-                      : l.status === 'IN_PROGRESS'
-                        ? 'bg-amber-100 text-amber-800'
-                        : l.status === 'LOST'
-                          ? 'bg-red-100 text-red-700'
-                          : l.status === 'WON'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
+                    l.status === "NEW"
+                      ? "bg-blue-100 text-blue-700"
+                      : l.status === "IN_PROGRESS"
+                      ? "bg-amber-100 text-amber-800"
+                      : l.status === "LOST"
+                      ? "bg-red-100 text-red-700"
+                      : l.status === "WON"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-700"
                   }`}
                 >
-                  {l.status === 'NEW'
-                    ? 'Ny'
-                    : l.status === 'IN_PROGRESS'
-                      ? 'Under arbeid'
-                      : l.status === 'LOST'
-                        ? 'Tapt'
-                        : l.status === 'WON'
-                          ? 'Vunnet'
-                          : 'Bortfalt'}
+                  {l.status === "NEW"
+                    ? "Ny"
+                    : l.status === "IN_PROGRESS"
+                    ? "Under arbeid"
+                    : l.status === "LOST"
+                    ? "Tapt"
+                    : l.status === "WON"
+                    ? "Vunnet"
+                    : "Bortfalt"}
                 </span>
               </div>
             </a>
@@ -238,5 +155,5 @@ export default function CompanyDetailPage() {
       </section>
       <CreatedBy createdAt={company.createdAt} createdBy={data.createdBy} />
     </div>
-  )
+  );
 }
