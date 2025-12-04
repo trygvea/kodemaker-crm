@@ -41,7 +41,7 @@ export function CreateNewMenu({
           <Button className="w-full justify-between bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white hover:brightness-110 hover:from-purple-600 hover:via-pink-500 hover:to-orange-400">
             <span className="inline-flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              <span>Create New</span>
+              <span>Opprett</span>
             </span>
             <ChevronRight className="h-4 w-4" />
           </Button>

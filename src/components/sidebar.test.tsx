@@ -12,18 +12,16 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/create-new-menu", () => ({
-  CreateNewMenu: () => <button>Create New</button>,
+  CreateNewMenu: () => <button>Opprett</button>,
 }));
 
 describe("Sidebar", () => {
-  it("renders Create New button and not legacy Ny* actions", () => {
+  it("renders Opprett button and not legacy Ny* actions", () => {
     render(<Sidebar />);
 
-    expect(screen.getByText("Create New")).toBeDefined();
+    expect(screen.getByText("Opprett")).toBeDefined();
     expect(screen.queryByText("Ny organisasjon")).toBeNull();
     expect(screen.queryByText("Ny kontakt")).toBeNull();
     expect(screen.queryByText("Ny lead")).toBeNull();
   });
 });
-
-

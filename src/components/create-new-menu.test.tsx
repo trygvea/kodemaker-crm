@@ -20,14 +20,14 @@ describe("CreateNewMenu", () => {
   it("renders trigger button with label", () => {
     render(<CreateNewMenu />);
 
-    expect(screen.getByText("Create New")).toBeDefined();
+    expect(screen.getByText("Opprett")).toBeDefined();
   });
 
   it("shows dropdown items when opened", async () => {
     const user = userEvent.setup();
     render(<CreateNewMenu />);
 
-    const triggerButton = screen.getByRole("button", { name: /Create New/ });
+    const triggerButton = screen.getByRole("button", { name: /Opprett/ });
     await user.click(triggerButton);
 
     expect(await screen.findByText("Organisasjon")).toBeDefined();
