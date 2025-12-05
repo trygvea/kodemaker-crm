@@ -1,26 +1,29 @@
-import { db } from '@/db/client'
+import { db } from "@/db/client";
 import {
-  companies,
-  contacts,
-  contactCompanyHistory,
-  leads,
   comments,
-  users,
+  companies,
+  contactCompanyHistory,
   contactEmails,
-} from '@/db/schema'
-import { and, desc, eq, isNull, inArray } from 'drizzle-orm'
+  contacts,
+  leads,
+  users,
+} from "@/db/schema";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 
 export async function getCompanyDetail(id: number) {
-  const [company] = await db.select().from(companies).where(eq(companies.id, id)).limit(1)
-  if (!company) return null
-  let createdBy: { firstName: string | null; lastName: string | null } | null = null
+  const [company] = await db.select().from(companies).where(
+    eq(companies.id, id),
+  ).limit(1);
+  if (!company) return null;
+  let createdBy: { firstName: string | null; lastName: string | null } | null =
+    null;
   if (company.createdByUserId) {
     const [u] = await db
       .select({ firstName: users.firstName, lastName: users.lastName })
       .from(users)
       .where(eq(users.id, company.createdByUserId))
-      .limit(1)
-    if (u) createdBy = u
+      .limit(1);
+    if (u) createdBy = u;
   }
 
   const companyContacts = await db
@@ -34,12 +37,19 @@ export async function getCompanyDetail(id: number) {
     })
     .from(contactCompanyHistory)
     .innerJoin(contacts, eq(contacts.id, contactCompanyHistory.contactId))
-    .where(and(eq(contactCompanyHistory.companyId, id), isNull(contactCompanyHistory.endDate)))
-    .orderBy(desc(contacts.id))
+    .where(
+      and(
+        eq(contactCompanyHistory.companyId, id),
+        isNull(contactCompanyHistory.endDate),
+      ),
+    )
+    .orderBy(desc(contacts.id));
 
   // Fetch contact emails for all contacts
-  const contactIds = companyContacts.map((c) => c.id)
-  let contactEmailsData: Array<{ contactId: number; email: string; active: boolean }> = []
+  const contactIds = companyContacts.map((c) => c.id);
+  let contactEmailsData: Array<
+    { contactId: number; email: string; active: boolean }
+  > = [];
 
   if (contactIds.length > 0) {
     contactEmailsData = await db
@@ -50,38 +60,38 @@ export async function getCompanyDetail(id: number) {
       })
       .from(contactEmails)
       .where(inArray(contactEmails.contactId, contactIds))
-      .orderBy(contactEmails.createdAt)
+      .orderBy(contactEmails.createdAt);
   }
 
   // Group emails by contact ID
   const emailsByContactId = contactEmailsData.reduce(
     (acc, ce) => {
       if (!acc[ce.contactId]) {
-        acc[ce.contactId] = []
+        acc[ce.contactId] = [];
       }
-      acc[ce.contactId].push(ce.email)
-      return acc
+      acc[ce.contactId].push(ce.email);
+      return acc;
     },
-    {} as Record<number, string[]>
-  )
+    {} as Record<number, string[]>,
+  );
 
   // Add emails array to each contact
   const contactsWithEmails = companyContacts.map((contact) => ({
     ...contact,
     emails: emailsByContactId[contact.id] || [],
-  }))
+  }));
 
   const companyLeads = await db
     .select()
     .from(leads)
     .where(eq(leads.companyId, id))
-    .orderBy(desc(leads.createdAt))
+    .orderBy(desc(leads.createdAt));
 
   const companyComments = await db
     .select()
     .from(comments)
     .where(eq(comments.companyId, id))
-    .orderBy(desc(comments.createdAt))
+    .orderBy(desc(comments.createdAt));
 
   return {
     company,
@@ -89,5 +99,5 @@ export async function getCompanyDetail(id: number) {
     leads: companyLeads,
     comments: companyComments,
     createdBy,
-  }
+  };
 }

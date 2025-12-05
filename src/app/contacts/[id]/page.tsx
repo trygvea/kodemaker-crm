@@ -1,86 +1,42 @@
-'use client'
-import useSWR, { useSWRConfig } from 'swr'
-import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { NewLeadDialog } from '@/components/customers/new-lead-dialog'
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
-import { ContactHeader } from '@/components/entity-summary-header'
-
-import type { GetContactDetailResponse } from '@/types/api'
-import { MessageSquarePlus, CalendarPlus } from 'lucide-react'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
-import { FollowupsList } from '@/components/followups-list'
-import { CreatedBy } from '@/components/created-by'
+"use client";
+import useSWR from "swr";
+import { useParams } from "next/navigation";
+import { NewLeadDialog } from "@/components/customers/new-lead-dialog";
+import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
+import { ContactHeader } from "@/components/entity-summary-header";
+import { ActivityLog } from "@/components/activity-log";
+import { CreatedBy } from "@/components/created-by";
+import { ContactCompaniesSection } from "@/components/contact-companies-section";
+import { LeadsSection } from "@/components/leads-section";
+import type { GetContactDetailResponse } from "@/types/api";
 
 export default function ContactDetailPage() {
-  const params = useParams<{ id: string }>()
-  const id = Number(params.id)
-  const router = useRouter()
-  const { data, mutate } = useSWR<GetContactDetailResponse>(id ? `/api/contacts/${id}` : null)
-  const { mutate: globalMutate } = useSWRConfig()
-  const [newComment, setNewComment] = useState('')
-  const [newFollowupNote, setNewFollowupNote] = useState('')
-  const [newFollowupDue, setNewFollowupDue] = useState(() => {
-    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
-    const d = new Date()
-    d.setDate(d.getDate() + 7)
-    d.setHours(9, 0, 0, 0)
-    const y = d.getFullYear()
-    const m = pad(d.getMonth() + 1)
-    const day = pad(d.getDate())
-    const hh = pad(d.getHours())
-    const mm = pad(d.getMinutes())
-    return `${y}-${m}-${day}T${hh}:${mm}`
-  })
+  const params = useParams<{ id: string }>();
+  const id = Number(params.id);
+  const { data } = useSWR<GetContactDetailResponse>(
+    id ? `/api/contacts/${id}` : null,
+  );
 
-  if (!data) return <div className="p-6">Laster...</div>
-  const { contact, currentCompany, previousCompanies, comments, leads, emails, contactEmails } =
-    data
-  async function saveComment() {
-    const body = { content: newComment, contactId: contact.id }
-    const res = await fetch('/api/comments', { method: 'POST', body: JSON.stringify(body) })
-    if (res.ok) {
-      setNewComment('')
-      mutate()
-    }
-  }
-  async function saveFollowup() {
-    const body = {
-      note: newFollowupNote,
-      dueAt: newFollowupDue,
-      contactId: contact.id,
-      companyId: currentCompany?.id,
-    }
-    const res = await fetch('/api/followups', { method: 'POST', body: JSON.stringify(body) })
-    if (res.ok) {
-      setNewFollowupNote('')
-      const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
-      const d = new Date()
-      d.setDate(d.getDate() + 7)
-      d.setHours(9, 0, 0, 0)
-      const y = d.getFullYear()
-      const m = pad(d.getMonth() + 1)
-      const day = pad(d.getDate())
-      const hh = pad(d.getHours())
-      const mm = pad(d.getMinutes())
-      setNewFollowupDue(`${y}-${m}-${day}T${hh}:${mm}`)
-      mutate()
-      globalMutate(`/api/followups?contactId=${contact.id}`)
-    }
-  }
+  if (!data) return <div className="p-6">Laster...</div>;
+  const {
+    contact,
+    currentCompany,
+    previousCompanies,
+    leads,
+    emails,
+    contactEmails,
+  } = data;
 
   const crumbs = [
-    { label: 'Organisasjoner', href: '/customers' },
+    { label: "Organisasjoner", href: "/customers" },
     ...(currentCompany
-      ? [{ label: currentCompany.name, href: `/customers/${currentCompany.id}` }]
+      ? [{
+        label: currentCompany.name,
+        href: `/customers/${currentCompany.id}`,
+      }]
       : []),
     { label: `${contact.firstName} ${contact.lastName}` },
-  ]
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -92,226 +48,27 @@ export default function ContactDetailPage() {
         editHref={`/contacts/${contact.id}/edit`}
       />
 
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-medium">Nåværende organisasjon</h2>
-        </div>
-        {currentCompany ? (
-          <div
-            className="border rounded p-3 hover:bg-muted cursor-pointer"
-            role="button"
-            tabIndex={0}
-            onClick={() => router.push(`/customers/${currentCompany.id}`)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                router.push(`/customers/${currentCompany.id}`)
-              }
-            }}
-          >
-            <div className="font-medium">{currentCompany.name}</div>
-            {currentCompany.startDate ? (
-              <div className="text-sm text-muted-foreground">Siden {currentCompany.startDate}</div>
-            ) : null}
-          </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">Ingen aktiv organisasjon</div>
-        )}
-      </section>
+      <ActivityLog
+        contactId={contact.id}
+        companyId={currentCompany?.id}
+        initialEmails={emails}
+      />
 
-      <section>
-        <h2 className="text-lg font-medium mb-2">Tidligere organisasjoner</h2>
-        <div className="border rounded divide-y">
-          {previousCompanies.length ? (
-            previousCompanies.map((co) => (
-              <div
-                key={`${co.id}-${co.startDate}-${co.endDate}`}
-                className="p-3 hover:bg-muted cursor-pointer"
-                role="button"
-                tabIndex={0}
-                onClick={() => router.push(`/customers/${co.id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    router.push(`/customers/${co.id}`)
-                  }
-                }}
-              >
-                <div className="font-medium">{co.name}</div>
-                <div className="text-sm text-muted-foreground">
-                  {co.startDate} - {co.endDate}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-          )}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-medium mb-2">Kommentarer</h2>
-        <div className="space-y-2">
-          <textarea
-            rows={3}
-            className="w-full border rounded p-2 text-sm resize-y"
-            placeholder="Skriv en kommentar…"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <div className="flex justify-end">
-            <button
-              className="inline-flex items-center rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm disabled:opacity-50"
-              disabled={!newComment.trim()}
-              onClick={saveComment}
-            >
-              <MessageSquarePlus className="h-4 w-4 mr-1.5" />
-              Lagre kommentar
-            </button>
-          </div>
-        </div>
-        <div className="border rounded divide-y mt-3">
-          {comments.length ? (
-            comments.map((c) => (
-              <div key={c.id} className="p-3">
-                <div className="text-xs text-muted-foreground mb-1">
-                  {new Date(c.createdAt).toLocaleString()}
-                </div>
-                <div className="whitespace-pre-wrap text-sm">{c.content}</div>
-              </div>
-            ))
-          ) : (
-            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-          )}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-medium mb-2">Oppfølgninger</h2>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <textarea
-              rows={3}
-              className="w-full border rounded p-2 text-sm resize-y"
-              placeholder="Notat…"
-              value={newFollowupNote}
-              onChange={(e) => setNewFollowupNote(e.target.value)}
-            />
-          </div>
-          <div className="w-48">
-            <label className="block text-xs text-muted-foreground mb-1">Frist</label>
-            <input
-              type="datetime-local"
-              className="w-full border rounded p-2 text-sm"
-              value={newFollowupDue}
-              onChange={(e) => setNewFollowupDue(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="flex justify-end mt-2">
-          <button
-            className="inline-flex items-center rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm disabled:opacity-50"
-            disabled={!newFollowupNote.trim() || !newFollowupDue}
-            onClick={saveFollowup}
-          >
-            <CalendarPlus className="h-4 w-4 mr-1.5" />
-            Lagre oppfølgning
-          </button>
-        </div>
-        <FollowupsList endpoint={`/api/followups?contactId=${contact.id}`} />
-      </section>
-
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-medium">Leads</h2>
+      <LeadsSection
+        leads={leads}
+        headerAction={
           <NewLeadDialog
             companyId={currentCompany?.id}
             companyName={currentCompany?.name}
             contactId={contact.id}
             contactName={`${contact.firstName} ${contact.lastName}`}
           />
-        </div>
-        <div className="border rounded divide-y">
-          {leads.length ? (
-            leads.map((l) => (
-              <a key={l.id} href={`/leads/${l.id}`} className="block p-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm">
-                    {l.description.length > 100 ? `${l.description.slice(0, 100)}…` : l.description}
-                  </div>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-                      l.status === 'NEW'
-                        ? 'bg-blue-100 text-blue-700'
-                        : l.status === 'IN_PROGRESS'
-                          ? 'bg-amber-100 text-amber-800'
-                          : l.status === 'LOST'
-                            ? 'bg-red-100 text-red-700'
-                            : l.status === 'WON'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    {l.status === 'NEW'
-                      ? 'Ny'
-                      : l.status === 'IN_PROGRESS'
-                        ? 'Under arbeid'
-                        : l.status === 'LOST'
-                          ? 'Tapt'
-                          : l.status === 'WON'
-                            ? 'Vunnet'
-                            : 'Bortfalt'}
-                  </span>
-                </div>
-              </a>
-            ))
-          ) : (
-            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-          )}
-        </div>
-      </section>
+        }
+      />
 
-      <section>
-        <h2 className="text-lg font-medium mb-2">E-poster</h2>
-        <div className="border rounded divide-y">
-          {emails.length ? (
-            emails.map((e) => (
-              <div key={e.id} className="p-3">
-                {e.subject ? (
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-medium">{e.subject}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(e.createdAt).toLocaleString()}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-xs text-muted-foreground mb-1">
-                    {new Date(e.createdAt).toLocaleString()}
-                  </div>
-                )}
-                <Accordion type="single" collapsible>
-                  <AccordionItem value={`email-${e.id}`}>
-                    <AccordionTrigger className="group hover:no-underline text-left font-normal">
-                      <div
-                        className="whitespace-pre-wrap break-all text-sm group-data-[state=open]:hidden flex-1 min-w-0"
-                        style={{ maxHeight: '4.5em', overflow: 'hidden' }}
-                      >
-                        {e.content}
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="whitespace-pre-wrap break-all text-sm">{e.content}</div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-            ))
-          ) : (
-            <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-          )}
-        </div>
-      </section>
+      <ContactCompaniesSection previousCompanies={previousCompanies} />
+
       <CreatedBy createdAt={contact.createdAt} createdBy={data.createdBy} />
     </div>
-  )
+  );
 }

@@ -1,0 +1,44 @@
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
+import { ContactCompaniesSection } from "./contact-companies-section";
+
+vi.mock("next/navigation", () => ({
+    useRouter: () => ({
+        push: vi.fn(),
+    }),
+}));
+
+describe("ContactCompaniesSection", () => {
+    it("renders previous companies", () => {
+        const previousCompanies = [
+            {
+                id: 2,
+                name: "Old Corp",
+                startDate: "2020-01-01",
+                endDate: "2023-12-31",
+            },
+            {
+                id: 3,
+                name: "Very Old Corp",
+                startDate: "2018-01-01",
+                endDate: "2019-12-31",
+            },
+        ];
+
+        render(
+            <ContactCompaniesSection previousCompanies={previousCompanies} />,
+        );
+
+        expect(screen.getByText("Tidligere organisasjoner")).toBeDefined();
+        expect(screen.getByText("Old Corp")).toBeDefined();
+        expect(screen.getByText("Very Old Corp")).toBeDefined();
+        expect(screen.getByText(/2020-01-01 - 2023-12-31/)).toBeDefined();
+    });
+
+    it("renders 'Ingen' when no previous companies", () => {
+        render(<ContactCompaniesSection previousCompanies={[]} />);
+
+        expect(screen.getByText("Ingen")).toBeDefined();
+    });
+});
