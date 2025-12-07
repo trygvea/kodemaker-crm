@@ -21,6 +21,7 @@ export type ApiComment = {
   id: number;
   content: string;
   createdAt: string;
+  createdBy?: { firstName?: string | null; lastName?: string | null } | null;
 };
 
 export type ApiFollowup = {

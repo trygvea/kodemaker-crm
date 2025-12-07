@@ -9,6 +9,7 @@ const mockOpenFollowups = [
         dueAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         createdBy: { firstName: "Ola", lastName: "Nordmann" },
+        assignedTo: { id: 2, firstName: "Per", lastName: "Hansen" },
         company: { id: 1, name: "Kodemaker" },
         contact: { id: 5, firstName: "Kari", lastName: "Nordmann" },
     },
@@ -18,6 +19,7 @@ const mockOpenFollowups = [
         dueAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
         createdBy: { firstName: "Per", lastName: "Hansen" },
+        assignedTo: null,
     },
 ];
 
@@ -31,7 +33,9 @@ const mockCompletedFollowups = [
         createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
             .toISOString(),
         createdBy: { firstName: "Anne", lastName: "Larsen" },
+        assignedTo: { id: 1, firstName: "Ola", lastName: "Nordmann" },
         contact: { id: 6, firstName: "Tom", lastName: "Berg" },
+        company: { id: 2, name: "Acme Corp" },
     },
 ];
 
@@ -40,11 +44,13 @@ const mockComments: ApiComment[] = [
         id: 1,
         content: "Dette er en kommentar om kontakten.",
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        createdBy: { firstName: "Ola", lastName: "Nordmann" },
     },
     {
         id: 2,
         content: "Viktig notat: Kunden er interessert i våre tjenester.",
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        createdBy: { firstName: "Per", lastName: "Hansen" },
     },
 ];
 
@@ -62,6 +68,12 @@ const mockEmails: ApiEmail[] = [
         content: "Kort melding uten emne.",
         createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     },
+];
+
+const mockUsers = [
+    { id: 1, firstName: "Ola", lastName: "Nordmann" },
+    { id: 2, firstName: "Per", lastName: "Hansen" },
+    { id: 3, firstName: "Anne", lastName: "Larsen" },
 ];
 
 function MockActivityLog() {
@@ -83,6 +95,9 @@ function MockActivityLog() {
                     }
                     if (url.includes("/api/emails")) {
                         return Promise.resolve(mockEmails);
+                    }
+                    if (url.includes("/api/users")) {
+                        return Promise.resolve(mockUsers);
                     }
                     return Promise.resolve(null);
                 },

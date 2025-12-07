@@ -15,6 +15,7 @@ const createFollowupSchema = z.object({
   companyId: z.number().int().optional(),
   contactId: z.number().int().optional(),
   leadId: z.number().int().optional(),
+  assignedToUserId: z.number().int().optional(),
 });
 
 const queryParamsSchema = z.object({
@@ -83,6 +84,7 @@ export async function GET(req: NextRequest) {
         completedAt: followups.completedAt,
         createdAt: followups.createdAt,
         createdBy: { firstName: users.firstName, lastName: users.lastName },
+        assignedToUserId: followups.assignedToUserId,
         companyId: followups.companyId,
         contactId: followups.contactId,
         leadId: followups.leadId,
@@ -135,6 +137,27 @@ export async function GET(req: NextRequest) {
       return { ...r, companyId, contactId };
     });
 
+    const assignedToUserIds = Array.from(
+      new Set(rows.map((r) => r.assignedToUserId).filter(Boolean)),
+    ) as number[];
+    let assignedToUsersById: Record<
+      number,
+      { id: number; firstName: string; lastName: string }
+    > = {};
+    if (assignedToUserIds.length) {
+      const assignedRows = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(inArray(users.id, assignedToUserIds));
+      assignedToUsersById = Object.fromEntries(
+        assignedRows.map((u) => [u.id, u]),
+      );
+    }
+
     let companiesById: Record<number, { id: number; name: string }> = {};
     let contactsById: Record<
       number,
@@ -166,6 +189,9 @@ export async function GET(req: NextRequest) {
       completedAt: r.completedAt,
       createdAt: r.createdAt,
       createdBy: r.createdBy,
+      assignedTo: r.assignedToUserId
+        ? (assignedToUsersById[r.assignedToUserId] ?? null)
+        : null,
       company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
       contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
       lead: r.leadId
@@ -209,6 +235,7 @@ export async function POST(req: NextRequest) {
         contactId: parsed.data.contactId,
         leadId: parsed.data.leadId,
         createdByUserId: userId,
+        assignedToUserId: parsed.data.assignedToUserId,
       })
       .returning();
     const entity = parsed.data.leadId

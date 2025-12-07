@@ -6,6 +6,7 @@ const MOCK_FOLLOWUPS: FollowupItem[] = [
     id: 1,
     note: "Følg opp tilbud sendt til Kodemaker.",
     dueAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     createdBy: { firstName: "Ola", lastName: "Nordmann" },
     company: { id: 1, name: "Kodemaker" },
     contact: { id: 5, firstName: "Kari", lastName: "Nordmann" },
@@ -14,6 +15,7 @@ const MOCK_FOLLOWUPS: FollowupItem[] = [
     id: 2,
     note: "Ring kunden og avklar neste steg.",
     dueAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 

@@ -98,8 +98,14 @@ export async function getContactDetail(id: number) {
     .orderBy(desc(emails.createdAt));
 
   const contactComments = await db
-    .select()
+    .select({
+      id: comments.id,
+      content: comments.content,
+      createdAt: comments.createdAt,
+      createdBy: { firstName: users.firstName, lastName: users.lastName },
+    })
     .from(comments)
+    .leftJoin(users, eq(users.id, comments.createdByUserId))
     .where(eq(comments.contactId, id))
     .orderBy(desc(comments.createdAt));
 

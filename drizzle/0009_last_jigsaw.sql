@@ -1,0 +1,2 @@
+ALTER TABLE "followups" ADD COLUMN "assigned_to_user_id" integer;--> statement-breakpoint
+ALTER TABLE "followups" ADD CONSTRAINT "followups_assigned_to_user_id_users_id_fk" FOREIGN KEY ("assigned_to_user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

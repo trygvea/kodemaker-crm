@@ -88,8 +88,14 @@ export async function getCompanyDetail(id: number) {
     .orderBy(desc(leads.createdAt));
 
   const companyComments = await db
-    .select()
+    .select({
+      id: comments.id,
+      content: comments.content,
+      createdAt: comments.createdAt,
+      createdBy: { firstName: users.firstName, lastName: users.lastName },
+    })
     .from(comments)
+    .leftJoin(users, eq(users.id, comments.createdByUserId))
     .where(eq(comments.companyId, id))
     .orderBy(desc(comments.createdAt));
 

@@ -1,18 +1,25 @@
 "use client";
 import { useMemo, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import { CalendarPlus, MessageSquarePlus } from "lucide-react";
+import { CalendarPlus, ChevronsUpDown, MessageSquarePlus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
-import { useDueBgStyle } from "@/components/followups-list";
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+    Command,
+    CommandEmpty,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import { EmailItem } from "@/components/activity-log/email-item";
+import { CommentItem } from "@/components/activity-log/comment-item";
+import { FollowupItem } from "@/components/activity-log/followup-item";
 import type { ApiEmail } from "@/types/api";
 
 type FollowupItem = {
@@ -22,6 +29,7 @@ type FollowupItem = {
     completedAt?: string | null;
     createdAt: string;
     createdBy?: { firstName?: string | null; lastName?: string | null } | null;
+    assignedTo?: { id: number; firstName: string; lastName: string } | null;
     company?: { id: number; name: string } | null;
     contact?:
         | { id: number; firstName: string | null; lastName: string | null }
@@ -46,6 +54,12 @@ type ActivityLogProps = {
     companyId?: number;
     contactIds?: number[];
     initialEmails?: ApiEmail[];
+};
+
+type User = {
+    id: number;
+    firstName: string;
+    lastName: string;
 };
 
 function getDefaultDueDate(): string {
@@ -98,8 +112,10 @@ export function ActivityLog(
     const [newComment, setNewComment] = useState("");
     const [newFollowupNote, setNewFollowupNote] = useState("");
     const [newFollowupDue, setNewFollowupDue] = useState(getDefaultDueDate());
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [userPopoverOpen, setUserPopoverOpen] = useState(false);
+    const [userQuery, setUserQuery] = useState("");
     const { mutate: globalMutate } = useSWRConfig();
-    const dueBgStyle = useDueBgStyle();
 
     const { followupParams, commentParams, emailParams } = buildQueryParams(
         contactId,
@@ -126,6 +142,8 @@ export function ActivityLog(
         emailParams ? `/api/emails?${emailParams}` : null,
         { fallbackData: initialEmails },
     );
+
+    const { data: users } = useSWR<User[]>(`/api/users`);
 
     const emails = fetchedEmails ?? initialEmails;
 
@@ -158,6 +176,7 @@ export function ActivityLog(
             dueAt: newFollowupDue,
             ...(contactId ? { contactId } : {}),
             ...(companyId ? { companyId } : {}),
+            ...(selectedUser ? { assignedToUserId: selectedUser.id } : {}),
         };
         const res = await fetch("/api/followups", {
             method: "POST",
@@ -167,6 +186,7 @@ export function ActivityLog(
         if (res.ok) {
             setNewFollowupNote("");
             setNewFollowupDue(getDefaultDueDate());
+            setSelectedUser(null);
             await mutateOpenFollowups(undefined, { revalidate: true });
             await globalMutate(`/api/followups?${followupParams}`);
             if (emailParams) {
@@ -226,6 +246,17 @@ export function ActivityLog(
         });
     }, [completedFollowups, comments, emails]);
 
+    const filteredUsers = useMemo(() => {
+        if (!users || !userQuery) return users ?? [];
+        const query = userQuery.toLowerCase();
+        return users.filter(
+            (u) =>
+                u.firstName.toLowerCase().includes(query) ||
+                u.lastName.toLowerCase().includes(query) ||
+                `${u.firstName} ${u.lastName}`.toLowerCase().includes(query),
+        );
+    }, [users, userQuery]);
+
     return (
         <section className="bg-muted rounded-lg p-4">
             <h2 className="text-lg font-medium mb-4">Aktivitetslogg</h2>
@@ -260,6 +291,84 @@ export function ActivityLog(
                                         onChange={(e) =>
                                             setNewFollowupDue(e.target.value)}
                                     />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-xs text-muted-foreground mb-1">
+                                        Tildel
+                                    </label>
+                                    <Popover
+                                        open={userPopoverOpen}
+                                        onOpenChange={setUserPopoverOpen}
+                                    >
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className="w-full justify-between text-sm font-normal"
+                                            >
+                                                {selectedUser
+                                                    ? `${selectedUser.firstName} ${selectedUser.lastName}`
+                                                    : "Velg bruker…"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
+                                            <Command>
+                                                <CommandInput
+                                                    autoFocus
+                                                    placeholder="Søk bruker…"
+                                                    value={userQuery}
+                                                    onValueChange={setUserQuery}
+                                                    onKeyDown={(e) => {
+                                                        if (
+                                                            e.key ===
+                                                                "Escape" ||
+                                                            e.key === "Tab"
+                                                        ) {
+                                                            setUserPopoverOpen(
+                                                                false,
+                                                            );
+                                                        }
+                                                    }}
+                                                />
+                                                <CommandList>
+                                                    <CommandEmpty>
+                                                        Ingen treff
+                                                    </CommandEmpty>
+                                                    <CommandItem
+                                                        value=""
+                                                        onSelect={() => {
+                                                            setSelectedUser(
+                                                                null,
+                                                            );
+                                                            setUserPopoverOpen(
+                                                                false,
+                                                            );
+                                                        }}
+                                                    >
+                                                        Ingen
+                                                    </CommandItem>
+                                                    {filteredUsers?.map((u) => (
+                                                        <CommandItem
+                                                            key={u.id}
+                                                            value={`${u.firstName} ${u.lastName}`}
+                                                            onSelect={() => {
+                                                                setSelectedUser(
+                                                                    u,
+                                                                );
+                                                                setUserPopoverOpen(
+                                                                    false,
+                                                                );
+                                                            }}
+                                                        >
+                                                            {u.firstName}{" "}
+                                                            {u.lastName}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                             </div>
                             <div className="flex justify-end">
@@ -319,104 +428,12 @@ export function ActivityLog(
                         : (
                             <div className="border rounded divide-y">
                                 {openFollowups.map((f) => (
-                                    <div key={f.id} className="p-3">
-                                        <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-                                            <div
-                                                className="px-1 rounded"
-                                                style={dueBgStyle(f.dueAt)}
-                                            >
-                                                Frist: {new Date(f.dueAt)
-                                                    .toLocaleString()}
-                                                {f.createdBy
-                                                    ? ` · Av: ${
-                                                        f.createdBy.firstName ??
-                                                            ""
-                                                    } ${
-                                                        f.createdBy.lastName ??
-                                                            ""
-                                                    }`
-                                                    : ""}
-                                                {f.contact || f.company ||
-                                                        f.lead
-                                                    ? (
-                                                        <span>
-                                                            {" "}
-                                                            · På {f.lead
-                                                                ? (
-                                                                    <a
-                                                                        className="underline"
-                                                                        href={`/leads/${f.lead.id}`}
-                                                                    >
-                                                                        {f.lead
-                                                                                .description
-                                                                                .length >
-                                                                                50
-                                                                            ? `${
-                                                                                f.lead
-                                                                                    .description
-                                                                                    .slice(
-                                                                                        0,
-                                                                                        50,
-                                                                                    )
-                                                                            }…`
-                                                                            : f.lead
-                                                                                .description}
-                                                                    </a>
-                                                                )
-                                                                : null}
-                                                            {f.lead &&
-                                                                    (f.contact ||
-                                                                        f.company)
-                                                                ? " / "
-                                                                : ""}
-                                                            {f.contact
-                                                                ? (
-                                                                    <a
-                                                                        className="underline"
-                                                                        href={`/contacts/${f.contact.id}`}
-                                                                    >
-                                                                        {(f.contact
-                                                                            .firstName ??
-                                                                            "") +
-                                                                            " " +
-                                                                            (f.contact
-                                                                                .lastName ??
-                                                                                "")}
-                                                                    </a>
-                                                                )
-                                                                : null}
-                                                            {f.contact &&
-                                                                    f.company
-                                                                ? " / "
-                                                                : ""}
-                                                            {f.company
-                                                                ? (
-                                                                    <a
-                                                                        className="underline"
-                                                                        href={`/customers/${f.company.id}`}
-                                                                    >
-                                                                        {f.company
-                                                                            .name}
-                                                                    </a>
-                                                                )
-                                                                : null}
-                                                        </span>
-                                                    )
-                                                    : null}
-                                            </div>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    completeFollowup(f.id)}
-                                            >
-                                                Merk som utført
-                                            </Button>
-                                        </div>
-                                        <div className="whitespace-pre-wrap text-sm">
-                                            {f.note}
-                                        </div>
-                                    </div>
+                                    <FollowupItem
+                                        key={f.id}
+                                        followup={f}
+                                        variant="action"
+                                        onComplete={completeFollowup}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -434,174 +451,30 @@ export function ActivityLog(
                             <div className="border rounded divide-y">
                                 {recentActivities.map((item) => {
                                     if (item.type === "comment") {
-                                        const c = item.data;
                                         return (
-                                            <div
-                                                key={`comment-${c.id}`}
-                                                className="p-3"
-                                            >
-                                                <div className="flex items-center justify-between gap-2 mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {new Date(
-                                                                c.createdAt,
-                                                            )
-                                                                .toLocaleString()}
-                                                        </span>
-                                                        {c.createdBy && (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                · {c.createdBy
-                                                                    .firstName ??
-                                                                    ""}{" "}
-                                                                {c.createdBy
-                                                                    .lastName ??
-                                                                    ""}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <Badge variant="secondary">
-                                                        Kommentar
-                                                    </Badge>
-                                                </div>
-                                                <div className="whitespace-pre-wrap text-sm">
-                                                    {c.content}
-                                                </div>
-                                            </div>
+                                            <CommentItem
+                                                key={`comment-${item.data.id}`}
+                                                {...item.data}
+                                            />
                                         );
                                     }
 
                                     if (item.type === "followup") {
-                                        const f = item.data;
                                         return (
-                                            <div
-                                                key={`followup-${f.id}`}
-                                                className="p-3"
-                                            >
-                                                <div className="flex items-center justify-between gap-2 mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {f.completedAt
-                                                                ? new Date(
-                                                                    f.completedAt,
-                                                                ).toLocaleString()
-                                                                : new Date(
-                                                                    f.createdAt,
-                                                                ).toLocaleString()}
-                                                        </span>
-                                                        {f.createdBy && (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                · Laget av:{" "}
-                                                                {f.createdBy
-                                                                    .firstName ??
-                                                                    ""}{" "}
-                                                                {f.createdBy
-                                                                    .lastName ??
-                                                                    ""}
-                                                            </span>
-                                                        )}
-                                                        {f.contact && (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                · På:{" "}
-                                                                <a
-                                                                    className="underline"
-                                                                    href={`/contacts/${f.contact.id}`}
-                                                                >
-                                                                    {f.contact
-                                                                        .firstName ??
-                                                                        ""}{" "}
-                                                                    {f.contact
-                                                                        .lastName ??
-                                                                        ""}
-                                                                </a>
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <Badge variant="secondary">
-                                                        Oppfølging
-                                                    </Badge>
-                                                </div>
-                                                <div className="whitespace-pre-wrap text-sm">
-                                                    {f.note}
-                                                </div>
-                                            </div>
+                                            <FollowupItem
+                                                key={`followup-${item.data.id}`}
+                                                followup={item.data}
+                                                variant="completed"
+                                            />
                                         );
                                     }
 
                                     if (item.type === "email") {
-                                        const e = item.data;
                                         return (
-                                            <div
-                                                key={`email-${e.id}`}
-                                                className="p-3"
-                                            >
-                                                <div className="flex items-center justify-between gap-2 mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {new Date(
-                                                                e.createdAt,
-                                                            )
-                                                                .toLocaleString()}
-                                                        </span>
-                                                        {e.sourceUser && (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                · Avsender:{" "}
-                                                                {e.sourceUser
-                                                                    .firstName ??
-                                                                    ""}{" "}
-                                                                {e.sourceUser
-                                                                    .lastName ??
-                                                                    ""}
-                                                            </span>
-                                                        )}
-                                                        {e.recipientContact && (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                · Mottaker:{" "}
-                                                                {e.recipientContact
-                                                                    .firstName ??
-                                                                    ""}{" "}
-                                                                {e.recipientContact
-                                                                    .lastName ??
-                                                                    ""}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <Badge variant="secondary">
-                                                        E-post
-                                                    </Badge>
-                                                </div>
-                                                {e.subject && (
-                                                    <div className="font-medium mb-1 text-sm">
-                                                        {e.subject}
-                                                    </div>
-                                                )}
-                                                <Accordion
-                                                    type="single"
-                                                    collapsible
-                                                >
-                                                    <AccordionItem
-                                                        value={`email-${e.id}`}
-                                                    >
-                                                        <AccordionTrigger className="group hover:no-underline text-left font-normal">
-                                                            <div
-                                                                className="whitespace-pre-wrap break-all text-sm group-data-[state=open]:hidden flex-1 min-w-0"
-                                                                style={{
-                                                                    maxHeight:
-                                                                        "4.5em",
-                                                                    overflow:
-                                                                        "hidden",
-                                                                }}
-                                                            >
-                                                                {e.content}
-                                                            </div>
-                                                        </AccordionTrigger>
-                                                        <AccordionContent>
-                                                            <div className="whitespace-pre-wrap break-all text-sm">
-                                                                {e.content}
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                </Accordion>
-                                            </div>
+                                            <EmailItem
+                                                key={`email-${item.data.id}`}
+                                                email={item.data}
+                                            />
                                         );
                                     }
 
