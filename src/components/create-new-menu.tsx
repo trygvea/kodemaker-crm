@@ -13,9 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NewCompanyDialog } from "@/components/customers/new-company-dialog";
-import { NewContactDialog } from "@/components/customers/new-contact-dialog";
-import { NewLeadDialog } from "@/components/customers/new-lead-dialog";
+import { NewCompanyDialog } from "@/components/dialogs/new-company-dialog";
+import { NewContactDialog } from "@/components/dialogs/new-contact-dialog";
+import { NewLeadDialog } from "@/components/dialogs/new-lead-dialog";
 
 export interface CreateNewMenuProps {
   companyId?: number;

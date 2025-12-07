@@ -31,6 +31,13 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -62,6 +69,7 @@ export function NewLeadDialog({
   const schema = z
     .object({
       description: z.string().min(1),
+      status: z.enum(["NEW", "IN_PROGRESS", "LOST", "WON", "BORTFALT"]),
       companyId: z.number().optional(),
       contactId: z.number().optional(),
     })
@@ -72,7 +80,7 @@ export function NewLeadDialog({
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { description: "", companyId },
+    defaultValues: { description: "", status: "NEW", companyId },
   });
 
   const [internalOpen, setInternalOpen] = useState(false);
@@ -189,6 +197,29 @@ export function NewLeadDialog({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Velg status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NEW">Ny</SelectItem>
+                      <SelectItem value="IN_PROGRESS">Under arbeid</SelectItem>
+                      <SelectItem value="LOST">Tapt</SelectItem>
+                      <SelectItem value="WON">Vunnet</SelectItem>
+                      <SelectItem value="BORTFALT">Bortfalt</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

@@ -1,33 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/db/client'
-import { companies, contacts, leads } from '@/db/schema'
-import { z } from 'zod'
-import { and, desc, eq, inArray } from 'drizzle-orm'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { createEventLeadCreated } from '@/db/events'
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db/client";
+import { companies, contacts, leads } from "@/db/schema";
+import { z } from "zod";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { createEventLeadCreated } from "@/db/events";
 
 const createLeadSchema = z.object({
   companyId: z.number().int(),
   contactId: z.number().int().optional(),
   description: z.string().min(1),
-})
+  status: z.enum(["NEW", "IN_PROGRESS", "LOST", "WON", "BORTFALT"]).optional(),
+});
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const statusParam = searchParams.get('status')
-  const allowedStatuses = new Set(['NEW', 'IN_PROGRESS', 'LOST', 'WON', 'BORTFALT'])
+  const { searchParams } = new URL(req.url);
+  const statusParam = searchParams.get("status");
+  const allowedStatuses = new Set([
+    "NEW",
+    "IN_PROGRESS",
+    "LOST",
+    "WON",
+    "BORTFALT",
+  ]);
 
-  const filters: Array<ReturnType<typeof inArray>> = []
+  const filters: Array<ReturnType<typeof inArray>> = [];
   if (statusParam) {
     const statuses = statusParam
-      .split(',')
+      .split(",")
       .map((s) => s.trim().toUpperCase())
       .filter((s) => allowedStatuses.has(s)) as Array<
-      'NEW' | 'IN_PROGRESS' | 'LOST' | 'WON' | 'BORTFALT'
-    >
+        "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT"
+      >;
     if (statuses.length > 0) {
-      filters.push(inArray(leads.status, statuses))
+      filters.push(inArray(leads.status, statuses));
     }
   }
 
@@ -52,28 +59,32 @@ export async function GET(req: NextRequest) {
     .leftJoin(contacts, eq(leads.contactId, contacts.id))
     .where(filters.length ? and(...filters) : undefined)
     .orderBy(desc(leads.createdAt))
-    .limit(100)
-  return NextResponse.json(data)
+    .limit(100);
+  return NextResponse.json(data);
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  const userId = session?.user?.id ? Number(session.user.id) : undefined
-  const json = await req.json()
-  const parsed = createLeadSchema.safeParse(json)
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id ? Number(session.user.id) : undefined;
+  const json = await req.json();
+  const parsed = createLeadSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json({ error: parsed.error.flatten() }, {
+      status: 400,
+    });
   }
-  const [company] = await db.select().from(companies).where(eq(companies.id, parsed.data.companyId))
+  const [company] = await db.select().from(companies).where(
+    eq(companies.id, parsed.data.companyId),
+  );
   const [created] = await db
     .insert(leads)
     .values({ ...parsed.data, createdByUserId: userId })
-    .returning()
+    .returning();
   await createEventLeadCreated(
     created.id,
     company.id,
     parsed.data.contactId,
-    parsed.data.description
-  )
-  return NextResponse.json(created)
+    parsed.data.description,
+  );
+  return NextResponse.json(created);
 }

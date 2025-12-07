@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { LeadsSection } from "./leads-section";
 import type { ApiLead } from "../types/api";
 
-vi.mock("@/components/customers/new-lead-dialog", () => ({
+vi.mock("@/components/dialogs/new-lead-dialog", () => ({
     NewLeadDialog: ({ children }: { children?: React.ReactNode }) => (
         <div data-testid="new-lead-dialog">{children}</div>
     ),

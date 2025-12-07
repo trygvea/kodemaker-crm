@@ -7,7 +7,7 @@ import { CompanyHeader } from "@/components/entity-summary-header";
 import { CompanyContactsSection } from "@/components/company-contacts-section";
 import { LeadsSection } from "@/components/leads-section";
 import { ActivityLog } from "@/components/activity-log";
-import { NewLeadDialog } from "@/components/customers/new-lead-dialog";
+import { NewLeadDialog } from "@/components/dialogs/new-lead-dialog";
 import type { GetCompanyDetailResponse } from "@/types/api";
 
 export default function CompanyDetailPage() {
@@ -33,13 +33,6 @@ export default function CompanyDetailPage() {
         editHref={`/customers/${company.id}/edit`}
       />
 
-      <ActivityLog
-        companyId={company.id}
-        contactIds={contactIds.length > 0 ? contactIds : undefined}
-      />
-
-      <CompanyContactsSection company={company} contacts={contacts} />
-
       <LeadsSection
         leads={leads}
         headerAction={
@@ -49,6 +42,13 @@ export default function CompanyDetailPage() {
           />
         }
       />
+
+      <ActivityLog
+        companyId={company.id}
+        contactIds={contactIds.length > 0 ? contactIds : undefined}
+      />
+
+      <CompanyContactsSection company={company} contacts={contacts} />
 
       <CreatedBy createdAt={company.createdAt} createdBy={data.createdBy} />
     </div>

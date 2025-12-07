@@ -4,15 +4,15 @@ import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { CreateNewMenu } from "./create-new-menu";
 
-vi.mock("@/components/customers/new-company-dialog", () => ({
+vi.mock("@/components/dialogs/new-company-dialog", () => ({
   NewCompanyDialog: () => null,
 }));
 
-vi.mock("@/components/customers/new-contact-dialog", () => ({
+vi.mock("@/components/dialogs/new-contact-dialog", () => ({
   NewContactDialog: () => null,
 }));
 
-vi.mock("@/components/customers/new-lead-dialog", () => ({
+vi.mock("@/components/dialogs/new-lead-dialog", () => ({
   NewLeadDialog: () => null,
 }));
 

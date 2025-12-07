@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { NewContactDialog } from "@/components/customers/new-contact-dialog";
+import { NewContactDialog } from "@/components/dialogs/new-contact-dialog";
 import type { GetCompanyDetailResponse } from "@/types/api";
 
 type CompanyContactsSectionProps = {

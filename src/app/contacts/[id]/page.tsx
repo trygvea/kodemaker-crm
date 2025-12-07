@@ -1,7 +1,7 @@
 "use client";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
-import { NewLeadDialog } from "@/components/customers/new-lead-dialog";
+import { NewLeadDialog } from "@/components/dialogs/new-lead-dialog";
 import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
 import { ContactHeader } from "@/components/entity-summary-header";
 import { ActivityLog } from "@/components/activity-log";
@@ -48,12 +48,6 @@ export default function ContactDetailPage() {
         editHref={`/contacts/${contact.id}/edit`}
       />
 
-      <ActivityLog
-        contactId={contact.id}
-        companyId={currentCompany?.id}
-        initialEmails={emails}
-      />
-
       <LeadsSection
         leads={leads}
         headerAction={
@@ -64,6 +58,12 @@ export default function ContactDetailPage() {
             contactName={`${contact.firstName} ${contact.lastName}`}
           />
         }
+      />
+
+      <ActivityLog
+        contactId={contact.id}
+        companyId={currentCompany?.id}
+        initialEmails={emails}
       />
 
       <ContactCompaniesSection previousCompanies={previousCompanies} />
