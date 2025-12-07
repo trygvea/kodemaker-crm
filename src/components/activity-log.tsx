@@ -21,8 +21,11 @@ import { EmailItem } from "@/components/activity-log/email-item";
 import { CommentItem } from "@/components/activity-log/comment-item";
 import { FollowupItem } from "@/components/activity-log/followup-item";
 import type { ApiEmail } from "@/types/api";
+import { EditFollowupDialog } from "@/components/dialogs/edit-followup-dialog";
+import { EditCommentDialog } from "@/components/dialogs/edit-comment-dialog";
+import type { FollowupItemData } from "@/components/activity-log/followup-item";
 
-type FollowupItem = {
+type FollowupItemType = {
     id: number;
     note: string;
     dueAt: string;
@@ -45,7 +48,7 @@ type CommentItem = {
 };
 
 type ActivityItem =
-    | { type: "followup"; data: FollowupItem }
+    | { type: "followup"; data: FollowupItemType }
     | { type: "comment"; data: CommentItem }
     | { type: "email"; data: ApiEmail };
 
@@ -115,6 +118,14 @@ export function ActivityLog(
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userPopoverOpen, setUserPopoverOpen] = useState(false);
     const [userQuery, setUserQuery] = useState("");
+    const [editFollowupOpen, setEditFollowupOpen] = useState(false);
+    const [editCommentOpen, setEditCommentOpen] = useState(false);
+    const [selectedFollowup, setSelectedFollowup] = useState<
+        FollowupItemData | null
+    >(null);
+    const [selectedComment, setSelectedComment] = useState<CommentItem | null>(
+        null,
+    );
     const { mutate: globalMutate } = useSWRConfig();
 
     const { followupParams, commentParams, emailParams } = buildQueryParams(
@@ -124,13 +135,13 @@ export function ActivityLog(
     );
 
     const { data: openFollowups, mutate: mutateOpenFollowups } = useSWR<
-        FollowupItem[]
+        FollowupItemType[]
     >(
         `/api/followups?${followupParams}`,
     );
 
     const { data: completedFollowups, mutate: mutateCompletedFollowups } =
-        useSWR<FollowupItem[]>(
+        useSWR<FollowupItemType[]>(
             `/api/followups?${followupParams}&completed=1`,
         );
 
@@ -198,6 +209,8 @@ export function ActivityLog(
     async function completeFollowup(followupId: number) {
         const res = await fetch(`/api/followups/${followupId}`, {
             method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ completedAt: new Date().toISOString() }),
         });
         if (res.ok) {
             await mutateOpenFollowups(undefined, { revalidate: true });
@@ -433,6 +446,10 @@ export function ActivityLog(
                                         followup={f}
                                         variant="action"
                                         onComplete={completeFollowup}
+                                        onClick={() => {
+                                            setSelectedFollowup(f);
+                                            setEditFollowupOpen(true);
+                                        }}
                                     />
                                 ))}
                             </div>
@@ -455,6 +472,12 @@ export function ActivityLog(
                                             <CommentItem
                                                 key={`comment-${item.data.id}`}
                                                 {...item.data}
+                                                onClick={() => {
+                                                    setSelectedComment(
+                                                        item.data,
+                                                    );
+                                                    setEditCommentOpen(true);
+                                                }}
                                             />
                                         );
                                     }
@@ -465,6 +488,12 @@ export function ActivityLog(
                                                 key={`followup-${item.data.id}`}
                                                 followup={item.data}
                                                 variant="completed"
+                                                onClick={() => {
+                                                    setSelectedFollowup(
+                                                        item.data,
+                                                    );
+                                                    setEditFollowupOpen(true);
+                                                }}
                                             />
                                         );
                                     }
@@ -484,6 +513,28 @@ export function ActivityLog(
                         )}
                 </div>
             </div>
+
+            <EditFollowupDialog
+                followup={selectedFollowup}
+                open={editFollowupOpen}
+                onOpenChange={(open) => {
+                    setEditFollowupOpen(open);
+                    if (!open) {
+                        setSelectedFollowup(null);
+                    }
+                }}
+            />
+
+            <EditCommentDialog
+                comment={selectedComment}
+                open={editCommentOpen}
+                onOpenChange={(open) => {
+                    setEditCommentOpen(open);
+                    if (!open) {
+                        setSelectedComment(null);
+                    }
+                }}
+            />
         </section>
     );
 }

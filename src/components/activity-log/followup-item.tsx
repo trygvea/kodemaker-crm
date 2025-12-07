@@ -34,6 +34,7 @@ type FollowupItemProps = {
     onComplete?: (id: number) => void;
     showBadge?: boolean;
     entityLinks?: boolean;
+    onClick?: () => void;
 };
 
 function formatEntityReference(
@@ -62,6 +63,7 @@ export function FollowupItem({
     onComplete,
     showBadge = true,
     entityLinks = false,
+    onClick,
 }: FollowupItemProps) {
     const dueBgStyle = useDueBgStyle();
     const isCompleted = !!followup.completedAt;
@@ -88,6 +90,7 @@ export function FollowupItem({
                         key="lead"
                         className="underline"
                         href={`/leads/${followup.lead.id}`}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {followup.lead.description.length > 50
                             ? `${followup.lead.description.slice(0, 50)}…`
@@ -104,6 +107,7 @@ export function FollowupItem({
                         key="contact"
                         className="underline"
                         href={`/contacts/${followup.contact.id}`}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {(followup.contact.firstName ?? "") + " " +
                             (followup.contact.lastName ?? "")}
@@ -119,6 +123,7 @@ export function FollowupItem({
                         key="company"
                         className="underline"
                         href={`/customers/${followup.company.id}`}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {followup.company.name}
                     </a>,
@@ -132,7 +137,18 @@ export function FollowupItem({
 
     if (variant === "action") {
         return (
-            <div className="p-3 relative">
+            <div
+                className="p-3 relative cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={onClick}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onClick?.();
+                    }
+                }}
+            >
                 <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                         {showBadge && (
@@ -148,7 +164,7 @@ export function FollowupItem({
                             </span>
                             {followup.createdBy && (
                                 <>
-                                    {" "}· Laget av:{" "}
+                                    · Laget av:{" "}
                                     {followup.createdBy.firstName ?? ""}{" "}
                                     {followup.createdBy.lastName ?? ""}
                                 </>
@@ -158,7 +174,10 @@ export function FollowupItem({
                     </div>
                     <button
                         className="inline-flex items-center rounded border px-2 py-0.5 text-xs hover:bg-muted"
-                        onClick={() => onComplete?.(followup.id)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onComplete?.(followup.id);
+                        }}
                         disabled={isCompleted}
                     >
                         Fullfør
@@ -193,7 +212,18 @@ export function FollowupItem({
 
     // variant === "completed"
     return (
-        <div className="p-3 relative">
+        <div
+            className="p-3 relative cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={onClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onClick?.();
+                }
+            }}
+        >
             <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
                     {showBadge && <Badge variant="secondary">Oppfølging</Badge>}

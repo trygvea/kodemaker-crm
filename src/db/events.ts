@@ -188,6 +188,40 @@ export async function createEventCommentCreated(
   return createEvent(entity, entityId, description);
 }
 
+export async function createEventCommentUpdated(
+  entity: "lead" | "company" | "contact",
+  entityId: number,
+  companyId?: number,
+  contactId?: number,
+  content?: string,
+) {
+  const excerpt = content ? content.slice(0, 80) : undefined;
+  const description = await buildEventDescription(
+    "Kommentar oppdatert",
+    contactId,
+    companyId,
+    excerpt,
+  );
+  return createEvent(entity, entityId, description);
+}
+
+export async function createEventCommentDeleted(
+  entity: "lead" | "company" | "contact",
+  entityId: number,
+  companyId?: number,
+  contactId?: number,
+  content?: string,
+) {
+  const excerpt = content ? content.slice(0, 80) : undefined;
+  const description = await buildEventDescription(
+    "Kommentar slettet",
+    contactId,
+    companyId,
+    excerpt,
+  );
+  return createEvent(entity, entityId, description);
+}
+
 // Followup events
 export async function createEventFollowupCreated(
   entity: "lead" | "company" | "contact",
@@ -216,6 +250,40 @@ export async function createEventFollowupCompleted(
   const excerpt = note ? note.slice(0, 80) : undefined;
   const description = await buildEventDescription(
     "Oppfølging utført",
+    contactId,
+    companyId,
+    excerpt,
+  );
+  return createEvent(entity, entityId, description);
+}
+
+export async function createEventFollowupUpdated(
+  entity: "lead" | "company" | "contact",
+  entityId: number,
+  companyId?: number,
+  contactId?: number,
+  note?: string,
+) {
+  const excerpt = note ? note.slice(0, 80) : undefined;
+  const description = await buildEventDescription(
+    "Oppfølging oppdatert",
+    contactId,
+    companyId,
+    excerpt,
+  );
+  return createEvent(entity, entityId, description);
+}
+
+export async function createEventFollowupDeleted(
+  entity: "lead" | "company" | "contact",
+  entityId: number,
+  companyId?: number,
+  contactId?: number,
+  note?: string,
+) {
+  const excerpt = note ? note.slice(0, 80) : undefined;
+  const description = await buildEventDescription(
+    "Oppfølging slettet",
     contactId,
     companyId,
     excerpt,

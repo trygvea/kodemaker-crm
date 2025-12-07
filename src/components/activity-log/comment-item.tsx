@@ -7,6 +7,7 @@ type CommentItemProps = {
     content: string;
     createdAt: string;
     createdBy?: { firstName?: string | null; lastName?: string | null } | null;
+    onClick?: () => void;
 };
 
 export function CommentItem({
@@ -14,9 +15,22 @@ export function CommentItem({
     content,
     createdAt,
     createdBy,
+    onClick,
 }: CommentItemProps) {
     return (
-        <div key={`comment-${id}`} className="p-3">
+        <div
+            key={`comment-${id}`}
+            className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={onClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onClick?.();
+                }
+            }}
+        >
             <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="secondary">Kommentar</Badge>
