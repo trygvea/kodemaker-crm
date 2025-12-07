@@ -36,7 +36,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Description } from "@radix-ui/react-dialog";
 
 type Company = {
   id: number;
@@ -189,7 +188,6 @@ export function NewContactDialog({
         </DialogTrigger>
       )}
       <DialogContent>
-        <Description>Ny kontakt</Description>
         <DialogHeader>
           <DialogTitle>Ny kontakt</DialogTitle>
         </DialogHeader>
@@ -373,7 +371,7 @@ export function NewContactDialog({
                 </FormItem>
               )}
             />
-            <div className="col-span-2 flex justify-end">
+            <div className="col-span-2 flex justify-end mt-6">
               <Button
                 type="submit"
                 className="inline-flex items-center gap-1.5"

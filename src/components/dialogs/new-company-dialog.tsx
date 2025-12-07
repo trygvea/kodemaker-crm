@@ -24,7 +24,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Description } from "@radix-ui/react-dialog";
 
 const companySchema = z.object({
   name: z.string().min(1, "Skriv navn"),
@@ -92,7 +91,6 @@ export function NewCompanyDialog({
         </DialogTrigger>
       )}
       <DialogContent>
-        <Description>Ny organisasjon</Description>
         <DialogHeader>
           <DialogTitle>Ny organisasjon</DialogTitle>
         </DialogHeader>
@@ -160,7 +158,7 @@ export function NewCompanyDialog({
                 </FormItem>
               )}
             />
-            <div className="flex justify-end">
+            <div className="flex justify-end mt-6">
               <Button
                 type="submit"
                 className="inline-flex items-center gap-1.5"
