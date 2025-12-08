@@ -88,6 +88,7 @@ export const contactCompanyHistory = pgTable("contact_company_history", {
     .references(() => companies.id, { onDelete: "cascade" }),
   startDate: date("start_date").notNull(),
   endDate: date("end_date"),
+  role: text("role"),
 });
 
 export const leads = pgTable("leads", {

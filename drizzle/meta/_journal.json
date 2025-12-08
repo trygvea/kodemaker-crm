@@ -71,6 +71,13 @@
       "when": 1764944496745,
       "tag": "0009_last_jigsaw",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1765195964718,
+      "tag": "0010_spicy_hellion",
+      "breakpoints": true
     }
   ]
 }
