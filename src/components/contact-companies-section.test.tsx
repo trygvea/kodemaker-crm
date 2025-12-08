@@ -33,7 +33,7 @@ describe("ContactCompaniesSection", () => {
         expect(screen.getByText("Tidligere organisasjoner")).toBeDefined();
         expect(screen.getByText("Old Corp")).toBeDefined();
         expect(screen.getByText("Very Old Corp")).toBeDefined();
-        expect(screen.getByText(/2020-01-01 - 2023-12-31/)).toBeDefined();
+        expect(screen.getByText(/1\.1\.2020 - 31\.12\.2023/)).toBeDefined();
     });
 
     it("renders 'Ingen' when no previous companies", () => {

@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/utils";
 import type { GetContactDetailResponse } from "@/types/api";
 
 type ContactCompaniesSectionProps = {
@@ -33,7 +34,13 @@ export function ContactCompaniesSection({
               >
                 <div className="font-medium">{co.name}</div>
                 <div className="text-sm text-muted-foreground">
-                  {co.startDate} - {co.endDate}
+                  {co.role ?? ""}
+                  {co.startDate && co.endDate && (
+                    <>
+                      {co.role ? " · " : ""}
+                      {formatDate(co.startDate)} - {formatDate(co.endDate)}
+                    </>
+                  )}
                 </div>
               </div>
             ))
