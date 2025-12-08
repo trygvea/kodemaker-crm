@@ -31,22 +31,30 @@ export function CommentItem({
                 }
             }}
         >
-            <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="secondary">Kommentar</Badge>
-                    <span className="text-xs text-muted-foreground">
-                        {formatDateTimeWithoutSeconds(createdAt)}
-                        {createdBy && (
-                            <>
-                                {" "}· Laget av: {createdBy.firstName ?? ""}
-                                {" "}
-                                {createdBy.lastName ?? ""}
-                            </>
-                        )}
-                    </span>
+            <div className="flex items-start gap-3">
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="flex-1 min-w-0">
+                                <span className="text-xs text-muted-foreground">
+                                    {formatDateTimeWithoutSeconds(createdAt)}
+                                    {createdBy && (
+                                        <>
+                                            {" "}· Laget av:{" "}
+                                            {createdBy.firstName ?? ""}{" "}
+                                            {createdBy.lastName ?? ""}
+                                        </>
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                        <Badge variant="secondary">Kommentar</Badge>
+                    </div>
+                    <div className="whitespace-pre-wrap text-sm">
+                        {content}
+                    </div>
                 </div>
             </div>
-            <div className="whitespace-pre-wrap text-sm">{content}</div>
         </div>
     );
 }

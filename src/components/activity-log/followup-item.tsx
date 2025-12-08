@@ -1,6 +1,5 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { CheckIcon } from "lucide-react";
 import {
     formatDateTimeWithoutSeconds,
     getInitials,
@@ -12,6 +11,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CompletionCheckbox } from "@/components/completion-checkbox";
 
 export type FollowupItemData = {
     id: number;
@@ -149,42 +149,52 @@ export function FollowupItem({
                     }
                 }}
             >
-                <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                        {showBadge && (
-                            <Badge variant="secondary">Oppfølging</Badge>
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <span
-                                className="px-1 rounded"
-                                style={dueBgStyle(followup.dueAt)}
-                            >
-                                Frist:{" "}
-                                {formatDateTimeWithoutSeconds(followup.dueAt)}
-                            </span>
-                            {followup.createdBy && (
-                                <>
-                                    · Laget av:{" "}
-                                    {followup.createdBy.firstName ?? ""}{" "}
-                                    {followup.createdBy.lastName ?? ""}
-                                </>
+                <div className="flex items-start gap-3">
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-shrink-0"
+                    >
+                        <CompletionCheckbox
+                            completed={isCompleted}
+                            onClick={() => {
+                                if (!isCompleted) {
+                                    onComplete?.(followup.id);
+                                }
+                            }}
+                            disabled={isCompleted}
+                        />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-2.5 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <div className="flex-1 min-w-0">
+                                    <span
+                                        className="rounded"
+                                        style={dueBgStyle(followup.dueAt)}
+                                    >
+                                        Frist: {formatDateTimeWithoutSeconds(
+                                            followup.dueAt,
+                                        )}
+                                    </span>
+                                    {followup.createdBy && (
+                                        <>
+                                            {" "}· Laget av:{" "}
+                                            {followup.createdBy.firstName ??
+                                                ""}{" "}
+                                            {followup.createdBy.lastName ?? ""}
+                                        </>
+                                    )}
+                                    {renderEntityReference()}
+                                </div>
+                            </div>
+                            {showBadge && (
+                                <Badge variant="secondary">Oppfølging</Badge>
                             )}
-                            {renderEntityReference()}
+                        </div>
+                        <div className="whitespace-pre-wrap text-sm">
+                            {followup.note}
                         </div>
                     </div>
-                    <button
-                        className="inline-flex items-center rounded border px-2 py-0.5 text-xs hover:bg-muted"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onComplete?.(followup.id);
-                        }}
-                        disabled={isCompleted}
-                    >
-                        Fullfør
-                    </button>
-                </div>
-                <div className="whitespace-pre-wrap text-sm pr-8">
-                    {followup.note}
                 </div>
                 {followup.assignedTo && (
                     <div className="absolute bottom-2 right-4">
@@ -224,29 +234,44 @@ export function FollowupItem({
                 }
             }}
         >
-            <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
-                    {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
-                    <span className="text-xs text-muted-foreground">
-                        {displayDate}
-                        {followup.createdBy && (
-                            <>
-                                {" "}
-                                · Laget av: {followup.createdBy.firstName ?? ""}
-                                {" "}
-                                {followup.createdBy.lastName ?? ""}
-                            </>
+            <div className="flex items-start gap-3">
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-shrink-0"
+                >
+                    <CompletionCheckbox
+                        completed={true}
+                        onClick={() => {}}
+                        disabled={true}
+                    />
+                </div>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="flex-1 min-w-0">
+                                <span className="text-xs text-muted-foreground">
+                                    {displayDate}
+                                    {followup.createdBy && (
+                                        <>
+                                            {" "}
+                                            · Laget av:{" "}
+                                            {followup.createdBy.firstName ?? ""}
+                                            {" "}
+                                            {followup.createdBy.lastName ?? ""}
+                                        </>
+                                    )}
+                                    {renderEntityReference()}
+                                </span>
+                            </div>
+                        </div>
+                        {showBadge && (
+                            <Badge variant="secondary">Oppfølging</Badge>
                         )}
-                        {renderEntityReference()}
-                    </span>
+                    </div>
+                    <div className="whitespace-pre-wrap text-sm">
+                        {followup.note}
+                    </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-green-600 text-xs">
-                    <CheckIcon className="h-4 w-4" />
-                    <span>Fullført</span>
-                </div>
-            </div>
-            <div className="whitespace-pre-wrap text-sm pr-8">
-                {followup.note}
             </div>
             {followup.assignedTo && (
                 <div className="absolute bottom-2 right-4">
