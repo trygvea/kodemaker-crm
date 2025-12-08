@@ -92,7 +92,10 @@ export async function GET(req: NextRequest) {
       .from(followups)
       .leftJoin(users, eq(users.id, followups.createdByUserId))
       .where(where)
-      .orderBy(completed ? desc(followups.completedAt) : asc(followups.dueAt))
+      .orderBy(
+        completed ? desc(followups.completedAt) : asc(followups.dueAt),
+        asc(followups.id),
+      )
       .limit(200);
 
     // Resolve missing company/contact via lead references and get lead info
