@@ -468,11 +468,19 @@ export default function EditContactPage() {
                       onBlur={async (e) => {
                         const v = e.currentTarget.value;
                         if (v !== (h.role || "")) {
-                          await fetch(`/api/contact-company-history/${h.id}`, {
-                            method: "PATCH",
-                            body: JSON.stringify({ role: v || null }),
-                          });
-                          mutate();
+                          const res = await fetch(
+                            `/api/contact-company-history/${h.id}`,
+                            {
+                              method: "PATCH",
+                              body: JSON.stringify({ role: v || null }),
+                            },
+                          );
+                          if (res.ok) {
+                            mutate();
+                          } else {
+                            const error = await res.json();
+                            alert(error.error || "Kunne ikke oppdatere rolle");
+                          }
                         }
                       }}
                     />
@@ -485,11 +493,21 @@ export default function EditContactPage() {
                       onBlur={async (e) => {
                         const v = e.currentTarget.value;
                         if (v && v !== h.startDate) {
-                          await fetch(`/api/contact-company-history/${h.id}`, {
-                            method: "PATCH",
-                            body: JSON.stringify({ startDate: v }),
-                          });
-                          mutate();
+                          const res = await fetch(
+                            `/api/contact-company-history/${h.id}`,
+                            {
+                              method: "PATCH",
+                              body: JSON.stringify({ startDate: v }),
+                            },
+                          );
+                          if (res.ok) {
+                            mutate();
+                          } else {
+                            const error = await res.json();
+                            alert(
+                              error.error || "Kunne ikke oppdatere startdato",
+                            );
+                          }
                         }
                       }}
                     />
@@ -502,11 +520,21 @@ export default function EditContactPage() {
                       placeholder="pågående"
                       onBlur={async (e) => {
                         const v = e.currentTarget.value;
-                        await fetch(`/api/contact-company-history/${h.id}`, {
-                          method: "PATCH",
-                          body: JSON.stringify({ endDate: v }),
-                        });
-                        mutate();
+                        const res = await fetch(
+                          `/api/contact-company-history/${h.id}`,
+                          {
+                            method: "PATCH",
+                            body: JSON.stringify({ endDate: v }),
+                          },
+                        );
+                        if (res.ok) {
+                          mutate();
+                        } else {
+                          const error = await res.json();
+                          alert(
+                            error.error || "Kunne ikke oppdatere sluttdato",
+                          );
+                        }
                       }}
                     />
                   </div>
@@ -517,14 +545,22 @@ export default function EditContactPage() {
                           className="px-2 py-1 text-xs border rounded"
                           onClick={async () => {
                             const today = new Date().toISOString().slice(0, 10);
-                            await fetch(
+                            const res = await fetch(
                               `/api/contact-company-history/${h.id}`,
                               {
                                 method: "PATCH",
                                 body: JSON.stringify({ endDate: today }),
                               },
                             );
-                            mutate();
+                            if (res.ok) {
+                              mutate();
+                            } else {
+                              const error = await res.json();
+                              alert(
+                                error.error ||
+                                  "Kunne ikke avslutte tilknytning",
+                              );
+                            }
                           }}
                         >
                           Avslutt i dag
@@ -642,7 +678,7 @@ export default function EditContactPage() {
                   alert("Firma, rolle og startdato er påkrevd");
                   return;
                 }
-                await fetch("/api/contact-company-history", {
+                const res = await fetch("/api/contact-company-history", {
                   method: "POST",
                   body: JSON.stringify({
                     contactId: id,
@@ -652,14 +688,19 @@ export default function EditContactPage() {
                     endDate,
                   }),
                 });
-                setSelectedCompany(null);
-                (document.getElementById("newRole") as HTMLInputElement).value =
-                  "";
-                (document.getElementById("newStartDate") as HTMLInputElement)
-                  .value = "";
-                (document.getElementById("newEndDate") as HTMLInputElement)
-                  .value = "";
-                mutate();
+                if (res.ok) {
+                  setSelectedCompany(null);
+                  (document.getElementById("newRole") as HTMLInputElement)
+                    .value = "";
+                  (document.getElementById("newStartDate") as HTMLInputElement)
+                    .value = "";
+                  (document.getElementById("newEndDate") as HTMLInputElement)
+                    .value = "";
+                  mutate();
+                } else {
+                  const error = await res.json();
+                  alert(error.error || "Kunne ikke legge til firmatilknytning");
+                }
               }}
             >
               Legg til
