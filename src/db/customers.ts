@@ -8,7 +8,7 @@ import {
   leads,
   users,
 } from "@/db/schema";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 
 export async function getCompanyDetail(id: number) {
   const [company] = await db.select().from(companies).where(
@@ -31,19 +31,19 @@ export async function getCompanyDetail(id: number) {
       id: contacts.id,
       firstName: contacts.firstName,
       lastName: contacts.lastName,
-      role: contacts.role,
+      role: contactCompanyHistory.role,
       phone: contacts.phone,
       linkedInUrl: contacts.linkedInUrl,
+      endDate: contactCompanyHistory.endDate,
     })
     .from(contactCompanyHistory)
     .innerJoin(contacts, eq(contacts.id, contactCompanyHistory.contactId))
-    .where(
-      and(
-        eq(contactCompanyHistory.companyId, id),
-        isNull(contactCompanyHistory.endDate),
-      ),
-    )
-    .orderBy(desc(contacts.id));
+    .where(eq(contactCompanyHistory.companyId, id))
+    .orderBy(
+      // Active contacts first (endDate IS NULL), then quit contacts by endDate DESC
+      sql`CASE WHEN ${contactCompanyHistory.endDate} IS NULL THEN 0 ELSE 1 END`,
+      desc(contactCompanyHistory.endDate),
+    );
 
   // Fetch contact emails for all contacts
   const contactIds = companyContacts.map((c) => c.id);

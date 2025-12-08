@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { NewContactDialog } from "@/components/dialogs/new-contact-dialog";
+import { formatDate } from "@/lib/utils";
 import type { GetCompanyDetailResponse } from "@/types/api";
 
 type CompanyContactsSectionProps = {
@@ -42,6 +43,12 @@ export function CompanyContactsSection(
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {c.role ?? ""}
+                    {c.endDate && (
+                      <>
+                        {c.role ? " · " : ""}
+                        Sluttet: {formatDate(c.endDate)}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

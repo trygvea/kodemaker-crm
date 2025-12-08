@@ -8,14 +8,33 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Formats a date string to a locale string without seconds.
- * Example: "12/12/2025, 9:00:00 AM" -> "12/12/2025, 9:00 AM"
+ * Example: "12/12/2025, 9:00:00 AM" -> "12.12.2025, 09:00"
  */
 export function formatDateTimeWithoutSeconds(date: string | Date): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) return "";
-  const localeString = d.toLocaleString();
-  // Remove seconds from format like "12/12/2025, 9:00:00 AM"
-  return localeString.replace(/:\d{2}(?=\s*[AP]M|$)/, "");
+  const localeString = d.toLocaleString("nb-NO", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return localeString;
+}
+
+/**
+ * Formats a date string to Norwegian locale date format.
+ * Example: "2025-01-15" -> "15.01.2025"
+ */
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString("nb-NO", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
 }
 
 /**

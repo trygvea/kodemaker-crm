@@ -94,6 +94,7 @@ export type GetCompanyDetailResponse = {
     phone?: string | null;
     linkedInUrl?: string | null;
     emails: string[];
+    endDate?: string | null;
   }>;
   comments: ApiComment[];
   leads: Array<{
