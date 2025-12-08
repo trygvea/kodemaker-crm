@@ -165,7 +165,7 @@ export function FollowupItem({
                         />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-2.5 text-xs text-muted-foreground">
+                        <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <div className="flex-1 min-w-0">
                                     <span
@@ -246,7 +246,7 @@ export function FollowupItem({
                     />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2.5 text-xs text-muted-foreground">
+                    <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                             <div className="flex-1 min-w-0">
                                 <span className="text-xs text-muted-foreground">
