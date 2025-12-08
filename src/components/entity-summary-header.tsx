@@ -159,11 +159,11 @@ export function ContactHeader({
         });
     }
 
-    if (contact.role) {
+    if (currentCompany?.role) {
         items.push({
             label: "Rolle",
             icon: <BriefcaseBusiness className="h-4 w-4" />,
-            content: <span>{contact.role}</span>,
+            content: <span>{currentCompany.role}</span>,
         });
     }
 

@@ -45,6 +45,7 @@ export async function getContactDetail(id: number) {
       name: companies.name,
       startDate: contactCompanyHistory.startDate,
       endDate: contactCompanyHistory.endDate,
+      role: contactCompanyHistory.role,
     })
     .from(contactCompanyHistory)
     .innerJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
@@ -63,6 +64,7 @@ export async function getContactDetail(id: number) {
       name: companies.name,
       startDate: contactCompanyHistory.startDate,
       endDate: contactCompanyHistory.endDate,
+      role: contactCompanyHistory.role,
     })
     .from(contactCompanyHistory)
     .innerJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
@@ -126,6 +128,7 @@ export async function getContactDetail(id: number) {
       id: contactCompanyHistory.id,
       startDate: contactCompanyHistory.startDate,
       endDate: contactCompanyHistory.endDate,
+      role: contactCompanyHistory.role,
       company: { id: companies.id, name: companies.name },
     })
     .from(contactCompanyHistory)
@@ -157,7 +160,7 @@ export async function listContacts(query: string | null) {
       id: contacts.id,
       firstName: contacts.firstName,
       lastName: contacts.lastName,
-      role: contacts.role,
+      role: contactCompanyHistory.role,
       company: { id: companies.id, name: companies.name },
     })
     .from(contacts)
@@ -189,7 +192,7 @@ export async function listContacts(query: string | null) {
         id: contacts.id,
         firstName: contacts.firstName,
         lastName: contacts.lastName,
-        role: contacts.role,
+        role: contactCompanyHistory.role,
         company: { id: companies.id, name: companies.name },
       })
       .from(contacts)

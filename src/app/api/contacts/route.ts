@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       status: 400,
     });
   }
-  const { companyId, email, ...values } = parsed.data;
+  const { companyId, email, role, ...values } = parsed.data;
 
   // Create contact without legacy email field
   const [created] = await db
@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
       companyId,
       contactId: created.id,
       startDate: today,
+      role: role || null,
     });
   }
   return NextResponse.json(created);

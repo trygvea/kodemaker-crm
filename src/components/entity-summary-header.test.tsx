@@ -38,7 +38,6 @@ describe("ContactHeader", () => {
         linkedInUrl: "https://linkedin.com/in/test",
         description: "Viktig notat",
         createdAt: new Date().toISOString(),
-        role: "CEO",
     };
 
     const baseEmails = [
@@ -61,6 +60,7 @@ describe("ContactHeader", () => {
         name: "Rema 1000",
         startDate: null,
         endDate: null,
+        role: "CEO",
     };
 
     it("renders contact info with edit button and role", () => {

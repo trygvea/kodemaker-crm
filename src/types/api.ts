@@ -3,7 +3,6 @@ export type ApiContact = {
   id: number;
   firstName: string;
   lastName: string;
-  role?: string | null;
   phone?: string | null;
   linkedInUrl?: string | null;
   description?: string | null;
@@ -15,6 +14,7 @@ type ApiCompanyBrief = {
   name: string;
   startDate?: string | null;
   endDate?: string | null;
+  role?: string | null;
 };
 
 export type ApiComment = {
@@ -68,6 +68,7 @@ export type GetContactDetailResponse = {
     id: number;
     startDate: string;
     endDate?: string | null;
+    role?: string | null;
     company: { id: number; name: string };
   }>;
   createdBy?: { firstName?: string | null; lastName?: string | null } | null;
