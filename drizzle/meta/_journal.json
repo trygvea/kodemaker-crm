@@ -78,6 +78,13 @@
       "when": 1765195964718,
       "tag": "0010_spicy_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1765286751470,
+      "tag": "0011_brave_psynapse",
+      "breakpoints": true
     }
   ]
 }

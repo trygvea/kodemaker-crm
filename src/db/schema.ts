@@ -56,7 +56,6 @@ export const contacts = pgTable("contacts", {
   id: serial("id").primaryKey(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  role: text("role"),
   phone: varchar("phone", { length: 50 }),
   linkedInUrl: text("linkedin_url"),
   description: text("description"),
