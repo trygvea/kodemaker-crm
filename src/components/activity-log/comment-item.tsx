@@ -1,12 +1,19 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTimeWithoutSeconds } from "@/lib/utils";
+import { EntityReference } from "@/components/activity-log/entity-reference";
 
 type CommentItemProps = {
     id: number;
     content: string;
     createdAt: string;
     createdBy?: { firstName?: string | null; lastName?: string | null } | null;
+    company?: { id: number; name: string } | null;
+    contact?:
+        | { id: number; firstName: string | null; lastName: string | null }
+        | null;
+    lead?: { id: number; description: string } | null;
+    contactEndDate?: string | null;
     onClick?: () => void;
 };
 
@@ -15,6 +22,10 @@ export function CommentItem({
     content,
     createdAt,
     createdBy,
+    company,
+    contact,
+    lead,
+    contactEndDate,
     onClick,
 }: CommentItemProps) {
     return (
@@ -46,6 +57,13 @@ export function CommentItem({
                                             {createdBy.lastName ?? ""}
                                         </>
                                     )}
+                                    <EntityReference
+                                        contact={contact}
+                                        company={company}
+                                        lead={lead}
+                                        contactEndDate={contactEndDate}
+                                        entityLinks={false}
+                                    />
                                 </span>
                             </div>
                         </div>

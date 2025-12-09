@@ -38,6 +38,7 @@ type FollowupItemType = {
         | { id: number; firstName: string | null; lastName: string | null }
         | null;
     lead?: { id: number; description: string } | null;
+    contactEndDate?: string | null;
 };
 
 type CommentItem = {
@@ -45,6 +46,12 @@ type CommentItem = {
     content: string;
     createdAt: string;
     createdBy?: { firstName?: string | null; lastName?: string | null } | null;
+    company?: { id: number; name: string } | null;
+    contact?:
+        | { id: number; firstName: string | null; lastName: string | null }
+        | null;
+    lead?: { id: number; description: string } | null;
+    contactEndDate?: string | null;
 };
 
 type ActivityItem =
@@ -471,7 +478,15 @@ export function ActivityLog(
                                         return (
                                             <CommentItem
                                                 key={`comment-${item.data.id}`}
-                                                {...item.data}
+                                                id={item.data.id}
+                                                content={item.data.content}
+                                                createdAt={item.data.createdAt}
+                                                createdBy={item.data.createdBy}
+                                                company={item.data.company}
+                                                contact={item.data.contact}
+                                                lead={item.data.lead}
+                                                contactEndDate={item.data
+                                                    .contactEndDate}
                                                 onClick={() => {
                                                     setSelectedComment(
                                                         item.data,

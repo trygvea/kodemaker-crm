@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/client";
-import { companies, contacts, followups, leads, users } from "@/db/schema";
+import {
+  companies,
+  contactCompanyHistory,
+  contacts,
+  followups,
+  users,
+} from "@/db/schema";
 import { z } from "zod";
 import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { getServerSession } from "next-auth";
@@ -98,47 +104,13 @@ export async function GET(req: NextRequest) {
       )
       .limit(200);
 
-    // Resolve missing company/contact via lead references and get lead info
-    const leadIds = Array.from(
-      new Set(rows.map((r) => r.leadId).filter(Boolean)),
-    ) as number[];
-    const leadsById: Record<
-      number,
-      {
-        companyId: number | null;
-        contactId: number | null;
-        description: string;
-      }
-    > = {};
-    if (leadIds.length) {
-      const leadRows = await db
-        .select({
-          id: leads.id,
-          companyId: leads.companyId,
-          contactId: leads.contactId,
-          description: leads.description,
-        })
-        .from(leads)
-        .where(inArray(leads.id, leadIds));
-      for (const l of leadRows) {
-        leadsById[l.id] = {
-          companyId: l.companyId ?? null,
-          contactId: l.contactId ?? null,
-          description: l.description,
-        };
-      }
+    // Collect company and contact IDs directly from followups
+    const companyIds = new Set<number>();
+    const contactIds = new Set<number>();
+    for (const r of rows) {
+      if (r.companyId) companyIds.add(r.companyId);
+      if (r.contactId) contactIds.add(r.contactId);
     }
-
-    const resolvedCompanyIds = new Set<number>();
-    const resolvedContactIds = new Set<number>();
-    const resolved = rows.map((r) => {
-      const viaLead = r.leadId ? leadsById[r.leadId] : undefined;
-      const companyId = r.companyId ?? viaLead?.companyId ?? null;
-      const contactId = r.contactId ?? viaLead?.contactId ?? null;
-      if (companyId) resolvedCompanyIds.add(companyId);
-      if (contactId) resolvedContactIds.add(contactId);
-      return { ...r, companyId, contactId };
-    });
 
     const assignedToUserIds = Array.from(
       new Set(rows.map((r) => r.assignedToUserId).filter(Boolean)),
@@ -166,14 +138,14 @@ export async function GET(req: NextRequest) {
       number,
       { id: number; firstName: string | null; lastName: string | null }
     > = {};
-    if (resolvedCompanyIds.size) {
+    if (companyIds.size) {
       const coRows = await db
         .select({ id: companies.id, name: companies.name })
         .from(companies)
-        .where(inArray(companies.id, Array.from(resolvedCompanyIds)));
+        .where(inArray(companies.id, Array.from(companyIds)));
       companiesById = Object.fromEntries(coRows.map((c) => [c.id, c]));
     }
-    if (resolvedContactIds.size) {
+    if (contactIds.size) {
       const ctRows = await db
         .select({
           id: contacts.id,
@@ -181,29 +153,101 @@ export async function GET(req: NextRequest) {
           lastName: contacts.lastName,
         })
         .from(contacts)
-        .where(inArray(contacts.id, Array.from(resolvedContactIds)));
+        .where(inArray(contacts.id, Array.from(contactIds)));
       contactsById = Object.fromEntries(ctRows.map((c) => [c.id, c]));
     }
 
-    const data = resolved.map((r) => ({
-      id: r.id,
-      note: r.note,
-      dueAt: r.dueAt,
-      completedAt: r.completedAt,
-      createdAt: r.createdAt,
-      createdBy: r.createdBy,
-      assignedTo: r.assignedToUserId
-        ? (assignedToUsersById[r.assignedToUserId] ?? null)
-        : null,
-      company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
-      contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
-      lead: r.leadId
-        ? {
-          id: r.leadId,
-          description: leadsById[r.leadId]?.description ?? "",
+    // Fetch contact-company endDate relationships for "sluttet" status
+    const contactCompanyPairs: Array<{ contactId: number; companyId: number }> =
+      [];
+    for (const r of rows) {
+      if (r.contactId && r.companyId) {
+        contactCompanyPairs.push({
+          contactId: r.contactId,
+          companyId: r.companyId,
+        });
+      }
+    }
+    const uniquePairs = Array.from(
+      new Map(
+        contactCompanyPairs.map((p) => [`${p.contactId}-${p.companyId}`, p]),
+      ).values(),
+    );
+
+    const contactCompanyEndDates: Record<
+      string,
+      string | null
+    > = {};
+    if (uniquePairs.length > 0) {
+      // Fetch all history entries for all contact-company pairs at once
+      const pairContactIds = uniquePairs.map((p) => p.contactId);
+      const pairCompanyIds = uniquePairs.map((p) => p.companyId);
+      const allHistoryEntries = await db
+        .select({
+          contactId: contactCompanyHistory.contactId,
+          companyId: contactCompanyHistory.companyId,
+          endDate: contactCompanyHistory.endDate,
+          startDate: contactCompanyHistory.startDate,
+        })
+        .from(contactCompanyHistory)
+        .where(
+          and(
+            inArray(contactCompanyHistory.contactId, pairContactIds),
+            inArray(contactCompanyHistory.companyId, pairCompanyIds),
+          ),
+        )
+        .orderBy(
+          contactCompanyHistory.contactId,
+          contactCompanyHistory.companyId,
+          desc(contactCompanyHistory.startDate),
+        );
+
+      // Group by contact-company pair and take the most recent entry
+      const historyByPair: Record<string, Array<typeof allHistoryEntries[0]>> =
+        {};
+      for (const entry of allHistoryEntries) {
+        const key = `${entry.contactId}-${entry.companyId}`;
+        if (!historyByPair[key]) {
+          historyByPair[key] = [];
         }
-        : null,
-    }));
+        historyByPair[key].push(entry);
+      }
+
+      // Get the most recent endDate for each pair
+      for (const pair of uniquePairs) {
+        const key = `${pair.contactId}-${pair.companyId}`;
+        const entries = historyByPair[key];
+        if (entries && entries.length > 0) {
+          // Entries are already sorted by startDate DESC, so first one is most recent
+          contactCompanyEndDates[key] = entries[0].endDate ?? null;
+        } else {
+          contactCompanyEndDates[key] = null;
+        }
+      }
+    }
+
+    const data = rows.map((r) => {
+      let contactEndDate: string | null = null;
+      if (r.contactId && r.companyId) {
+        const key = `${r.contactId}-${r.companyId}`;
+        contactEndDate = contactCompanyEndDates[key] ?? null;
+      }
+      return {
+        id: r.id,
+        note: r.note,
+        dueAt: r.dueAt,
+        completedAt: r.completedAt,
+        createdAt: r.createdAt,
+        createdBy: r.createdBy,
+        assignedTo: r.assignedToUserId
+          ? (assignedToUsersById[r.assignedToUserId] ?? null)
+          : null,
+        company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
+        contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
+        lead: null,
+        contactEndDate,
+      };
+    });
 
     return NextResponse.json(data);
   } catch (error) {

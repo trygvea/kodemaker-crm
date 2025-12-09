@@ -12,6 +12,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CompletionCheckbox } from "@/components/completion-checkbox";
+import { EntityReference } from "@/components/activity-log/entity-reference";
 
 export type FollowupItemData = {
     id: number;
@@ -26,6 +27,7 @@ export type FollowupItemData = {
         | { id: number; firstName: string | null; lastName: string | null }
         | null;
     lead?: { id: number; description: string } | null;
+    contactEndDate?: string | null;
 };
 
 type FollowupItemProps = {
@@ -36,26 +38,6 @@ type FollowupItemProps = {
     entityLinks?: boolean;
     onClick?: () => void;
 };
-
-function formatEntityReference(
-    contact: FollowupItemData["contact"],
-    company: FollowupItemData["company"],
-    lead: FollowupItemData["lead"],
-): string {
-    const parts: string[] = [];
-    if (lead) {
-        parts.push(lead.description);
-    }
-    if (contact) {
-        const name = `${contact.firstName ?? ""} ${contact.lastName ?? ""}`
-            .trim();
-        parts.push(name || `Contact[${contact.id}]`);
-    }
-    if (company) {
-        parts.push(company.name);
-    }
-    return parts.join(" / ");
-}
 
 export function FollowupItem({
     followup,
@@ -70,70 +52,6 @@ export function FollowupItem({
     const displayDate = formatDateTimeWithoutSeconds(
         followup.completedAt || followup.createdAt,
     );
-
-    const entityRef = formatEntityReference(
-        followup.contact,
-        followup.company,
-        followup.lead,
-    );
-
-    function renderEntityReference() {
-        if (!followup.contact && !followup.company && !followup.lead) {
-            return null;
-        }
-
-        if (entityLinks) {
-            const parts: React.ReactNode[] = [];
-            if (followup.lead) {
-                parts.push(
-                    <a
-                        key="lead"
-                        className="underline"
-                        href={`/leads/${followup.lead.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {followup.lead.description.length > 50
-                            ? `${followup.lead.description.slice(0, 50)}…`
-                            : followup.lead.description}
-                    </a>,
-                );
-            }
-            if (followup.lead && (followup.contact || followup.company)) {
-                parts.push(" / ");
-            }
-            if (followup.contact) {
-                parts.push(
-                    <a
-                        key="contact"
-                        className="underline"
-                        href={`/contacts/${followup.contact.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {(followup.contact.firstName ?? "") + " " +
-                            (followup.contact.lastName ?? "")}
-                    </a>,
-                );
-            }
-            if (followup.contact && followup.company) {
-                parts.push(" / ");
-            }
-            if (followup.company) {
-                parts.push(
-                    <a
-                        key="company"
-                        className="underline"
-                        href={`/customers/${followup.company.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {followup.company.name}
-                    </a>,
-                );
-            }
-            return <span>· Om: {parts}</span>;
-        }
-
-        return entityRef ? <>· Om: {entityRef}</> : null;
-    }
 
     if (variant === "action") {
         return (
@@ -184,7 +102,13 @@ export function FollowupItem({
                                             {followup.createdBy.lastName ?? ""}
                                         </>
                                     )}
-                                    {renderEntityReference()}
+                                    <EntityReference
+                                        contact={followup.contact}
+                                        company={followup.company}
+                                        lead={followup.lead}
+                                        contactEndDate={followup.contactEndDate}
+                                        entityLinks={entityLinks}
+                                    />
                                 </div>
                             </div>
                             {showBadge && (
@@ -260,7 +184,13 @@ export function FollowupItem({
                                             {followup.createdBy.lastName ?? ""}
                                         </>
                                     )}
-                                    {renderEntityReference()}
+                                    <EntityReference
+                                        contact={followup.contact}
+                                        company={followup.company}
+                                        lead={followup.lead}
+                                        contactEndDate={followup.contactEndDate}
+                                        entityLinks={entityLinks}
+                                    />
                                 </span>
                             </div>
                         </div>
