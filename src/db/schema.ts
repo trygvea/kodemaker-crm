@@ -43,7 +43,6 @@ export const companies = pgTable("companies", {
   name: text("name").notNull(),
   websiteUrl: text("website_url"),
   emailDomain: text("email_domain"),
-  contactEmail: text("contact_email"),
   description: text("description"),
   createdByUserId: integer("created_by_user_id").references(() => users.id, {
     onDelete: "set null",

@@ -219,14 +219,6 @@ export function CompanyHeader({ company, editHref }: CompanyHeaderProps) {
         });
     }
 
-    if (company.contactEmail) {
-        items.push({
-            label: "Kontakt-e-post",
-            icon: <Mail className="h-4 w-4" />,
-            content: <span>{company.contactEmail}</span>,
-        });
-    }
-
     if (company.description) {
         items.push({
             label: "Beskrivelse",

@@ -85,6 +85,13 @@
       "when": 1765286751470,
       "tag": "0011_brave_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1765287300261,
+      "tag": "0012_vengeful_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

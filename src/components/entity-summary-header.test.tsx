@@ -97,7 +97,6 @@ describe("CompanyHeader", () => {
         name: "Kodemaker",
         websiteUrl: "https://kodemaker.no",
         emailDomain: "kodemaker.no",
-        contactEmail: "kontakt@kodemaker.no",
         description: "Konsulentselskap",
         createdAt: new Date().toISOString(),
     };
@@ -113,7 +112,6 @@ describe("CompanyHeader", () => {
         ).toBe("/customers/1/edit");
         expect(screen.getByText("https://kodemaker.no")).toBeDefined();
         expect(screen.getByText("kodemaker.no")).toBeDefined();
-        expect(screen.getByText("kontakt@kodemaker.no")).toBeDefined();
         expect(screen.getByText("Konsulentselskap")).toBeDefined();
     });
 });

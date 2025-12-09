@@ -26,7 +26,6 @@ describe("PATCH /api/companies/[id]", () => {
       name: "Acme",
       websiteUrl: "",
       emailDomain: "",
-      contactEmail: "",
     };
     const req = {
       json: async () => body,

@@ -24,9 +24,6 @@ const updateCompanySchema = z.object({
   name: z.string().min(1).optional(),
   websiteUrl: z.url({ error: "Ugyldig URL" }).optional().or(z.literal("")),
   emailDomain: z.string().optional().or(z.literal("")),
-  contactEmail: z.email({ error: "Ugyldig epost" }).optional().or(
-    z.literal(""),
-  ),
   description: z.string().optional(),
 });
 
@@ -51,9 +48,6 @@ export async function PATCH(
   }
   if (parsed.data.emailDomain !== undefined) {
     values.emailDomain = parsed.data.emailDomain || null;
-  }
-  if (parsed.data.contactEmail !== undefined) {
-    values.contactEmail = parsed.data.contactEmail || null;
   }
   if (parsed.data.description !== undefined) {
     values.description = parsed.data.description || null;

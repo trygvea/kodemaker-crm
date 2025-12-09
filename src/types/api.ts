@@ -80,7 +80,6 @@ export type ApiCompany = {
   name: string;
   websiteUrl?: string | null;
   emailDomain?: string | null;
-  contactEmail?: string | null;
   description?: string | null;
   createdAt: string;
 };
