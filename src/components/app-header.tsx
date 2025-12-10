@@ -22,7 +22,7 @@ export function AppHeader() {
   const email = session?.user?.email || "";
   const avatarInitial = (email.trim()[0]?.toUpperCase() || "?") as string;
   return (
-    <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
+    <header className="sticky top-0 z-40 border-b bg-primary text-primary-foreground">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="lg:hidden">
@@ -60,7 +60,7 @@ export function AppHeader() {
                 <TooltipTrigger asChild>
                   <div>
                     <Avatar>
-                      <AvatarFallback className="bg-white/20 text-white font-semibold">
+                      <AvatarFallback>
                         {avatarInitial}
                       </AvatarFallback>
                     </Avatar>
