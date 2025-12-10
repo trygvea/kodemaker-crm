@@ -1,6 +1,11 @@
 "use client";
 import { useState } from "react";
 import { FollowupsList } from "@/components/followups-list";
+import {
+  RadioGroup,
+  RadioGroupItem,
+  RadioGroupLabel,
+} from "@/components/ui/radio-group";
 
 export default function FollowupsPage() {
   const [mode, setMode] = useState<"mine" | "all">("mine");
@@ -16,26 +21,24 @@ export default function FollowupsPage() {
         <h1 className="text-2xl font-semibold">Oppfølgninger</h1>
         <div className="flex items-center gap-4 text-sm">
           <span>Vis:</span>
-          <label className="inline-flex items-center gap-1.5">
-            <input
-              type="radio"
-              name="fu-scope"
-              value="mine"
-              checked={mode === "mine"}
-              onChange={() => setMode("mine")}
-            />
-            Mine
-          </label>
-          <label className="inline-flex items-center gap-1.5">
-            <input
-              type="radio"
-              name="fu-scope"
-              value="all"
-              checked={mode === "all"}
-              onChange={() => setMode("all")}
-            />
-            Alle
-          </label>
+          <RadioGroup
+            value={mode}
+            onValueChange={(value) => setMode(value as "mine" | "all")}
+            className="flex items-center gap-4"
+          >
+            <div className="flex items-center gap-1.5">
+              <RadioGroupItem value="mine" id="mine" />
+              <RadioGroupLabel htmlFor="mine" className="cursor-pointer">
+                Mine
+              </RadioGroupLabel>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <RadioGroupItem value="all" id="all" />
+              <RadioGroupLabel htmlFor="all" className="cursor-pointer">
+                Alle
+              </RadioGroupLabel>
+            </div>
+          </RadioGroup>
         </div>
       </div>
       <div>
