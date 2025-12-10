@@ -2,12 +2,10 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export default async function Home() {
+export async function requireAuth() {
   const session = await getServerSession(authOptions);
-
-  if (session?.user) {
-    redirect("/events");
-  } else {
+  if (!session?.user) {
     redirect("/login");
   }
+  return session;
 }
