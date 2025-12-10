@@ -41,6 +41,11 @@ const queryParamsSchema = z.object({
     const num = Number(val);
     return isNaN(num) || num <= 0 ? undefined : num;
   }),
+  userId: z.string().optional().transform((val) => {
+    if (!val) return undefined;
+    const num = Number(val);
+    return isNaN(num) || num <= 0 ? undefined : num;
+  }),
 });
 
 export async function GET(req: NextRequest) {
@@ -57,6 +62,7 @@ export async function GET(req: NextRequest) {
       contactId: searchParams.get("contactId") ?? undefined,
       companyId: searchParams.get("companyId") ?? undefined,
       leadId: searchParams.get("leadId") ?? undefined,
+      userId: searchParams.get("userId") ?? undefined,
     });
 
     if (!parsed.success) {
@@ -65,7 +71,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const { all, completed, contactId, companyId, leadId } = parsed.data;
+    const { all, completed, contactId, companyId, leadId, userId: filterUserId } = parsed.data;
 
     const baseCondition = completed
       ? isNotNull(followups.completedAt)
@@ -77,12 +83,19 @@ export async function GET(req: NextRequest) {
       : leadId
       ? eq(followups.leadId, leadId)
       : undefined;
-    const mineOnly = and(eq(followups.createdByUserId, userId!), baseCondition);
-    const where = all
-      ? scope ? and(scope, baseCondition) : baseCondition
-      : scope
-      ? and(scope, mineOnly)
-      : mineOnly;
+
+    // Determine user filter: specific userId, current user (mine), or all
+    const userFilter = filterUserId
+      ? eq(followups.createdByUserId, filterUserId)
+      : all
+      ? undefined
+      : eq(followups.createdByUserId, userId!);
+
+    const where = and(
+      baseCondition,
+      scope,
+      userFilter,
+    );
 
     const rows = await db
       .select({
