@@ -17,6 +17,7 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
+import { DatePicker } from "@/components/ui/date-picker";
 import { EmailItem } from "@/components/activity-log/email-item";
 import { CommentItem } from "@/components/activity-log/comment-item";
 import { FollowupItem } from "@/components/activity-log/followup-item";
@@ -24,6 +25,7 @@ import type { ApiEmail } from "@/types/api";
 import { EditFollowupDialog } from "@/components/dialogs/edit-followup-dialog";
 import { EditCommentDialog } from "@/components/dialogs/edit-comment-dialog";
 import type { FollowupItemData } from "@/components/activity-log/followup-item";
+import { getDefaultDueDate } from "@/lib/utils";
 
 type FollowupItemType = {
     id: number;
@@ -72,19 +74,6 @@ type User = {
     lastName: string;
 };
 
-function getDefaultDueDate(): string {
-    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-    const d = new Date();
-    d.setDate(d.getDate() + 7);
-    d.setHours(9, 0, 0, 0);
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    return `${y}-${m}-${day}T${hh}:${mm}`;
-}
-
 function buildQueryParams(
     contactId?: number,
     companyId?: number,
@@ -121,7 +110,9 @@ export function ActivityLog(
     );
     const [newComment, setNewComment] = useState("");
     const [newFollowupNote, setNewFollowupNote] = useState("");
-    const [newFollowupDue, setNewFollowupDue] = useState(getDefaultDueDate());
+    const [newFollowupDue, setNewFollowupDue] = useState<Date | null>(
+        getDefaultDueDate(),
+    );
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userPopoverOpen, setUserPopoverOpen] = useState(false);
     const [userQuery, setUserQuery] = useState("");
@@ -189,9 +180,10 @@ export function ActivityLog(
     }
 
     async function saveFollowup() {
+        if (!newFollowupDue) return;
         const body = {
             note: newFollowupNote,
-            dueAt: newFollowupDue,
+            dueAt: newFollowupDue.toISOString(),
             ...(contactId ? { contactId } : {}),
             ...(companyId ? { companyId } : {}),
             ...(selectedUser ? { assignedToUserId: selectedUser.id } : {}),
@@ -304,12 +296,11 @@ export function ActivityLog(
                                     <label className="block text-xs text-muted-foreground mb-1">
                                         Frist
                                     </label>
-                                    <input
-                                        type="datetime-local"
-                                        className="w-full border rounded p-2 text-sm"
+                                    <DatePicker
                                         value={newFollowupDue}
-                                        onChange={(e) =>
-                                            setNewFollowupDue(e.target.value)}
+                                        onValueChange={(date) =>
+                                            setNewFollowupDue(date ?? null)}
+                                        placeholder="Velg dato"
                                     />
                                 </div>
                                 <div className="flex-1">

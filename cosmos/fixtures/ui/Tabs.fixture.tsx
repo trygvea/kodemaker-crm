@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export default {
   default: (
@@ -37,10 +38,7 @@ export default {
               <label className="block text-xs text-muted-foreground mb-1">
                 Frist
               </label>
-              <input
-                type="datetime-local"
-                className="w-full border rounded p-2 text-sm"
-              />
+              <DatePicker placeholder="Velg dato" />
             </div>
           </div>
         </div>
@@ -57,4 +55,3 @@ export default {
     </Tabs>
   ),
 };
-

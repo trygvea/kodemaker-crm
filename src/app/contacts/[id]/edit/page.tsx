@@ -16,8 +16,19 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import { Check, Edit2, GitMerge, Plus, Save, Trash2, X } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  CalendarIcon,
+  Check,
+  Edit2,
+  GitMerge,
+  Plus,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import { MergeContactsDialog } from "@/components/merge-contacts-dialog";
+import { formatDate } from "@/lib/utils";
 
 type Contact = {
   id: number;
@@ -57,6 +68,12 @@ export default function EditContactPage() {
   const [open, setOpen] = useState(false);
   const [companyQuery, setCompanyQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [newStartDate, setNewStartDate] = useState<Date | undefined>(undefined);
+  const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
+  const [newRole, setNewRole] = useState("");
+  const [historyDatePickers, setHistoryDatePickers] = useState<
+    Record<number, { startOpen?: boolean; endOpen?: boolean }>
+  >({});
   const { data: companyOptions } = useSWR<Company[]>(
     companyQuery
       ? `/api/companies?q=${encodeURIComponent(companyQuery)}`
@@ -487,56 +504,110 @@ export default function EditContactPage() {
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Start</label>
-                    <input
-                      className="w-full border rounded p-2 text-sm"
-                      defaultValue={h.startDate}
-                      onBlur={async (e) => {
-                        const v = e.currentTarget.value;
-                        if (v && v !== h.startDate) {
-                          const res = await fetch(
-                            `/api/contact-company-history/${h.id}`,
-                            {
-                              method: "PATCH",
-                              body: JSON.stringify({ startDate: v }),
-                            },
-                          );
-                          if (res.ok) {
-                            mutate();
-                          } else {
-                            const error = await res.json();
-                            alert(
-                              error.error || "Kunne ikke oppdatere startdato",
-                            );
-                          }
-                        }
-                      }}
-                    />
+                    <Popover
+                      open={historyDatePickers[h.id]?.startOpen || false}
+                      onOpenChange={(open) =>
+                        setHistoryDatePickers((prev) => ({
+                          ...prev,
+                          [h.id]: { ...prev[h.id], startOpen: open },
+                        }))}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal h-10 text-sm"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {h.startDate ? formatDate(h.startDate) : "Velg dato"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={h.startDate
+                            ? new Date(h.startDate)
+                            : undefined}
+                          onSelect={async (date) => {
+                            if (date) {
+                              const v = date.toISOString().slice(0, 10);
+                              if (v !== h.startDate) {
+                                const res = await fetch(
+                                  `/api/contact-company-history/${h.id}`,
+                                  {
+                                    method: "PATCH",
+                                    body: JSON.stringify({ startDate: v }),
+                                  },
+                                );
+                                if (res.ok) {
+                                  mutate();
+                                  setHistoryDatePickers((prev) => ({
+                                    ...prev,
+                                    [h.id]: { ...prev[h.id], startOpen: false },
+                                  }));
+                                } else {
+                                  const error = await res.json();
+                                  alert(
+                                    error.error ||
+                                      "Kunne ikke oppdatere startdato",
+                                  );
+                                }
+                              }
+                            }
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Slutt</label>
-                    <input
-                      className="w-full border rounded p-2 text-sm"
-                      defaultValue={h.endDate || ""}
-                      placeholder="pågående"
-                      onBlur={async (e) => {
-                        const v = e.currentTarget.value;
-                        const res = await fetch(
-                          `/api/contact-company-history/${h.id}`,
-                          {
-                            method: "PATCH",
-                            body: JSON.stringify({ endDate: v }),
-                          },
-                        );
-                        if (res.ok) {
-                          mutate();
-                        } else {
-                          const error = await res.json();
-                          alert(
-                            error.error || "Kunne ikke oppdatere sluttdato",
-                          );
-                        }
-                      }}
-                    />
+                    <Popover
+                      open={historyDatePickers[h.id]?.endOpen || false}
+                      onOpenChange={(open) =>
+                        setHistoryDatePickers((prev) => ({
+                          ...prev,
+                          [h.id]: { ...prev[h.id], endOpen: open },
+                        }))}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal h-10 text-sm"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {h.endDate ? formatDate(h.endDate) : "pågående"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={h.endDate ? new Date(h.endDate) : undefined}
+                          onSelect={async (date) => {
+                            const v = date
+                              ? date.toISOString().slice(0, 10)
+                              : "";
+                            const res = await fetch(
+                              `/api/contact-company-history/${h.id}`,
+                              {
+                                method: "PATCH",
+                                body: JSON.stringify({ endDate: v || null }),
+                              },
+                            );
+                            if (res.ok) {
+                              mutate();
+                              setHistoryDatePickers((prev) => ({
+                                ...prev,
+                                [h.id]: { ...prev[h.id], endOpen: false },
+                              }));
+                            } else {
+                              const error = await res.json();
+                              alert(
+                                error.error || "Kunne ikke oppdatere sluttdato",
+                              );
+                            }
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="text-right">
                     {!h.endDate || h.endDate === ""
@@ -636,44 +707,65 @@ export default function EditContactPage() {
           <div>
             <label className="block text-xs mb-1">Rolle</label>
             <input
-              id="newRole"
               className="w-full border rounded p-2 text-sm"
               placeholder="Rolle"
               type="text"
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value)}
             />
           </div>
           <div>
             <label className="block text-xs mb-1">Start</label>
-            <input
-              id="newStartDate"
-              className="w-full border rounded p-2 text-sm"
-              placeholder="startdato"
-              type="date"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal h-10 text-sm"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {newStartDate
+                    ? formatDate(newStartDate.toISOString())
+                    : "Velg dato"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={newStartDate}
+                  onSelect={setNewStartDate}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <label className="block text-xs mb-1">Slutt</label>
-            <input
-              id="newEndDate"
-              className="w-full border rounded p-2 text-sm"
-              placeholder="(valgfri) sluttdato"
-              type="date"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal h-10 text-sm"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {newEndDate ? formatDate(newEndDate.toISOString()) : ""}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={newEndDate}
+                  onSelect={setNewEndDate}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="text-right">
             <button
               className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground"
               onClick={async () => {
                 const companyId = selectedCompany?.id;
-                const role =
-                  (document.getElementById("newRole") as HTMLInputElement).value
-                    .trim();
-                const startDate =
-                  (document.getElementById("newStartDate") as HTMLInputElement)
-                    .value;
-                const endDate =
-                  (document.getElementById("newEndDate") as HTMLInputElement)
-                    .value;
+                const role = newRole.trim();
+                const startDate = newStartDate?.toISOString().slice(0, 10);
+                const endDate = newEndDate?.toISOString().slice(0, 10);
                 if (!companyId || !startDate || !role) {
                   alert("Firma, rolle og startdato er påkrevd");
                   return;
@@ -690,12 +782,9 @@ export default function EditContactPage() {
                 });
                 if (res.ok) {
                   setSelectedCompany(null);
-                  (document.getElementById("newRole") as HTMLInputElement)
-                    .value = "";
-                  (document.getElementById("newStartDate") as HTMLInputElement)
-                    .value = "";
-                  (document.getElementById("newEndDate") as HTMLInputElement)
-                    .value = "";
+                  setNewRole("");
+                  setNewStartDate(undefined);
+                  setNewEndDate(undefined);
                   mutate();
                 } else {
                   const error = await res.json();

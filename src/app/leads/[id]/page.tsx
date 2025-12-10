@@ -25,10 +25,12 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { CalendarPlus, MessageSquarePlus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { LeadHeader } from "@/components/entity-summary-header";
 import { FollowupsList } from "@/components/followups-list";
+import { getDefaultDueDate } from "@/lib/utils";
 
 const schema = z.object({
   description: z.string().min(1),
@@ -53,18 +55,9 @@ export default function LeadDetailPage() {
   const router = useRouter();
   const [newComment, setNewComment] = useState("");
   const [newFollowupNote, setNewFollowupNote] = useState("");
-  const [newFollowupDue, setNewFollowupDue] = useState(() => {
-    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-    const d = new Date();
-    d.setDate(d.getDate() + 7);
-    d.setHours(9, 0, 0, 0);
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    return `${y}-${m}-${day}T${hh}:${mm}`;
-  });
+  const [newFollowupDue, setNewFollowupDue] = useState<Date | null>(
+    getDefaultDueDate(),
+  );
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -101,9 +94,10 @@ export default function LeadDetailPage() {
   }
 
   async function saveFollowup() {
+    if (!newFollowupDue) return;
     const body = {
       note: newFollowupNote,
-      dueAt: newFollowupDue,
+      dueAt: newFollowupDue.toISOString(),
       leadId: id,
       contactId: data?.contact?.id,
       companyId: data?.company?.id,
@@ -115,16 +109,7 @@ export default function LeadDetailPage() {
     if (!res.ok) return toast.error("Kunne ikke lagre oppfølgning");
     toast.success("Oppfølgning opprettet");
     setNewFollowupNote("");
-    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-    const d = new Date();
-    d.setDate(d.getDate() + 7);
-    d.setHours(9, 0, 0, 0);
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    setNewFollowupDue(`${y}-${m}-${day}T${hh}:${mm}`);
+    setNewFollowupDue(getDefaultDueDate());
     await mutate(`/api/followups?leadId=${id}`);
   }
 
@@ -263,11 +248,10 @@ export default function LeadDetailPage() {
             <label className="block text-xs text-muted-foreground mb-1">
               Frist
             </label>
-            <input
-              type="datetime-local"
-              className="w-full border rounded p-2 text-sm"
+            <DatePicker
               value={newFollowupDue}
-              onChange={(e) => setNewFollowupDue(e.target.value)}
+              onValueChange={(date) => setNewFollowupDue(date ?? null)}
+              placeholder="Velg dato"
             />
           </div>
         </div>

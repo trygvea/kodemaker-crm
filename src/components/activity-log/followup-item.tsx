@@ -1,6 +1,7 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import {
+    formatDate,
     formatDateTimeWithoutSeconds,
     getInitials,
     useDueBgStyle,
@@ -90,9 +91,7 @@ export function FollowupItem({
                                         className="rounded"
                                         style={dueBgStyle(followup.dueAt)}
                                     >
-                                        Frist: {formatDateTimeWithoutSeconds(
-                                            followup.dueAt,
-                                        )}
+                                        Frist: {formatDate(followup.dueAt)}
                                     </span>
                                     {followup.createdBy && (
                                         <>

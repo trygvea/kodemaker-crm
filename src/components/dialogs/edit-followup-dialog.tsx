@@ -30,6 +30,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { DatePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -49,15 +50,9 @@ export interface EditFollowupDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function formatDateForInput(dateString: string): string {
+function parseDate(dateString: string): Date | null {
   const date = new Date(dateString);
-  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-  const y = date.getFullYear();
-  const m = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hh = pad(date.getHours());
-  const mm = pad(date.getMinutes());
-  return `${y}-${m}-${day}T${hh}:${mm}`;
+  return isNaN(date.getTime()) ? null : date;
 }
 
 export function EditFollowupDialog({
@@ -67,7 +62,7 @@ export function EditFollowupDialog({
 }: EditFollowupDialogProps) {
   const schema = z.object({
     note: z.string().min(1, "Notat er påkrevd"),
-    dueAt: z.string().min(1, "Frist er påkrevd"),
+    dueAt: z.date({ message: "Frist er påkrevd" }),
     assignedToUserId: z.number().int().optional().nullable(),
     isCompleted: z.boolean(),
   });
@@ -76,7 +71,7 @@ export function EditFollowupDialog({
     resolver: zodResolver(schema),
     defaultValues: {
       note: "",
-      dueAt: "",
+      dueAt: undefined,
       assignedToUserId: null,
       isCompleted: false,
     },
@@ -102,9 +97,10 @@ export function EditFollowupDialog({
 
   useEffect(() => {
     if (followup && open) {
+      const dueDate = parseDate(followup.dueAt);
       form.reset({
         note: followup.note,
-        dueAt: formatDateForInput(followup.dueAt),
+        dueAt: dueDate ?? undefined,
         assignedToUserId: followup.assignedTo?.id ?? null,
         isCompleted: !!followup.completedAt,
       });
@@ -125,7 +121,7 @@ export function EditFollowupDialog({
 
     const body = {
       note: values.note,
-      dueAt: new Date(values.dueAt).toISOString(),
+      dueAt: values.dueAt.toISOString(),
       assignedToUserId: values.assignedToUserId ?? null,
       completedAt: values.isCompleted ? new Date().toISOString() : null,
     };
@@ -216,10 +212,10 @@ export function EditFollowupDialog({
                 <FormItem>
                   <FormLabel>Frist</FormLabel>
                   <FormControl>
-                    <input
-                      type="datetime-local"
-                      className="w-full border rounded p-2 text-sm"
-                      {...field}
+                    <DatePicker
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Velg dato"
                     />
                   </FormControl>
                   <FormMessage />

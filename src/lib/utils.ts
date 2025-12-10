@@ -74,3 +74,13 @@ export function getInitials(firstName: string, lastName: string): string {
   const last = lastName?.[0]?.toUpperCase() ?? "";
   return `${first}${last}`;
 }
+
+/**
+ * Returns a default due date for followups: 7 days from now at 09:00.
+ */
+export function getDefaultDueDate(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  d.setHours(9, 0, 0, 0);
+  return d;
+}

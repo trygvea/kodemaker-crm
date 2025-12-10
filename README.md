@@ -123,7 +123,7 @@ On Scalingo, checked in migrations will be run automatically when the app is dep
 - `GET /api/events` — latest events
 - `GET /api/events/stream?since=<id>` — live stream via SSE
 - `POST /api/comments` — add comment (company/contact/lead)
-- `POST /api/followups` — add followup (uses `z.coerce.date()` for `datetime-local`)
+- `POST /api/followups` — add followup (uses `z.coerce.date()` for ISO date strings)
 - `PATCH /api/followups/:id` — mark completed
 - `GET /api/contacts` — list/search (top 100 or top 200 on search; unique by contact)
 - `GET /api/contacts/:id` — contact details (sorted lists)
