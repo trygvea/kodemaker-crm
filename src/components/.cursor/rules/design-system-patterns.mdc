@@ -1,0 +1,99 @@
+---
+description: Design System Patterns and Guidelines
+alwaysApply: false
+---
+
+# Design System Patterns
+
+## Color Usage
+
+Always use design tokens from `globals.css` instead of hardcoded colors:
+
+- ✅ `bg-primary` / `text-primary-foreground`
+- ✅ `bg-secondary` / `text-secondary-foreground` (background color)
+- ✅ `bg-secondary-green` / `text-secondary-green-foreground` (active status)
+- ✅ `bg-tertiary` / `text-tertiary-foreground` (in-progress status)
+- ✅ `bg-accent` / `text-accent-foreground`
+- ✅ `bg-destructive` / `text-destructive-foreground`
+- ✅ `bg-muted` / `text-muted-foreground`
+- ❌ `bg-[#1a73e8]` or `text-gray-400`
+- Note: Frist (deadline) colors are hardcoded in `useDueBgStyle()` hook, not using CSS variables
+
+## Button Hierarchy
+
+Follow this button hierarchy:
+
+1. **Primary** (`variant="default"`) - Main action on page
+2. **Secondary** (`variant="secondary"`) - Alternative action
+3. **Outline** (`variant="outline"`) - Less important action
+4. **Ghost** (`variant="ghost"`) - Subtle/toolbar action
+5. **Destructive** (`variant="destructive"`) - Delete/remove actions
+6. **Link** (`variant="link"`) - Navigation links
+
+## Badge Colors
+
+Use semantic colors for status badges. All badges use low-opacity backgrounds with matching text colors for better contrast.
+
+### Badge Variants
+
+- `variant="default"` - Primary color (`bg-primary/10 text-primary`) - Used for "Ny" status
+- `variant="primary"` - Chart 2 color (`bg-chart-2/20 text-chart-2`) - Used for "Vunnet" status
+- `variant="secondary"` - Secondary green (`bg-secondary-green/10 text-secondary-green`) - Used for "Aktiv lead"
+- `variant="tertiary"` - Tertiary orange (`bg-tertiary/20 text-tertiary`) - Used for "Under arbeid" status
+- `variant="destructive"` - Destructive red (`bg-destructive/10 text-destructive`) - Used for "Tapt" status
+- `variant="outline"` - Border only, transparent background
+- `variant="bortfalt"` - Muted color (`bg-muted/60 text-muted-foreground`) - Used for "Bortfalt" status
+
+### Status Badges (Lead Statuses)
+
+- **NEW**: `variant="default"` (primary color)
+- **IN_PROGRESS**: `variant="tertiary"` (orange)
+- **WON**: `variant="primary"` (chart-2/turquoise)
+- **LOST**: `variant="destructive"` (red)
+- **BORTFALT**: `variant="bortfalt"` (muted)
+- **Aktiv lead**: `variant="secondary"` (green)
+
+### Activity Log Badges
+
+- **Oppfølging**: `variant="secondary"` (green)
+- **Kommentar**: `variant="default"` (primary, no variant specified)
+- **E-post**: `variant="primary"` (turquoise)
+
+## Spacing
+
+Use Tailwind spacing scale consistently:
+
+- `gap-2` (8px) for small gaps
+- `gap-4` (16px) for standard gaps
+- `p-4` (16px) for standard padding
+- `p-6` (24px) for larger padding
+
+## Typography
+
+- Headings: `text-lg font-semibold` or `text-xl font-semibold`
+- Body: `text-sm` or `text-base`
+- Muted text: `text-muted-foreground`
+- Labels: `text-sm font-medium`
+
+## Component Patterns
+
+### Cards
+
+```tsx
+<div className="rounded-lg border p-4 bg-card">{/* content */}</div>
+```
+
+### Forms
+
+```tsx
+<label className="block text-sm font-medium mb-1">
+  Label
+</label>
+<input className="w-full border rounded p-2 text-sm" />
+```
+
+### Status Indicators
+
+Use Badge component with appropriate variant or custom classes for status colors.
+
+Read more in @/Users/marina/kodemaker_repos/kodemaker-crm/DESIGN_SYSTEM.md
