@@ -12,6 +12,7 @@ import {
     Phone,
     User,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import type {
     GetCompanyDetailResponse,
@@ -41,16 +42,12 @@ export function EntitySummaryHeader(
                 <h1 className="text-2xl font-semibold">{title}</h1>
                 {editHref
                     ? (
-                        <Link
-                            href={editHref}
-                            className="inline-flex items-center rounded bg-primary text-primary-foreground px-4 py-2 text-sm hover:opacity-90"
-                        >
-                            <Pencil
-                                className="h-4 w-4 mr-1.5"
-                                aria-hidden="true"
-                            />
-                            <span>Endre</span>
-                        </Link>
+                        <Button asChild>
+                            <Link href={editHref}>
+                                <Pencil className="h-4 w-4" />
+                                <span>Endre</span>
+                            </Link>
+                        </Button>
                     )
                     : null}
             </div>

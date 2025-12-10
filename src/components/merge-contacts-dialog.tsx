@@ -1,6 +1,6 @@
-'use client'
-import { useState } from 'react'
-import useSWR from 'swr'
+"use client";
+import { useState } from "react";
+import useSWR from "swr";
 import {
   Dialog,
   DialogContent,
@@ -8,47 +8,51 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Check, ChevronsUpDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { ListContactsItem } from '@/types/api'
+} from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { ListContactsItem } from "@/types/api";
 
 type MergeContactsDialogProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   sourceContact: {
-    id: number
-    firstName: string
-    lastName: string
-  }
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
   contactCounts: {
-    emailAddresses: number
-    emails: number
-    leads: number
-    comments: number
-    events: number
-    followups: number
-  }
+    emailAddresses: number;
+    emails: number;
+    leads: number;
+    comments: number;
+    events: number;
+    followups: number;
+  };
   onMerge: (data: {
-    targetContactId: number
-    mergeEmailAddresses: boolean
-    mergeEmails: boolean
-    mergeLeads: boolean
-    mergeComments: boolean
-    mergeEvents: boolean
-    mergeFollowups: boolean
-    deleteSourceContact: boolean
-  }) => Promise<void>
-}
+    targetContactId: number;
+    mergeEmailAddresses: boolean;
+    mergeEmails: boolean;
+    mergeLeads: boolean;
+    mergeComments: boolean;
+    mergeEvents: boolean;
+    mergeFollowups: boolean;
+    deleteSourceContact: boolean;
+  }) => Promise<void>;
+};
 
 export function MergeContactsDialog({
   open,
@@ -57,31 +61,42 @@ export function MergeContactsDialog({
   contactCounts,
   onMerge,
 }: MergeContactsDialogProps) {
-  const [targetContactOpen, setTargetContactOpen] = useState(false)
-  const [targetContactQuery, setTargetContactQuery] = useState('')
-  const [selectedTargetContact, setSelectedTargetContact] = useState<ListContactsItem | null>(null)
-  
-  const [mergeEmailAddresses, setMergeEmailAddresses] = useState(contactCounts.emailAddresses > 0)
-  const [mergeEmails, setMergeEmails] = useState(contactCounts.emails > 0)
-  const [mergeLeads, setMergeLeads] = useState(contactCounts.leads > 0)
-  const [mergeComments, setMergeComments] = useState(contactCounts.comments > 0)
-  const [mergeEvents, setMergeEvents] = useState(contactCounts.events > 0)
-  const [mergeFollowups, setMergeFollowups] = useState(contactCounts.followups > 0)
-  const [deleteSourceContact, setDeleteSourceContact] = useState(false)
-  
-  const [isLoading, setIsLoading] = useState(false)
+  const [targetContactOpen, setTargetContactOpen] = useState(false);
+  const [targetContactQuery, setTargetContactQuery] = useState("");
+  const [selectedTargetContact, setSelectedTargetContact] = useState<
+    ListContactsItem | null
+  >(null);
+
+  const [mergeEmailAddresses, setMergeEmailAddresses] = useState(
+    contactCounts.emailAddresses > 0,
+  );
+  const [mergeEmails, setMergeEmails] = useState(contactCounts.emails > 0);
+  const [mergeLeads, setMergeLeads] = useState(contactCounts.leads > 0);
+  const [mergeComments, setMergeComments] = useState(
+    contactCounts.comments > 0,
+  );
+  const [mergeEvents, setMergeEvents] = useState(contactCounts.events > 0);
+  const [mergeFollowups, setMergeFollowups] = useState(
+    contactCounts.followups > 0,
+  );
+  const [deleteSourceContact, setDeleteSourceContact] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { data: contactOptions } = useSWR<ListContactsItem[]>(
-    targetContactQuery ? `/api/contacts?q=${encodeURIComponent(targetContactQuery)}` : null
-  )
+    targetContactQuery
+      ? `/api/contacts?q=${encodeURIComponent(targetContactQuery)}`
+      : null,
+  );
 
   // Filter out the source contact from options
-  const filteredContactOptions = contactOptions?.filter(c => c.id !== sourceContact.id) || []
+  const filteredContactOptions =
+    contactOptions?.filter((c) => c.id !== sourceContact.id) || [];
 
   const handleMerge = async () => {
-    if (!selectedTargetContact) return
-    
-    setIsLoading(true)
+    if (!selectedTargetContact) return;
+
+    setIsLoading(true);
     try {
       await onMerge({
         targetContactId: selectedTargetContact.id,
@@ -92,24 +107,24 @@ export function MergeContactsDialog({
         mergeEvents,
         mergeFollowups,
         deleteSourceContact,
-      })
-      onOpenChange(false)
+      });
+      onOpenChange(false);
       // Reset form
-      setSelectedTargetContact(null)
-      setTargetContactQuery('')
-      setMergeEmailAddresses(contactCounts.emailAddresses > 0)
-      setMergeEmails(contactCounts.emails > 0)
-      setMergeLeads(contactCounts.leads > 0)
-      setMergeComments(contactCounts.comments > 0)
-      setMergeEvents(contactCounts.events > 0)
-      setMergeFollowups(contactCounts.followups > 0)
-      setDeleteSourceContact(false)
+      setSelectedTargetContact(null);
+      setTargetContactQuery("");
+      setMergeEmailAddresses(contactCounts.emailAddresses > 0);
+      setMergeEmails(contactCounts.emails > 0);
+      setMergeLeads(contactCounts.leads > 0);
+      setMergeComments(contactCounts.comments > 0);
+      setMergeEvents(contactCounts.events > 0);
+      setMergeFollowups(contactCounts.followups > 0);
+      setDeleteSourceContact(false);
     } catch (error) {
-      console.error('Merge failed:', error)
+      console.error("Merge failed:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -117,15 +132,22 @@ export function MergeContactsDialog({
         <DialogHeader>
           <DialogTitle>Merge inn i...</DialogTitle>
           <DialogDescription>
-            Velg hvilken kontakt {sourceContact.firstName} {sourceContact.lastName} skal merges inn i, og hva som skal overføres.
+            Velg hvilken kontakt {sourceContact.firstName}{" "}
+            {sourceContact.lastName}{" "}
+            skal merges inn i, og hva som skal overføres.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {/* Target contact selection */}
           <div>
-            <label className="block text-sm font-medium mb-2">Merge inn i kontakt</label>
-            <Popover open={targetContactOpen} onOpenChange={setTargetContactOpen}>
+            <label className="block text-sm font-medium mb-2">
+              Merge inn i kontakt
+            </label>
+            <Popover
+              open={targetContactOpen}
+              onOpenChange={setTargetContactOpen}
+            >
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -153,14 +175,16 @@ export function MergeContactsDialog({
                         key={contact.id}
                         value={`${contact.firstName} ${contact.lastName}`}
                         onSelect={() => {
-                          setSelectedTargetContact(contact)
-                          setTargetContactOpen(false)
+                          setSelectedTargetContact(contact);
+                          setTargetContactOpen(false);
                         }}
                       >
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            selectedTargetContact?.id === contact.id ? "opacity-100" : "opacity-0"
+                            selectedTargetContact?.id === contact.id
+                              ? "opacity-100"
+                              : "opacity-0",
                           )}
                         />
                         {contact.firstName} {contact.lastName}
@@ -179,7 +203,9 @@ export function MergeContactsDialog({
 
           {/* Merge options */}
           <div>
-            <label className="block text-sm font-medium mb-2">Hva skal merges?</label>
+            <label className="block text-sm font-medium mb-2">
+              Hva skal merges?
+            </label>
             <div className="space-y-2">
               <label className="flex items-center space-x-2">
                 <input
@@ -189,11 +215,15 @@ export function MergeContactsDialog({
                   disabled={contactCounts.emailAddresses === 0}
                   className="rounded"
                 />
-                <span className={contactCounts.emailAddresses === 0 ? 'text-gray-400' : ''}>
+                <span
+                  className={contactCounts.emailAddresses === 0
+                    ? "text-muted-foreground"
+                    : ""}
+                >
                   E-postadresser ({contactCounts.emailAddresses})
                 </span>
               </label>
-              
+
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -202,11 +232,15 @@ export function MergeContactsDialog({
                   disabled={contactCounts.emails === 0}
                   className="rounded"
                 />
-                <span className={contactCounts.emails === 0 ? 'text-gray-400' : ''}>
+                <span
+                  className={contactCounts.emails === 0
+                    ? "text-muted-foreground"
+                    : ""}
+                >
                   E-poster ({contactCounts.emails})
                 </span>
               </label>
-              
+
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -215,11 +249,15 @@ export function MergeContactsDialog({
                   disabled={contactCounts.leads === 0}
                   className="rounded"
                 />
-                <span className={contactCounts.leads === 0 ? 'text-gray-400' : ''}>
+                <span
+                  className={contactCounts.leads === 0
+                    ? "text-muted-foreground"
+                    : ""}
+                >
                   Leads ({contactCounts.leads})
                 </span>
               </label>
-              
+
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -228,11 +266,15 @@ export function MergeContactsDialog({
                   disabled={contactCounts.comments === 0}
                   className="rounded"
                 />
-                <span className={contactCounts.comments === 0 ? 'text-gray-400' : ''}>
+                <span
+                  className={contactCounts.comments === 0
+                    ? "text-muted-foreground"
+                    : ""}
+                >
                   Kommentarer ({contactCounts.comments})
                 </span>
               </label>
-              
+
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -241,11 +283,15 @@ export function MergeContactsDialog({
                   disabled={contactCounts.events === 0}
                   className="rounded"
                 />
-                <span className={contactCounts.events === 0 ? 'text-gray-400' : ''}>
+                <span
+                  className={contactCounts.events === 0
+                    ? "text-muted-foreground"
+                    : ""}
+                >
                   Hendelser ({contactCounts.events})
                 </span>
               </label>
-              
+
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -254,7 +300,11 @@ export function MergeContactsDialog({
                   disabled={contactCounts.followups === 0}
                   className="rounded"
                 />
-                <span className={contactCounts.followups === 0 ? 'text-gray-400' : ''}>
+                <span
+                  className={contactCounts.followups === 0
+                    ? "text-muted-foreground"
+                    : ""}
+                >
                   Oppfølginger ({contactCounts.followups})
                 </span>
               </label>
@@ -286,12 +336,11 @@ export function MergeContactsDialog({
           <Button
             onClick={handleMerge}
             disabled={!selectedTargetContact || isLoading}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {isLoading ? 'Merger...' : 'Merge'}
+            {isLoading ? "Merger..." : "Merge"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

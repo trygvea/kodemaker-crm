@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
 import { Save, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Company = {
   id: number;
@@ -91,8 +92,8 @@ export default function EditCompanyPage() {
           />
         </div>
         <div className="flex justify-between gap-2">
-          <button
-            className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1.5"
+          <Button
+            variant="destructive"
             onClick={async () => {
               if (!confirm("Slette kunde? Dette kan ikke angres.")) return;
               const res = await fetch(`/api/companies/${id}`, {
@@ -104,20 +105,17 @@ export default function EditCompanyPage() {
             }}
           >
             <Trash2 className="h-4 w-4" /> Slett
-          </button>
+          </Button>
           <div className="flex gap-2">
-            <button
-              className="px-3 py-1.5 text-sm border rounded inline-flex items-center gap-1.5"
+            <Button
+              variant="outline"
               onClick={() => router.push(`/customers/${id}`)}
             >
               <X className="h-4 w-4" /> Avbryt
-            </button>
-            <button
-              className="px-3 py-1.5 text-sm rounded bg-primary text-primary-foreground inline-flex items-center gap-1.5"
-              onClick={save}
-            >
+            </Button>
+            <Button onClick={save}>
               <Save className="h-4 w-4" /> Lagre
-            </button>
+            </Button>
           </div>
         </div>
       </div>
