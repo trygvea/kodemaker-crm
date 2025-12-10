@@ -1,10 +1,22 @@
 import React, { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import type { ApiLead } from "@/types/api";
 
 type LeadsSectionProps = {
   leads: ApiLead[];
   title?: string;
   headerAction?: React.ReactNode;
+};
+
+const statusBadgeConfig: Record<
+  ApiLead["status"],
+  { label: string; variant: React.ComponentProps<typeof Badge>["variant"] }
+> = {
+  NEW: { label: "Ny", variant: "default" },
+  IN_PROGRESS: { label: "Under arbeid", variant: "tertiary" },
+  WON: { label: "Vunnet", variant: "primary" },
+  LOST: { label: "Tapt", variant: "destructive" },
+  BORTFALT: { label: "Bortfalt", variant: "bortfalt" },
 };
 
 export function LeadsSection(
@@ -53,29 +65,9 @@ export function LeadsSection(
                       ? `${l.description.slice(0, 100)}…`
                       : l.description}
                   </div>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-                      l.status === "NEW"
-                        ? "bg-blue-100 text-blue-700"
-                        : l.status === "IN_PROGRESS"
-                        ? "bg-amber-100 text-amber-800"
-                        : l.status === "LOST"
-                        ? "bg-red-100 text-red-700"
-                        : l.status === "WON"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {l.status === "NEW"
-                      ? "Ny"
-                      : l.status === "IN_PROGRESS"
-                      ? "Under arbeid"
-                      : l.status === "LOST"
-                      ? "Tapt"
-                      : l.status === "WON"
-                      ? "Vunnet"
-                      : "Bortfalt"}
-                  </span>
+                  <Badge variant={statusBadgeConfig[l.status]?.variant}>
+                    {statusBadgeConfig[l.status]?.label ?? l.status}
+                  </Badge>
                 </div>
               </a>
             ))

@@ -46,7 +46,7 @@ export function EmailItem({ email }: EmailItemProps) {
                                 </span>
                             </div>
                         </div>
-                        <Badge variant="secondary">E-post</Badge>
+                        <Badge variant="default">E-post</Badge>
                     </div>
                     <Accordion type="single" collapsible>
                         <AccordionItem

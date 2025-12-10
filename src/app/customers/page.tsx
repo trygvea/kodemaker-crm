@@ -3,6 +3,7 @@ import useSWR from "swr";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 type Company = {
   id: number;
@@ -65,9 +66,9 @@ export default function CustomersPage() {
               <div className="font-medium">{c.name}</div>
               <div className="flex items-center gap-2">
                 {showActiveLead && (
-                  <span className="inline-flex items-center rounded-full bg-orange-100 text-orange-700 px-2 py-0.5 text-xs">
+                  <Badge variant="secondary">
                     Aktiv lead
-                  </span>
+                  </Badge>
                 )}
               </div>
             </div>
