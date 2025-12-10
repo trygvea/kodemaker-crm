@@ -67,7 +67,7 @@ export function CommentItem({
                                 </span>
                             </div>
                         </div>
-                        <Badge variant="secondary">Kommentar</Badge>
+                        <Badge>Kommentar</Badge>
                     </div>
                     <div className="whitespace-pre-wrap text-sm">
                         {content}

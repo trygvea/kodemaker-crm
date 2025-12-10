@@ -111,7 +111,9 @@ export function FollowupItem({
                                     />
                                 </div>
                             </div>
-                            {showBadge && <Badge>Oppfølging</Badge>}
+                            {showBadge && (
+                                <Badge variant="secondary">Oppfølging</Badge>
+                            )}
                         </div>
                         <div className="whitespace-pre-wrap text-sm">
                             {followup.note}
@@ -192,7 +194,9 @@ export function FollowupItem({
                                 </span>
                             </div>
                         </div>
-                        {showBadge && <Badge>Oppfølging</Badge>}
+                        {showBadge && (
+                            <Badge variant="secondary">Oppfølging</Badge>
+                        )}
                     </div>
                     <div className="whitespace-pre-wrap text-sm">
                         {followup.note}
