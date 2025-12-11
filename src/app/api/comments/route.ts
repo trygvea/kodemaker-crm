@@ -10,8 +10,7 @@ import {
 import { createEventCommentCreated } from "@/db/events";
 import { z } from "zod";
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireApiAuth } from "@/lib/require-api-auth";
 import { logger } from "@/lib/logger";
 
 const createCommentSchema = z
@@ -48,6 +47,9 @@ const queryParamsSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
+  const authResult = await requireApiAuth();
+  if (authResult instanceof NextResponse) return authResult;
+
   try {
     const { searchParams } = new URL(req.url);
     const parsed = queryParamsSchema.safeParse({
@@ -233,9 +235,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authResult = await requireApiAuth();
+  if (authResult instanceof NextResponse) return authResult;
+  const session = authResult;
+  const userId = Number(session.user.id);
+
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id ? Number(session.user.id) : undefined;
     const json = await req.json();
     const parsed = createCommentSchema.safeParse(json);
     if (!parsed.success) {
