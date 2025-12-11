@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { SWRConfig } from "swr";
@@ -37,29 +37,43 @@ function renderWithSWR(
 describe("UserFilter", () => {
   it("renders with default 'Mine' value", async () => {
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
 
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
     expect(screen.getByText("Mine")).toBeInTheDocument();
   });
 
   it("renders with 'Alle' value and shows Users icon", async () => {
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="all" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="all" onChange={onChange} />);
+    });
 
-    expect(screen.getByText("Alle")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Alle")).toBeInTheDocument();
+    });
   });
 
   it("renders with 'excludeMine' value and shows 'Uten mine'", async () => {
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="excludeMine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="excludeMine" onChange={onChange} />);
+    });
 
-    expect(screen.getByText("Uten mine")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Uten mine")).toBeInTheDocument();
+    });
   });
 
   it("renders selected user name when value is a user id", async () => {
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value={1} onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value={1} onChange={onChange} />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText("Ola Nordmann")).toBeInTheDocument();
@@ -69,7 +83,13 @@ describe("UserFilter", () => {
   it("shows dropdown with options when clicked", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
     await user.click(trigger);
@@ -84,7 +104,13 @@ describe("UserFilter", () => {
   it("shows users list in dropdown", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
     await user.click(trigger);
@@ -99,7 +125,13 @@ describe("UserFilter", () => {
   it("calls onChange with 'all' when Alle is selected", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
     await user.click(trigger);
@@ -119,7 +151,13 @@ describe("UserFilter", () => {
   it("calls onChange with user id when a user is selected", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
     await user.click(trigger);
@@ -136,7 +174,13 @@ describe("UserFilter", () => {
   it("filters users based on search query", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
     await user.click(trigger);
@@ -157,7 +201,15 @@ describe("UserFilter", () => {
 
   it("shows visual feedback when filter is active (not 'mine')", async () => {
     const onChange = vi.fn();
-    const { rerender } = renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    let rerender: ReturnType<typeof renderWithSWR>["rerender"];
+    await act(async () => {
+      const result = renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+      rerender = result.rerender;
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
 
@@ -165,26 +217,32 @@ describe("UserFilter", () => {
     expect(trigger).not.toHaveClass("border-primary/50");
 
     // Re-render with "all" filter
-    rerender(
-      <SWRConfig
-        value={{
-          fetcher: () => Promise.resolve(MOCK_USERS),
-          provider: () => new Map(),
-        }}
-      >
-        <UserFilter value="all" onChange={onChange} />
-      </SWRConfig>
-    );
+    await act(async () => {
+      rerender!(
+        <SWRConfig
+          value={{
+            fetcher: () => Promise.resolve(MOCK_USERS),
+            provider: () => new Map(),
+          }}
+        >
+          <UserFilter value="all" onChange={onChange} />
+        </SWRConfig>
+      );
+    });
 
     // Should have active filter styling
-    expect(trigger).toHaveClass("border-primary/50");
-    expect(trigger).toHaveClass("bg-primary/5");
+    await waitFor(() => {
+      expect(trigger).toHaveClass("border-primary/50");
+      expect(trigger).toHaveClass("bg-primary/5");
+    });
   });
 
   it("resets to 'mine' when selected user no longer exists", async () => {
     const onChange = vi.fn();
-    const { rerender } = renderWithSWR(<UserFilter value={999} onChange={onChange} />, {
-      users: MOCK_USERS,
+    await act(async () => {
+      renderWithSWR(<UserFilter value={999} onChange={onChange} />, {
+        users: MOCK_USERS,
+      });
     });
 
     // Wait for effect to run and detect non-existent user
@@ -195,17 +253,27 @@ describe("UserFilter", () => {
 
   it("shows loading state while fetching users", async () => {
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value={1} onChange={onChange} />, {
-      delay: 1000,
+    await act(async () => {
+      renderWithSWR(<UserFilter value={1} onChange={onChange} />, {
+        delay: 1000,
+      });
     });
 
     // Should show loading text while users are being fetched
-    expect(screen.getByText("Laster...")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Laster...")).toBeInTheDocument();
+    });
   });
 
   it("has correct accessibility attributes", async () => {
     const onChange = vi.fn();
-    renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    await act(async () => {
+      renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
 
     const trigger = screen.getByRole("combobox");
     expect(trigger).toHaveAttribute("aria-expanded", "false");
