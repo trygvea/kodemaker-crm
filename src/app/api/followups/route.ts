@@ -8,10 +8,21 @@ import {
   users,
 } from "@/db/schema";
 import { z } from "zod";
-import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { requireApiAuth } from "@/lib/require-api-auth";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  ne,
+} from "drizzle-orm";
 import { createEventFollowupCreated } from "@/db/events";
 import { logger } from "@/lib/logger";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 const createFollowupSchema = z.object({
   note: z.string().min(1),
@@ -25,6 +36,7 @@ const createFollowupSchema = z.object({
 
 const queryParamsSchema = z.object({
   all: z.string().optional().transform((val) => val === "1"),
+  excludeMine: z.string().optional().transform((val) => val === "1"),
   completed: z.string().optional().transform((val) => val === "1"),
   contactId: z.string().optional().transform((val) => {
     if (!val) return undefined;
@@ -41,6 +53,11 @@ const queryParamsSchema = z.object({
     const num = Number(val);
     return isNaN(num) || num <= 0 ? undefined : num;
   }),
+  userId: z.string().optional().transform((val) => {
+    if (!val) return undefined;
+    const num = Number(val);
+    return isNaN(num) || num <= 0 ? undefined : num;
+  }),
 });
 
 export async function GET(req: NextRequest) {
@@ -53,10 +70,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const parsed = queryParamsSchema.safeParse({
       all: searchParams.get("all") ?? undefined,
+      excludeMine: searchParams.get("excludeMine") ?? undefined,
       completed: searchParams.get("completed") ?? undefined,
       contactId: searchParams.get("contactId") ?? undefined,
       companyId: searchParams.get("companyId") ?? undefined,
       leadId: searchParams.get("leadId") ?? undefined,
+      userId: searchParams.get("userId") ?? undefined,
     });
 
     if (!parsed.success) {
@@ -65,7 +84,15 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const { all, completed, contactId, companyId, leadId } = parsed.data;
+    const {
+      all,
+      excludeMine,
+      completed,
+      contactId,
+      companyId,
+      leadId,
+      userId: filterUserId,
+    } = parsed.data;
 
     const baseCondition = completed
       ? isNotNull(followups.completedAt)
@@ -77,12 +104,25 @@ export async function GET(req: NextRequest) {
       : leadId
       ? eq(followups.leadId, leadId)
       : undefined;
-    const mineOnly = and(eq(followups.createdByUserId, userId!), baseCondition);
-    const where = all
-      ? scope ? and(scope, baseCondition) : baseCondition
-      : scope
-      ? and(scope, mineOnly)
-      : mineOnly;
+
+    // Determine user filter based on assignedToUserId (who the task is delegated to)
+    // - filterUserId: show followups assigned to a specific user
+    // - excludeMine: show all followups except those assigned to current user
+    // - all: show all followups regardless of assignment
+    // - default (mine): show followups assigned to current user
+    const userFilter = filterUserId
+      ? eq(followups.assignedToUserId, filterUserId)
+      : excludeMine
+      ? ne(followups.assignedToUserId, userId!)
+      : all
+      ? undefined
+      : eq(followups.assignedToUserId, userId!);
+
+    const where = and(
+      baseCondition,
+      scope,
+      userFilter,
+    );
 
     const rows = await db
       .select({
@@ -267,10 +307,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const authResult = await requireApiAuth();
   if (authResult instanceof NextResponse) return authResult;
-  const session = authResult;
-  const userId = Number(session.user.id);
 
   try {
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id ? Number(session.user.id) : undefined;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const json = await req.json();
     const parsed = createFollowupSchema.safeParse(json);
     if (!parsed.success) {
@@ -287,7 +330,8 @@ export async function POST(req: NextRequest) {
         contactId: parsed.data.contactId,
         leadId: parsed.data.leadId,
         createdByUserId: userId,
-        assignedToUserId: parsed.data.assignedToUserId,
+        // Default assignedToUserId to current user if not specified
+        assignedToUserId: parsed.data.assignedToUserId ?? userId,
       })
       .returning();
     const entity = parsed.data.leadId
