@@ -83,6 +83,29 @@ The project uses Next.js-specific modules that don't work in Cosmos. Mocks in
 These are automatically aliased via `vite.config.ts`, so components can keep
 their normal imports.
 
+## API mocking (MSW)
+
+- Cosmos now starts Mock Service Worker automatically via `cosmos/decorators.tsx`.
+- Default API responses live in `cosmos/mocks/handlers.ts` with shared mock data in
+  `cosmos/mocks/state.ts`.
+- For fixture-specific responses, use `useFixtureHandlers` from
+  `cosmos/mocks/msw-worker`:
+
+```tsx
+import { http, HttpResponse } from 'msw'
+import { useFixtureHandlers } from '../mocks/msw-worker'
+
+function LoadingFixture() {
+  useFixtureHandlers([http.get('/api/followups', () => HttpResponse.json([]))])
+  return <YourComponent />
+}
+```
+
+- Handlers reset between fixtures; the shared mock state is reset whenever
+  handlers reset.
+- Vitest reuses the same handlers via `vitest.setup.ts` (`mswServer`) so tests and
+  fixtures stay aligned.
+
 ## Global Decorators
 
 All fixtures are wrapped with `cosmos/decorators.tsx` which:

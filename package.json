@@ -82,8 +82,9 @@
     "dotenv": "17.2.3",
     "eslint": "9.17.0",
     "eslint-config-next": "16.0.5",
-    "jsdom": "26.1.0",
     "husky": "^9.1.7",
+    "jsdom": "26.1.0",
+    "msw": "^2.12.4",
     "prettier": "3.4.2",
     "react-cosmos": "7.0.0",
     "react-cosmos-plugin-vite": "7.0.0",
@@ -99,5 +100,10 @@
     "config": {
       "js": "drizzle.config.ts"
     }
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
