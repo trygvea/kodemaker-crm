@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { Check, Filter, User, Users } from "lucide-react";
+import { Check, Filter, Loader2, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 export type UserFilterValue = "mine" | "all" | number;
 
-type UserData = {
+export type UserData = {
   id: number;
   firstName: string;
   lastName: string;
@@ -38,7 +38,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const { data: users } = useSWR<UserData[]>("/api/users");
+  const { data: users, isLoading } = useSWR<UserData[]>("/api/users");
 
   const filteredUsers = useMemo(() => {
     if (!users) return [];
@@ -57,19 +57,37 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
     return users?.find((u) => u.id === value) ?? null;
   }, [users, value]);
 
+  // Reset to "mine" if the selected user no longer exists (e.g., was deleted)
+  useEffect(() => {
+    if (
+      typeof value === "number" &&
+      users &&
+      !users.some((u) => u.id === value)
+    ) {
+      onChange("mine");
+    }
+  }, [value, users, onChange]);
+
   const displayText = useMemo(() => {
     if (value === "mine") return "Mine";
     if (value === "all") return "Alle";
     if (selectedUser) {
       return `${selectedUser.firstName} ${selectedUser.lastName}`;
     }
-    return "Velg...";
-  }, [value, selectedUser]);
+    // Show loading indicator while fetching users if a specific user is selected
+    if (typeof value === "number" && isLoading) {
+      return "Laster...";
+    }
+    return "Ukjent bruker";
+  }, [value, selectedUser, isLoading]);
 
   const displayIcon = useMemo(() => {
+    if (isLoading && typeof value === "number") {
+      return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
     if (value === "all") return <Users className="h-4 w-4" />;
     return <User className="h-4 w-4" />;
-  }, [value]);
+  }, [value, isLoading]);
 
   const isFiltered = value !== "mine";
 
@@ -81,6 +99,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
           role="combobox"
           aria-expanded={open}
           aria-label={`Filter: ${displayText}`}
+          disabled={isLoading && !users}
           className={cn(
             "justify-between gap-2",
             isFiltered && "border-primary/50 bg-primary/5",
@@ -143,7 +162,17 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
                 />
               </CommandItem>
             </CommandGroup>
-            {filteredUsers.length > 0 && (
+            {isLoading ? (
+              <>
+                <CommandSeparator />
+                <CommandGroup heading="Brukere">
+                  <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Laster brukere...
+                  </div>
+                </CommandGroup>
+              </>
+            ) : filteredUsers.length > 0 ? (
               <>
                 <CommandSeparator />
                 <CommandGroup heading="Brukere">
@@ -168,7 +197,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
                   ))}
                 </CommandGroup>
               </>
-            )}
+            ) : null}
           </CommandList>
         </Command>
       </PopoverContent>

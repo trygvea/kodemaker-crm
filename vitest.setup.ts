@@ -12,4 +12,23 @@ if (!(global as any).Response) {
 if (!(global as any).ReadableStream) {
   (global as any).ReadableStream = class {};
 }
+
+// Mock ResizeObserver for cmdk/Radix UI components
+if (typeof window !== "undefined" && !(window as any).ResizeObserver) {
+  (window as any).ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+if (!(global as any).ResizeObserver) {
+  (global as any).ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
+// Mock scrollIntoView for cmdk
+Element.prototype.scrollIntoView = function () {};
 /* eslint-enable @typescript-eslint/no-explicit-any */
