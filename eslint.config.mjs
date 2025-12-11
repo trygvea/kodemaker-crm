@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 const eslintConfig = [
   {
-    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"],
+    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "public/mockServiceWorker.js"],
   },
   ...tseslint.configs.recommended,
   {
