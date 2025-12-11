@@ -21,6 +21,8 @@ import {
 } from "drizzle-orm";
 import { createEventFollowupCreated } from "@/db/events";
 import { logger } from "@/lib/logger";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 const createFollowupSchema = z.object({
   note: z.string().min(1),
@@ -305,10 +307,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const authResult = await requireApiAuth();
   if (authResult instanceof NextResponse) return authResult;
-  const session = authResult;
-  const userId = Number(session.user.id);
 
   try {
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id ? Number(session.user.id) : undefined;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const json = await req.json();
     const parsed = createFollowupSchema.safeParse(json);
     if (!parsed.success) {

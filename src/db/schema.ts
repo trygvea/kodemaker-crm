@@ -164,12 +164,18 @@ export const followups = pgTable("followups", {
   leadId: integer("lead_id").references(() => leads.id, {
     onDelete: "cascade",
   }),
-  createdByUserId: integer("created_by_user_id").references(() => users.id, {
-    onDelete: "cascade",
-  }),
-  assignedToUserId: integer("assigned_to_user_id").references(() => users.id, {
-    onDelete: "set null",
-  }),
+  // Users are never deleted (only archived), so onDelete: "restrict" is a safety net.
+  createdByUserId: integer("created_by_user_id")
+    .notNull()
+    .references(() => users.id, {
+      onDelete: "restrict",
+    }),
+  // Every followup must have an owner. Defaults to createdByUserId if not specified.
+  assignedToUserId: integer("assigned_to_user_id")
+    .notNull()
+    .references(() => users.id, {
+      onDelete: "restrict",
+    }),
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull()
     .defaultNow(),
