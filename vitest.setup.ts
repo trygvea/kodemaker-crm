@@ -1,4 +1,7 @@
 import "@testing-library/jest-dom/vitest";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { setupServer } from "msw/node";
+import { handlers, resetHandlersState } from "./cosmos/mocks/handlers";
 
 // Next.js API route modules import 'next/server' which expects global Request/Response
 // Provide minimal polyfills for test environment
@@ -32,3 +35,14 @@ if (!(global as any).ResizeObserver) {
 // Mock scrollIntoView for cmdk
 Element.prototype.scrollIntoView = function () {};
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export const mswServer = setupServer(...handlers);
+
+beforeAll(() => mswServer.listen({ onUnhandledRequest: "error" }));
+
+afterEach(() => {
+  resetHandlersState();
+  mswServer.resetHandlers(...handlers);
+});
+
+afterAll(() => mswServer.close());
