@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { Check, Filter, Loader2, User, Users } from "lucide-react";
+import { Check, Filter, Loader2, User, UserMinus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
-export type UserFilterValue = "mine" | "all" | number;
+export type UserFilterValue = "mine" | "all" | "excludeMine" | number;
 
 export type UserData = {
   id: number;
@@ -71,6 +71,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
   const displayText = useMemo(() => {
     if (value === "mine") return "Mine";
     if (value === "all") return "Alle";
+    if (value === "excludeMine") return "Uten mine";
     if (selectedUser) {
       return `${selectedUser.firstName} ${selectedUser.lastName}`;
     }
@@ -86,6 +87,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
       return <Loader2 className="h-4 w-4 animate-spin" />;
     }
     if (value === "all") return <Users className="h-4 w-4" />;
+    if (value === "excludeMine") return <UserMinus className="h-4 w-4" />;
     return <User className="h-4 w-4" />;
   }, [value, isLoading]);
 
@@ -158,6 +160,23 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
                   className={cn(
                     "ml-auto h-4 w-4",
                     value === "all" ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+              <CommandItem
+                value="excludeMine"
+                onSelect={() => {
+                  onChange("excludeMine");
+                  setOpen(false);
+                  setQuery("");
+                }}
+              >
+                <UserMinus className="mr-2 h-4 w-4" />
+                Uten mine
+                <Check
+                  className={cn(
+                    "ml-auto h-4 w-4",
+                    value === "excludeMine" ? "opacity-100" : "opacity-0"
                   )}
                 />
               </CommandItem>

@@ -117,10 +117,31 @@ function DeletedUserFilter() {
   );
 }
 
+function ExcludeMineFilter() {
+  const [value, setValue] = useState<UserFilterValue>("excludeMine");
+
+  return (
+    <SWRConfig
+      value={{
+        fetcher: () => Promise.resolve(MOCK_USERS),
+        provider: () => new Map(),
+      }}
+    >
+      <div className="space-y-4">
+        <UserFilter value={value} onChange={setValue} />
+        <p className="text-sm text-muted-foreground">
+          &quot;Uten mine&quot; - shows all followups except those assigned to current user
+        </p>
+      </div>
+    </SWRConfig>
+  );
+}
+
 export default {
   default: <InteractiveUserFilter />,
   loading: <LoadingUserFilter />,
   filteredState: <FilteredStateUserFilter />,
+  excludeMine: <ExcludeMineFilter />,
   selectedUser: <SelectedUserFilter />,
   deletedUser: <DeletedUserFilter />,
 };

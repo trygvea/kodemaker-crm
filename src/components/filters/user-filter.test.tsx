@@ -52,6 +52,13 @@ describe("UserFilter", () => {
     expect(screen.getByText("Alle")).toBeInTheDocument();
   });
 
+  it("renders with 'excludeMine' value and shows 'Uten mine'", async () => {
+    const onChange = vi.fn();
+    renderWithSWR(<UserFilter value="excludeMine" onChange={onChange} />);
+
+    expect(screen.getByText("Uten mine")).toBeInTheDocument();
+  });
+
   it("renders selected user name when value is a user id", async () => {
     const onChange = vi.fn();
     renderWithSWR(<UserFilter value={1} onChange={onChange} />);

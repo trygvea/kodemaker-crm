@@ -8,8 +8,17 @@ import {
   users,
 } from "@/db/schema";
 import { z } from "zod";
-import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { requireApiAuth } from "@/lib/require-api-auth";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  ne,
+} from "drizzle-orm";
 import { createEventFollowupCreated } from "@/db/events";
 import { logger } from "@/lib/logger";
 
@@ -25,6 +34,7 @@ const createFollowupSchema = z.object({
 
 const queryParamsSchema = z.object({
   all: z.string().optional().transform((val) => val === "1"),
+  excludeMine: z.string().optional().transform((val) => val === "1"),
   completed: z.string().optional().transform((val) => val === "1"),
   contactId: z.string().optional().transform((val) => {
     if (!val) return undefined;
@@ -58,6 +68,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const parsed = queryParamsSchema.safeParse({
       all: searchParams.get("all") ?? undefined,
+      excludeMine: searchParams.get("excludeMine") ?? undefined,
       completed: searchParams.get("completed") ?? undefined,
       contactId: searchParams.get("contactId") ?? undefined,
       companyId: searchParams.get("companyId") ?? undefined,
@@ -71,7 +82,15 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const { all, completed, contactId, companyId, leadId, userId: filterUserId } = parsed.data;
+    const {
+      all,
+      excludeMine,
+      completed,
+      contactId,
+      companyId,
+      leadId,
+      userId: filterUserId,
+    } = parsed.data;
 
     const baseCondition = completed
       ? isNotNull(followups.completedAt)
@@ -84,12 +103,18 @@ export async function GET(req: NextRequest) {
       ? eq(followups.leadId, leadId)
       : undefined;
 
-    // Determine user filter: specific userId, current user (mine), or all
+    // Determine user filter based on assignedToUserId (who the task is delegated to)
+    // - filterUserId: show followups assigned to a specific user
+    // - excludeMine: show all followups except those assigned to current user
+    // - all: show all followups regardless of assignment
+    // - default (mine): show followups assigned to current user
     const userFilter = filterUserId
-      ? eq(followups.createdByUserId, filterUserId)
+      ? eq(followups.assignedToUserId, filterUserId)
+      : excludeMine
+      ? ne(followups.assignedToUserId, userId!)
       : all
       ? undefined
-      : eq(followups.createdByUserId, userId!);
+      : eq(followups.assignedToUserId, userId!);
 
     const where = and(
       baseCondition,
@@ -300,7 +325,8 @@ export async function POST(req: NextRequest) {
         contactId: parsed.data.contactId,
         leadId: parsed.data.leadId,
         createdByUserId: userId,
-        assignedToUserId: parsed.data.assignedToUserId,
+        // Default assignedToUserId to current user if not specified
+        assignedToUserId: parsed.data.assignedToUserId ?? userId,
       })
       .returning();
     const entity = parsed.data.leadId

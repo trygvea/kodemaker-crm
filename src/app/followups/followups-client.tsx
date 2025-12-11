@@ -13,10 +13,12 @@ export function FollowupsClient() {
     let params = "";
     if (userFilter === "all") {
       params = "all=1";
+    } else if (userFilter === "excludeMine") {
+      params = "excludeMine=1";
     } else if (typeof userFilter === "number") {
       params = `userId=${userFilter}`;
     }
-    // "mine" = no params (defaults to current user's followups)
+    // "mine" = no params (defaults to current user's followups based on assignedToUserId)
 
     return {
       openEndpoint: params ? `/api/followups?${params}` : "/api/followups",
