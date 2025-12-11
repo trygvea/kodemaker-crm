@@ -2,21 +2,34 @@ import { GET } from "./route";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
+// Mock auth to allow tests to run without a real session
+vi.mock("@/lib/require-api-auth", () => ({
+  requireApiAuth: vi.fn().mockResolvedValue({
+    user: { id: "1", email: "test@kodemaker.no" },
+  }),
+}));
+
 vi.mock("@/db/client", () => ({ db: {} }));
-vi.mock("next-auth", () => ({
-  getServerSession: vi.fn(),
-}));
-vi.mock("@/app/api/auth/[...nextauth]/route", () => ({
-  authOptions: {},
-}));
-vi.mock("next/server", () => ({
-  NextResponse: {
-    json: (data: any, init?: any) => ({
-      json: async () => data,
-      status: init?.status ?? 200,
-    }),
-  },
-}));
+vi.mock("next/server", () => {
+  class MockNextResponse {
+    private body: any;
+    private init?: any;
+    constructor(body: any, init?: any) {
+      this.body = body;
+      this.init = init;
+    }
+    static json(data: any, init?: any) {
+      return new MockNextResponse(data, init);
+    }
+    async json() {
+      return this.body;
+    }
+    get status() {
+      return this.init?.status ?? 200;
+    }
+  }
+  return { NextResponse: MockNextResponse };
+});
 vi.mock("@/db/schema", () => ({
   contacts: {
     id: "contacts.id",

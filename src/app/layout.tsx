@@ -3,7 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { AppHeader } from "@/components/app-header";
-import { Sidebar } from "@/components/sidebar";
+import { ConditionalSidebar } from "@/components/conditional-sidebar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,20 +17,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+  const isAuthenticated = !!session?.user;
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <Providers>
           <AppHeader />
-          <div className="mx-auto max-w-6xl flex">
-            <Sidebar />
-            <div className="flex-1">{children}</div>
-          </div>
+          <ConditionalSidebar isAuthenticated={isAuthenticated}>
+            {children}
+          </ConditionalSidebar>
         </Providers>
       </body>
     </html>

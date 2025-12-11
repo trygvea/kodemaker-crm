@@ -9,8 +9,7 @@ import {
 } from "@/db/schema";
 import { z } from "zod";
 import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireApiAuth } from "@/lib/require-api-auth";
 import { createEventFollowupCreated } from "@/db/events";
 import { logger } from "@/lib/logger";
 
@@ -45,9 +44,12 @@ const queryParamsSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
+  const authResult = await requireApiAuth();
+  if (authResult instanceof NextResponse) return authResult;
+  const session = authResult;
+  const userId = Number(session.user.id);
+
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id ? Number(session.user.id) : undefined;
     const { searchParams } = new URL(req.url);
     const parsed = queryParamsSchema.safeParse({
       all: searchParams.get("all") ?? undefined,
@@ -263,9 +265,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authResult = await requireApiAuth();
+  if (authResult instanceof NextResponse) return authResult;
+  const session = authResult;
+  const userId = Number(session.user.id);
+
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id ? Number(session.user.id) : undefined;
     const json = await req.json();
     const parsed = createFollowupSchema.safeParse(json);
     if (!parsed.success) {

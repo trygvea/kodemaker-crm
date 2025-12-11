@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
-import EventsPage from "./page";
+import { EventsClient } from "./events-client";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -49,7 +49,7 @@ describe("EventsPage SSE highlight", () => {
     };
 
     try {
-      const { container } = render(<EventsPage />);
+      const { container } = render(<EventsClient />);
 
       // Initial items should render and not be highlighted
       expect(screen.getByText("Init two")).toBeDefined();

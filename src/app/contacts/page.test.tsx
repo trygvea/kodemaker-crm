@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import ContactsSearchPage from "./page";
+import { ContactsClient } from "./contacts-client";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -26,7 +26,7 @@ describe("ContactsSearchPage navigation", () => {
       ],
     });
 
-    render(<ContactsSearchPage />);
+    render(<ContactsClient />);
     const row = screen.getByText("Jane Doe").closest('div[role="button"]')!;
     fireEvent.click(row);
     expect(push).toHaveBeenCalledWith("/contacts/10");

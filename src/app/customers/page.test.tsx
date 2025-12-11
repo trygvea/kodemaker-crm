@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import CustomersPage from "./page";
+import { CustomersClient } from "./customers-client";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("swr", () => ({ default: () => ({ data: [] }) }));
@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
 
 describe("CustomersPage", () => {
   it("renders heading and search field", () => {
-    render(<CustomersPage />);
+    render(<CustomersClient />);
     expect(screen.getByText("Organisasjoner")).toBeDefined();
     expect(screen.getByPlaceholderText("Søk i organisasjoner"))
       .toBeDefined();
