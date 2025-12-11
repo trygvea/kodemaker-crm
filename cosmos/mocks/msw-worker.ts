@@ -36,5 +36,7 @@ export function useFixtureHandlers(extraHandlers: HttpHandler[]) {
     return () => {
       resetMockHandlers();
     };
-  }, [extraHandlers]);
+    // Handlers are static per fixture - no need to re-run on changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
