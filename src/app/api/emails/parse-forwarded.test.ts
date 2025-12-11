@@ -20,15 +20,17 @@ This is the original forwarded body.
     expect(parsed.length).toBeGreaterThan(0);
 
     const result = parsed[0]
-      ? [{
-        headers: {
-          from: parsed[0].headers.from,
-          date: parsed[0].headers.date,
-          subject: parsed[0].headers.subject,
-          to: parsed[0].headers.to,
-        },
-        body: parsed[0].body,
-      }]
+      ? [
+          {
+            headers: {
+              from: parsed[0].headers.from,
+              date: parsed[0].headers.date,
+              subject: parsed[0].headers.subject,
+              to: parsed[0].headers.to,
+            },
+            body: parsed[0].body,
+          },
+        ]
       : [];
 
     expect(result).toEqual([
@@ -62,15 +64,17 @@ This is the original forwarded body.
     expect(parsed.length).toBeGreaterThan(0);
 
     const result = parsed[0]
-      ? [{
-        headers: {
-          from: parsed[0].headers.from,
-          date: parsed[0].headers.date,
-          subject: parsed[0].headers.subject,
-          to: parsed[0].headers.to,
-        },
-        body: parsed[0].body,
-      }]
+      ? [
+          {
+            headers: {
+              from: parsed[0].headers.from,
+              date: parsed[0].headers.date,
+              subject: parsed[0].headers.subject,
+              to: parsed[0].headers.to,
+            },
+            body: parsed[0].body,
+          },
+        ]
       : [];
 
     expect(result).toEqual([

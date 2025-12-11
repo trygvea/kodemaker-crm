@@ -2,13 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useSWR from "swr";
-import {
-  BadgePercent,
-  Building2,
-  ClipboardList,
-  History,
-  Users2,
-} from "lucide-react";
+import { BadgePercent, Building2, ClipboardList, History, Users2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { CreateNewMenu } from "@/components/create-new-menu";
 
@@ -64,10 +58,8 @@ function useSidebarContext(): SidebarContext {
   const pathname = usePathname();
   const companyMatch = pathname?.match(/^\/customers\/(\d+)$/);
   const companyIdFromPath = companyMatch ? Number(companyMatch[1]) : undefined;
-  const { data: companyData } = useSWR<
-    { company: { id: number; name: string } }
-  >(
-    companyIdFromPath ? `/api/companies/${companyIdFromPath}` : null,
+  const { data: companyData } = useSWR<{ company: { id: number; name: string } }>(
+    companyIdFromPath ? `/api/companies/${companyIdFromPath}` : null
   );
   const contactMatch = pathname?.match(/^\/contacts\/(\d+)$/);
   const contactIdFromPath = contactMatch ? Number(contactMatch[1]) : undefined;
@@ -76,8 +68,7 @@ function useSidebarContext(): SidebarContext {
     currentCompany: { id: number; name: string } | null;
   }>(contactIdFromPath ? `/api/contacts/${contactIdFromPath}` : null);
   const headerCompanyId = companyIdFromPath ?? contactData?.currentCompany?.id;
-  const headerCompanyName = companyData?.company?.name ??
-    contactData?.currentCompany?.name;
+  const headerCompanyName = companyData?.company?.name ?? contactData?.currentCompany?.name;
   const headerContactId = contactIdFromPath ?? undefined;
   const headerContactName = contactData
     ? `${contactData.contact.firstName} ${contactData.contact.lastName}`
@@ -117,13 +108,8 @@ function NavLink({
 }
 
 export function Sidebar() {
-  const {
-    pathname,
-    headerCompanyId,
-    headerCompanyName,
-    headerContactId,
-    headerContactName,
-  } = useSidebarContext();
+  const { pathname, headerCompanyId, headerCompanyName, headerContactId, headerContactName } =
+    useSidebarContext();
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 shrink-0 border-r bg-card">
@@ -141,9 +127,7 @@ export function Sidebar() {
               href={item.href}
               label={item.label}
               icon={item.icon}
-              active={item.isActive
-                ? item.isActive(pathname)
-                : pathname === item.href}
+              active={item.isActive ? item.isActive(pathname) : pathname === item.href}
             />
           ))}
         </div>
@@ -153,13 +137,8 @@ export function Sidebar() {
 }
 
 export function SidebarSheetContent() {
-  const {
-    pathname,
-    headerCompanyId,
-    headerCompanyName,
-    headerContactId,
-    headerContactName,
-  } = useSidebarContext();
+  const { pathname, headerCompanyId, headerCompanyName, headerContactId, headerContactName } =
+    useSidebarContext();
 
   return (
     <div className="p-3 pt-12">
@@ -177,9 +156,7 @@ export function SidebarSheetContent() {
           href={item.href}
           label={item.label}
           icon={item.icon}
-          active={item.isActive
-            ? item.isActive(pathname)
-            : pathname === item.href}
+          active={item.isActive ? item.isActive(pathname) : pathname === item.href}
         />
       ))}
     </div>

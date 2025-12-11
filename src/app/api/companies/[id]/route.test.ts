@@ -49,10 +49,7 @@ describe("PATCH /api/companies/[id]", () => {
     const req = {
       json: async () => body,
     };
-    const res = await PATCH(
-      req as any,
-      { params: Promise.resolve({ id: "1" }) } as any,
-    );
+    const res = await PATCH(req as any, { params: Promise.resolve({ id: "1" }) } as any);
     expect(res.status).toBe(200);
   });
 });

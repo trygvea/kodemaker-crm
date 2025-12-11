@@ -5,12 +5,12 @@
 export const useSession = () => ({
   data: {
     user: {
-      email: 'cosmos@example.com',
-      name: 'Cosmos User',
+      email: "cosmos@example.com",
+      name: "Cosmos User",
     },
   },
-  status: 'authenticated' as const,
-})
+  status: "authenticated" as const,
+});
 
-export const signIn = () => {}
-export const signOut = () => {}
+export const signIn = () => {};
+export const signOut = () => {};

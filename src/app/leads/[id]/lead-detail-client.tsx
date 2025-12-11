@@ -55,9 +55,7 @@ export function LeadDetailClient() {
   const router = useRouter();
   const [newComment, setNewComment] = useState("");
   const [newFollowupNote, setNewFollowupNote] = useState("");
-  const [newFollowupDue, setNewFollowupDue] = useState<Date | null>(
-    getDefaultDueDate(),
-  );
+  const [newFollowupDue, setNewFollowupDue] = useState<Date | null>(getDefaultDueDate());
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -77,8 +75,8 @@ export function LeadDetailClient() {
     const target = data?.contact
       ? `/contacts/${data.contact.id}`
       : data?.company
-      ? `/customers/${data.company.id}`
-      : "/customers";
+        ? `/customers/${data.company.id}`
+        : "/customers";
     router.push(target);
   }
 
@@ -116,33 +114,25 @@ export function LeadDetailClient() {
   if (!data) return <div className="p-6">Laster...</div>;
   const crumbs = [
     { label: "Organisasjoner", href: "/customers" },
-    ...(data.company
-      ? [{ label: data.company.name, href: `/customers/${data.company.id}` }]
-      : []),
+    ...(data.company ? [{ label: data.company.name, href: `/customers/${data.company.id}` }] : []),
     ...(data.contact
       ? [
-        {
-          label: `${data.contact.firstName} ${data.contact.lastName}`,
-          href: `/contacts/${data.contact.id}`,
-        },
-      ]
+          {
+            label: `${data.contact.firstName} ${data.contact.lastName}`,
+            href: `/contacts/${data.contact.id}`,
+          },
+        ]
       : []),
     { label: "Lead" },
   ];
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs items={crumbs} />
-      <LeadHeader
-        company={data.company ?? null}
-        contact={data.contact ?? null}
-      />
+      <LeadHeader company={data.company ?? null} contact={data.contact ?? null} />
 
       <section>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-3 max-w-2xl"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3 max-w-2xl">
             <FormField
               control={form.control}
               name="description"
@@ -179,10 +169,7 @@ export function LeadDetailClient() {
               )}
             />
             <div className="col-span-2 flex justify-end">
-              <Button
-                type="submit"
-                className="inline-flex items-center gap-1.5"
-              >
+              <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>
@@ -208,24 +195,18 @@ export function LeadDetailClient() {
                 </div>
               </div>
               <div className="border rounded divide-y mt-3">
-                {data.comments?.length
-                  ? (
-                    data.comments.map((c) => (
-                      <div key={c.id} className="p-3">
-                        <div className="text-xs text-muted-foreground mb-1">
-                          {new Date(c.createdAt).toLocaleString()}
-                        </div>
-                        <div className="whitespace-pre-wrap text-sm">
-                          {c.content}
-                        </div>
+                {data.comments?.length ? (
+                  data.comments.map((c) => (
+                    <div key={c.id} className="p-3">
+                      <div className="text-xs text-muted-foreground mb-1">
+                        {new Date(c.createdAt).toLocaleString()}
                       </div>
-                    ))
-                  )
-                  : (
-                    <div className="p-3 text-sm text-muted-foreground">
-                      Ingen
+                      <div className="whitespace-pre-wrap text-sm">{c.content}</div>
                     </div>
-                  )}
+                  ))
+                ) : (
+                  <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+                )}
               </div>
             </div>
           </form>
@@ -245,9 +226,7 @@ export function LeadDetailClient() {
             />
           </div>
           <div className="w-48">
-            <label className="block text-xs text-muted-foreground mb-1">
-              Frist
-            </label>
+            <label className="block text-xs text-muted-foreground mb-1">Frist</label>
             <DatePicker
               value={newFollowupDue}
               onValueChange={(date) => setNewFollowupDue(date ?? null)}

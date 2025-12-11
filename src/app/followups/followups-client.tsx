@@ -1,10 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { FollowupsList } from "@/components/followups-list";
-import {
-  UserFilter,
-  type UserFilterValue,
-} from "@/components/filters/user-filter";
+import { UserFilter, type UserFilterValue } from "@/components/filters/user-filter";
 
 export function FollowupsClient() {
   const [userFilter, setUserFilter] = useState<UserFilterValue>("mine");
@@ -27,7 +24,6 @@ export function FollowupsClient() {
         : "/api/followups?completed=1",
     };
   }, [userFilter]);
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">

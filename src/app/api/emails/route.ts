@@ -23,24 +23,36 @@ import { deriveNamesFromEmailLocalPart } from "./name-utils";
 import bcrypt from "bcryptjs";
 
 const queryParamsSchema = z.object({
-  contactId: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const num = Number(val);
-    return isNaN(num) || num <= 0 ? undefined : num;
-  }),
-  companyId: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const num = Number(val);
-    return isNaN(num) || num <= 0 ? undefined : num;
-  }),
-  contactIds: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const ids = val.split(",").map((id) => {
-      const num = Number(id.trim());
-      return isNaN(num) || num <= 0 ? null : num;
-    }).filter((id): id is number => id !== null);
-    return ids.length > 0 ? ids : undefined;
-  }),
+  contactId: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const num = Number(val);
+      return isNaN(num) || num <= 0 ? undefined : num;
+    }),
+  companyId: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const num = Number(val);
+      return isNaN(num) || num <= 0 ? undefined : num;
+    }),
+  contactIds: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const ids = val
+        .split(",")
+        .map((id) => {
+          const num = Number(id.trim());
+          return isNaN(num) || num <= 0 ? null : num;
+        })
+        .filter((id): id is number => id !== null);
+      return ids.length > 0 ? ids : undefined;
+    }),
 });
 
 export async function GET(req: NextRequest) {
@@ -53,9 +65,12 @@ export async function GET(req: NextRequest) {
     });
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid query parameters" }, {
-        status: 400,
-      });
+      return NextResponse.json(
+        { error: "Invalid query parameters" },
+        {
+          status: 400,
+        }
+      );
     }
 
     const { contactId, companyId, contactIds } = parsed.data;
@@ -64,10 +79,9 @@ export async function GET(req: NextRequest) {
     if (!contactId && !companyId && (!contactIds || contactIds.length === 0)) {
       return NextResponse.json(
         {
-          error:
-            "At least one scope parameter (contactId, companyId, or contactIds) is required",
+          error: "At least one scope parameter (contactId, companyId, or contactIds) is required",
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -104,14 +118,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    logger.error(
-      { route: "/api/emails", method: "GET", error },
-      "Error fetching emails",
-    );
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.error({ route: "/api/emails", method: "GET", error }, "Error fetching emails");
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -124,24 +132,26 @@ export async function POST(req: NextRequest) {
     try {
       body = JSON.parse(rawBody || "{}");
     } catch {
-      return NextResponse.json({ error: "Mail body is unparsable" }, {
-        status: 400,
-      });
+      return NextResponse.json(
+        { error: "Mail body is unparsable" },
+        {
+          status: 400,
+        }
+      );
     }
 
     const signingKey = process.env.POSTMARK_WEBHOOK_SECRET;
     const signature = req.headers.get("x-postmark-signature") || undefined;
     if (signingKey && signature) {
-      const expected = createHmac("sha256", signingKey).update(rawBody, "utf8")
-        .digest("base64");
+      const expected = createHmac("sha256", signingKey).update(rawBody, "utf8").digest("base64");
       if (expected !== signature) {
-        logger.error(
-          { route: "/api/emails", method: "POST" },
-          "Invalid signature",
+        logger.error({ route: "/api/emails", method: "POST" }, "Invalid signature");
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          {
+            status: 401,
+          }
         );
-        return NextResponse.json({ error: "Invalid signature" }, {
-          status: 401,
-        });
       }
     }
 
@@ -149,40 +159,40 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       logger.error(
         { route: "/api/emails", method: "POST" },
-        "Parse failed: " + JSON.stringify(parsed.error.flatten()),
+        "Parse failed: " + JSON.stringify(parsed.error.flatten())
       );
-      return NextResponse.json({ error: parsed.error.flatten() }, {
-        status: 400,
-      });
+      return NextResponse.json(
+        { error: parsed.error.flatten() },
+        {
+          status: 400,
+        }
+      );
     }
 
     const parsedMail = parsePostmarkInboundEmail(parsed.data);
     if (parsedMail.mode === "ERROR") {
-      logger.error(
-        { route: "/api/emails", method: "POST" },
-        "Parse failed: " + parsedMail.error,
-      );
+      logger.error({ route: "/api/emails", method: "POST" }, "Parse failed: " + parsedMail.error);
       return NextResponse.json({ error: parsedMail.error }, { status: 400 });
     }
 
     if (!parsedMail.contactEmail) {
-      logger.error(
-        { route: "/api/emails", method: "POST" },
-        "Missing contact mail",
+      logger.error({ route: "/api/emails", method: "POST" }, "Missing contact mail");
+      return NextResponse.json(
+        { error: "Missing contact mail" },
+        {
+          status: 400,
+        }
       );
-      return NextResponse.json({ error: "Missing contact mail" }, {
-        status: 400,
-      });
     }
 
     if (!parsedMail.crmUser) {
-      logger.error(
-        { route: "/api/emails", method: "POST" },
-        "Crm user not found",
+      logger.error({ route: "/api/emails", method: "POST" }, "Crm user not found");
+      return NextResponse.json(
+        { error: "Crm user not found" },
+        {
+          status: 400,
+        }
       );
-      return NextResponse.json({ error: "Crm user not found" }, {
-        status: 400,
-      });
     }
 
     // Find or create contact
@@ -201,23 +211,23 @@ export async function POST(req: NextRequest) {
       const { firstName, lastName } = deriveNamesFromEmailLocalPart(localPart);
       logger.info(
         { route: "/api/emails", method: "POST" },
-        "creating contact for email " + parsedMail.contactEmail,
+        "creating contact for email " + parsedMail.contactEmail
       );
-      const [created] = await db.insert(contacts).values({
-        firstName,
-        lastName,
-      })
+      const [created] = await db
+        .insert(contacts)
+        .values({
+          firstName,
+          lastName,
+        })
         .returning();
       contactId = created.id;
 
       // Also create the contact email record
-      await db
-        .insert(contactEmails)
-        .values({
-          contactId: created.id,
-          email: parsedMail.contactEmail,
-          active: true,
-        });
+      await db.insert(contactEmails).values({
+        contactId: created.id,
+        email: parsedMail.contactEmail,
+        active: true,
+      });
 
       await createEventContactCreated(created.id);
     }
@@ -247,10 +257,7 @@ export async function POST(req: NextRequest) {
           })
           .returning();
         companyId = createdCompany.id;
-        logger.info(
-          { route: "/api/emails", method: "POST" },
-          `Create company ${capitalizedName}`,
-        );
+        logger.info({ route: "/api/emails", method: "POST" }, `Create company ${capitalizedName}`);
         await createEventCompanyCreated(createdCompany.id);
       }
       // Now, create contactHistory
@@ -262,20 +269,18 @@ export async function POST(req: NextRequest) {
 
     // Find or create CRM user (auto-provision if missing)
     const crmEmail = parsedMail.crmUser;
-    const [existingUser] = await db.select().from(users).where(
-      eq(users.email, crmEmail),
-    );
+    const [existingUser] = await db.select().from(users).where(eq(users.email, crmEmail));
     let createdByUser = existingUser;
     if (!createdByUser) {
       const domain = crmEmail.split("@")[1]?.toLowerCase();
       if (domain !== "kodemaker.no") {
         logger.error(
           { route: "/api/emails", method: "POST" },
-          `User with email ${crmEmail} has unsupported domain`,
+          `User with email ${crmEmail} has unsupported domain`
         );
         return NextResponse.json(
           { error: `User with email ${crmEmail} not allowed` },
-          { status: 400 },
+          { status: 400 }
         );
       }
       const local = crmEmail.split("@")[0];
@@ -294,7 +299,7 @@ export async function POST(req: NextRequest) {
       createdByUser = createdUser;
       logger.info(
         { route: "/api/emails", method: "POST" },
-        `Auto-provisioned CRM user ${crmEmail}`,
+        `Auto-provisioned CRM user ${crmEmail}`
       );
     }
 
@@ -314,23 +319,17 @@ export async function POST(req: NextRequest) {
       contactId!,
       companyId,
       parsedMail.subject ?? "",
-      parsedMail.mode,
+      parsedMail.mode
     );
 
     logger.info(
       { route: "/api/emails", method: "POST" },
-      `Imported ${parsedMail.mode} email from ${parsedMail.contactEmail}`,
+      `Imported ${parsedMail.mode} email from ${parsedMail.contactEmail}`
     );
 
     return NextResponse.json(createdEmail);
   } catch (error) {
-    logger.error(
-      { route: "/api/emails", method: "POST", error },
-      "Error processing email",
-    );
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.error({ route: "/api/emails", method: "POST", error }, "Error processing email");
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

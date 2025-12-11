@@ -5,11 +5,7 @@ import { CalendarIcon } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 type DatePickerProps = {
@@ -39,7 +35,7 @@ export function DatePicker({
           className={cn(
             "w-full justify-start text-left font-normal",
             !value && "text-muted-foreground",
-            className,
+            className
           )}
           disabled={disabled}
         >

@@ -3,18 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { signIn, signOut, useSession } from "next-auth/react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarSheetContent } from "@/components/sidebar";
 import { Menu } from "lucide-react";
 
@@ -59,31 +50,28 @@ export function AppHeader() {
             CReMa
           </Link>
         </div>
-        {session?.user
-          ? (
-            <nav className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Avatar>
-                      <AvatarFallback>
-                        {avatarInitial}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{email}</TooltipContent>
-              </Tooltip>
-              <button
-                type="button"
-                className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
-                onClick={() => signOut({ callbackUrl: "/login" })}
-              >
-                Logg ut
-              </button>
-            </nav>
-          )
-          : !isLoginPage && (
+        {session?.user ? (
+          <nav className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Avatar>
+                    <AvatarFallback>{avatarInitial}</AvatarFallback>
+                  </Avatar>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{email}</TooltipContent>
+            </Tooltip>
+            <button
+              type="button"
+              className="rounded bg-white/15 hover:bg-white/25 px-3 py-1.5 text-sm"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+            >
+              Logg ut
+            </button>
+          </nav>
+        ) : (
+          !isLoginPage && (
             <nav className="flex items-center gap-2">
               <button
                 type="button"
@@ -93,7 +81,8 @@ export function AppHeader() {
                 Logg inn
               </button>
             </nav>
-          )}
+          )
+        )}
       </div>
     </header>
   );

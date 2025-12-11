@@ -30,9 +30,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <Providers>
           <AppHeader />
-          <ConditionalSidebar isAuthenticated={isAuthenticated}>
-            {children}
-          </ConditionalSidebar>
+          <ConditionalSidebar isAuthenticated={isAuthenticated}>{children}</ConditionalSidebar>
         </Providers>
       </body>
     </html>

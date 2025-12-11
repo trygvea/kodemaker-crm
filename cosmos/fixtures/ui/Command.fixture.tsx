@@ -1,4 +1,11 @@
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 export default {
   default: (
@@ -14,6 +21,4 @@ export default {
       </CommandList>
     </Command>
   ),
-}
-
-
+};

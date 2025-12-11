@@ -13,9 +13,7 @@ import type { GetCompanyDetailResponse } from "@/types/api";
 export function CompanyDetailClient() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
-  const { data } = useSWR<GetCompanyDetailResponse>(
-    id ? `/api/companies/${id}` : null,
-  );
+  const { data } = useSWR<GetCompanyDetailResponse>(id ? `/api/companies/${id}` : null);
 
   if (!data) return <div className="p-6">Laster...</div>;
   const { company, contacts, leads } = data;
@@ -24,23 +22,18 @@ export function CompanyDetailClient() {
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs
-        items={[{ label: "Organisasjoner", href: "/customers" }, {
-          label: company.name,
-        }]}
+        items={[
+          { label: "Organisasjoner", href: "/customers" },
+          {
+            label: company.name,
+          },
+        ]}
       />
-      <CompanyHeader
-        company={company}
-        editHref={`/customers/${company.id}/edit`}
-      />
+      <CompanyHeader company={company} editHref={`/customers/${company.id}/edit`} />
 
       <LeadsSection
         leads={leads}
-        headerAction={
-          <NewLeadDialog
-            companyId={company.id}
-            companyName={company.name}
-          />
-        }
+        headerAction={<NewLeadDialog companyId={company.id} companyName={company.name} />}
       />
 
       <ActivityLog

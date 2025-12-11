@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  BadgePercent,
-  Building2,
-  ChevronRight,
-  Plus,
-  Users2,
-} from "lucide-react";
+import { BadgePercent, Building2, ChevronRight, Plus, Users2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,9 +24,7 @@ export function CreateNewMenu({
   contactId,
   contactName,
 }: CreateNewMenuProps) {
-  const [activeDialog, setActiveDialog] = useState<
-    "company" | "contact" | "lead" | null
-  >(null);
+  const [activeDialog, setActiveDialog] = useState<"company" | "contact" | "lead" | null>(null);
 
   return (
     <>
@@ -47,24 +39,15 @@ export function CreateNewMenu({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={() => setActiveDialog("company")}
-          >
+          <DropdownMenuItem className="cursor-pointer" onSelect={() => setActiveDialog("company")}>
             <Building2 className="h-4 w-4" />
             <span>Organisasjon</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={() => setActiveDialog("contact")}
-          >
+          <DropdownMenuItem className="cursor-pointer" onSelect={() => setActiveDialog("contact")}>
             <Users2 className="h-4 w-4" />
             <span>Kontakt</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={() => setActiveDialog("lead")}
-          >
+          <DropdownMenuItem className="cursor-pointer" onSelect={() => setActiveDialog("lead")}>
             <BadgePercent className="h-4 w-4" />
             <span>Lead</span>
           </DropdownMenuItem>

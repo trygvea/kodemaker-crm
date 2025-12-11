@@ -24,20 +24,24 @@ Historisk har dette prosjektet brukt `npm` med `package-lock.json`. Vi ønsket:
 ## Decision
 
 1. **Bytter fra npm til pnpm som package manager**
+
    - Legger til `"packageManager": "pnpm@9.15.4"` i `package.json`.
    - Bruker `pnpm-lock.yaml` som lockfil og lar pnpm være single source of truth for dependency-grafen.
 
 2. **Innfører streng dependency-graf**
+
    - Alle `dependencies` og `devDependencies` i `package.json` bruker eksplisitte versjoner (ingen `^`/`~`).
    - Lockfil (`pnpm-lock.yaml`) er alltid sjekket inn og må oppdateres bevisst via `pnpm add` / `pnpm update`.
 
 3. **Konfigurerer pnpm-workspace med karantenetid**
+
    - Oppretter `pnpm-workspace.yaml` med:
      - `packages: ["."]`
      - `minimumReleaseAge: 10080` (7 dager)
    - Nye pakkeversjoner må være minst 7 dager gamle før de kan installeres. Dette gir rom for at angrep av typen Shai Hulud oppdages før vi trekker inn kompromitterte versjoner.
 
 4. **Oppdaterer CI (GitHub Actions) til pnpm + «incident mode»**
+
    - `Node.js CI` bruker nå:
      - `actions/setup-node` med `cache: "pnpm"`.
      - `corepack enable` + `corepack prepare pnpm@9.15.4 --activate`.
@@ -55,6 +59,7 @@ Historisk har dette prosjektet brukt `npm` med `package-lock.json`. Vi ønsket:
 ## Alternatives considered
 
 1. **Fortsette med npm med strammere praksis**
+
    - Mulig å stramme inn ved å:
      - Bruke `npm ci` konsekvent.
      - Låse versjoner eksplisitt.
@@ -63,6 +68,7 @@ Historisk har dette prosjektet brukt `npm` med `package-lock.json`. Vi ønsket:
    - Vurdering: En klar forbedring vs dagens, men gir mindre støtte for tiltak som karantenetid.
 
 2. **Flytte hele stacken til Deno/Bun**
+
    - Potensiell gevinst i form av annet dependency-regime og runtime.
    - Ulempe: Krever større omskriving av Next.js-baserte deler, Drizzle, NextAuth m.m.
    - Vurdering: For omfattende for dette prosjektet nå, og ikke nødvendig for å adressere Shai Hulud-lignende angrep.
@@ -77,12 +83,15 @@ Historisk har dette prosjektet brukt `npm` med `package-lock.json`. Vi ønsket:
 ### Positive
 
 - **Mer deterministiske bygg**
+
   - Eksplisitte versjoner + pnpm-lock gir forutsigbare dependency-grafer lokalt, i CI og på Scalingo.
 
 - **Redusert risiko ved nye publiseringer**
+
   - `minimumReleaseAge` gjør at nye pakkeversjoner ikke tas i bruk umiddelbart. Dette kan redusere eksponeringstiden ved supply-chain-angrep.
 
 - **Bedre beredskap**
+
   - «Incident mode» i CI (`--ignore-scripts`) gir oss en rask, dokumentert måte å stanse potensielt ondsinnede install-scripts på mens vi fortsatt kan bygge på eksisterende lockfil.
   - README dokumenterer hva utviklere skal gjøre i en krisesituasjon (fryse deploy, ikke røre lockfil, eventuelt bruke `ignore-scripts` lokalt).
 
@@ -92,10 +101,12 @@ Historisk har dette prosjektet brukt `npm` med `package-lock.json`. Vi ønsket:
 ### Negative / trade-offs
 
 - **Liten terskel for utviklere som ikke har pnpm fra før**
+
   - Utviklere må aktivere corepack eller installere pnpm globalt.
   - Nytt verktøy å forholde seg til sammenlignet med «ren» npm.
 
 - **Ytterligere kompleksitet i CI-konfigurasjon**
+
   - Incident-mode, corepack og pnpm cache gir litt mer logikk i workflow-filen.
 
 - **Karantenetid kan forsinke nødvendige oppgraderinger**

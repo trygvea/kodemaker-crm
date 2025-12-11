@@ -36,10 +36,7 @@ export default async function middleware(req: NextRequest) {
     // Page routes redirect to login
     const url = req.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set(
-      "callbackUrl",
-      req.nextUrl.pathname + req.nextUrl.search,
-    );
+    url.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
     return NextResponse.redirect(url);
   }
 

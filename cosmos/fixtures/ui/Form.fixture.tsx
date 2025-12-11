@@ -1,21 +1,28 @@
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const schema = z.object({
-  name: z.string().min(1, 'Navn er påkrevd'),
-})
+  name: z.string().min(1, "Navn er påkrevd"),
+});
 
-type FormValues = z.infer<typeof schema>
+type FormValues = z.infer<typeof schema>;
 
 function SimpleForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '' },
-  })
+    defaultValues: { name: "" },
+  });
 
   return (
     <Form {...form}>
@@ -36,11 +43,9 @@ function SimpleForm() {
         <Button type="submit">Lagre</Button>
       </form>
     </Form>
-  )
+  );
 }
 
 export default {
   simple: <SimpleForm />,
-}
-
-
+};

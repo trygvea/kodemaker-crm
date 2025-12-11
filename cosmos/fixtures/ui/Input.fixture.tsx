@@ -1,5 +1,5 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default {
   default: <Input placeholder="Enter text..." />,
@@ -18,4 +18,4 @@ export default {
   disabled: <Input placeholder="Disabled input" disabled />,
   invalid: <Input placeholder="Invalid input" aria-invalid="true" />,
   withValue: <Input defaultValue="Pre-filled value" />,
-}
+};

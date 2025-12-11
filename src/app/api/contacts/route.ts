@@ -36,9 +36,12 @@ export async function POST(req: NextRequest) {
   const json = await req.json();
   const parsed = createContactSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      {
+        status: 400,
+      }
+    );
   }
   const { companyId, email, role, ...values } = parsed.data;
 

@@ -11,25 +11,12 @@ import {
   leads,
   users,
 } from "@/db/schema";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  ilike,
-  inArray,
-  isNotNull,
-  isNull,
-  or,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, isNull, or } from "drizzle-orm";
 
 export async function getContactDetail(id: number) {
-  const [contact] = await db.select().from(contacts).where(eq(contacts.id, id))
-    .limit(1);
+  const [contact] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1);
   if (!contact) return null;
-  let createdBy: { firstName: string | null; lastName: string | null } | null =
-    null;
+  let createdBy: { firstName: string | null; lastName: string | null } | null = null;
   if (contact.createdByUserId) {
     const [u] = await db
       .select({ firstName: users.firstName, lastName: users.lastName })
@@ -49,12 +36,7 @@ export async function getContactDetail(id: number) {
     })
     .from(contactCompanyHistory)
     .innerJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
-    .where(
-      and(
-        eq(contactCompanyHistory.contactId, id),
-        isNull(contactCompanyHistory.endDate),
-      ),
-    )
+    .where(and(eq(contactCompanyHistory.contactId, id), isNull(contactCompanyHistory.endDate)))
     .orderBy(desc(contactCompanyHistory.startDate))
     .limit(1);
 
@@ -68,12 +50,7 @@ export async function getContactDetail(id: number) {
     })
     .from(contactCompanyHistory)
     .innerJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
-    .where(
-      and(
-        eq(contactCompanyHistory.contactId, id),
-        isNotNull(contactCompanyHistory.endDate),
-      ),
-    )
+    .where(and(eq(contactCompanyHistory.contactId, id), isNotNull(contactCompanyHistory.endDate)))
     .orderBy(desc(contactCompanyHistory.endDate));
 
   const contactLeads = await db
@@ -166,20 +143,17 @@ export async function listContacts(query: string | null) {
     .from(contacts)
     .leftJoin(
       contactCompanyHistory,
-      and(
-        eq(contactCompanyHistory.contactId, contacts.id),
-        isNull(contactCompanyHistory.endDate),
-      ),
+      and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
     )
     .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
     .where(
       isSearch
         ? or(
-          ilike(contacts.firstName, `%${query}%`),
-          ilike(contacts.lastName, `%${query}%`),
-          ilike(companies.name, `%${query}%`),
-        )
-        : undefined,
+            ilike(contacts.firstName, `%${query}%`),
+            ilike(contacts.lastName, `%${query}%`),
+            ilike(companies.name, `%${query}%`)
+          )
+        : undefined
     )
     .orderBy(asc(contacts.lastName), asc(contacts.firstName))
     .limit(limit);
@@ -199,10 +173,7 @@ export async function listContacts(query: string | null) {
       .innerJoin(contactEmails, eq(contactEmails.contactId, contacts.id))
       .leftJoin(
         contactCompanyHistory,
-        and(
-          eq(contactCompanyHistory.contactId, contacts.id),
-          isNull(contactCompanyHistory.endDate),
-        ),
+        and(eq(contactCompanyHistory.contactId, contacts.id), isNull(contactCompanyHistory.endDate))
       )
       .leftJoin(companies, eq(companies.id, contactCompanyHistory.companyId))
       .where(ilike(contactEmails.email, `%${query}%`))
@@ -244,7 +215,7 @@ export async function listContacts(query: string | null) {
       acc[ce.contactId].push(ce.email);
       return acc;
     },
-    {} as Record<number, string[]>,
+    {} as Record<number, string[]>
   );
 
   // Add concatenated emails to each contact

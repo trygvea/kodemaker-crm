@@ -4,7 +4,7 @@
  */
 
 // Mock next/navigation hooks
-export const usePathname = () => '/cosmos'
+export const usePathname = () => "/cosmos";
 export const useRouter = () => ({
   push: () => {},
   replace: () => {},
@@ -12,4 +12,4 @@ export const useRouter = () => ({
   back: () => {},
   forward: () => {},
   prefetch: () => {},
-})
+});

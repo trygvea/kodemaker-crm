@@ -3,37 +3,19 @@ import { CompletionCheckbox } from "@/components/completion-checkbox";
 
 function UncompletedCheckbox() {
   const [completed, setCompleted] = useState(false);
-  return (
-    <CompletionCheckbox
-      completed={completed}
-      onClick={() => setCompleted(!completed)}
-    />
-  );
+  return <CompletionCheckbox completed={completed} onClick={() => setCompleted(!completed)} />;
 }
 
 function CompletedCheckbox() {
   const [completed, setCompleted] = useState(true);
-  return (
-    <CompletionCheckbox
-      completed={completed}
-      onClick={() => setCompleted(!completed)}
-    />
-  );
+  return <CompletionCheckbox completed={completed} onClick={() => setCompleted(!completed)} />;
 }
 
 function DisabledCheckbox() {
   return (
     <div className="flex flex-col gap-4">
-      <CompletionCheckbox
-        completed={false}
-        onClick={() => {}}
-        disabled={true}
-      />
-      <CompletionCheckbox
-        completed={true}
-        onClick={() => {}}
-        disabled={true}
-      />
+      <CompletionCheckbox completed={false} onClick={() => {}} disabled={true} />
+      <CompletionCheckbox completed={true} onClick={() => {}} disabled={true} />
     </div>
   );
 }
@@ -42,10 +24,7 @@ function InteractiveCheckbox() {
   const [completed, setCompleted] = useState(false);
   return (
     <div className="flex items-center gap-4">
-      <CompletionCheckbox
-        completed={completed}
-        onClick={() => setCompleted(!completed)}
-      />
+      <CompletionCheckbox completed={completed} onClick={() => setCompleted(!completed)} />
       <span className="text-sm text-muted-foreground">
         {completed ? "Completed" : "Uncompleted"} - Click to toggle
       </span>
@@ -59,40 +38,20 @@ function AllStates() {
   return (
     <div className="flex flex-col gap-6 p-4">
       <div className="flex items-center gap-4">
-        <CompletionCheckbox
-          completed={state1}
-          onClick={() => setState1(!state1)}
-        />
-        <span className="text-sm">
-          Uncompleted (hover to see gray checkmark)
-        </span>
+        <CompletionCheckbox completed={state1} onClick={() => setState1(!state1)} />
+        <span className="text-sm">Uncompleted (hover to see gray checkmark)</span>
       </div>
       <div className="flex items-center gap-4">
-        <CompletionCheckbox
-          completed={state2}
-          onClick={() => setState2(!state2)}
-        />
+        <CompletionCheckbox completed={state2} onClick={() => setState2(!state2)} />
         <span className="text-sm">Completed (green checkmark)</span>
       </div>
       <div className="flex items-center gap-4">
-        <CompletionCheckbox
-          completed={false}
-          onClick={() => {}}
-          disabled={true}
-        />
-        <span className="text-sm text-muted-foreground">
-          Disabled uncompleted
-        </span>
+        <CompletionCheckbox completed={false} onClick={() => {}} disabled={true} />
+        <span className="text-sm text-muted-foreground">Disabled uncompleted</span>
       </div>
       <div className="flex items-center gap-4">
-        <CompletionCheckbox
-          completed={true}
-          onClick={() => {}}
-          disabled={true}
-        />
-        <span className="text-sm text-muted-foreground">
-          Disabled completed
-        </span>
+        <CompletionCheckbox completed={true} onClick={() => {}} disabled={true} />
+        <span className="text-sm text-muted-foreground">Disabled completed</span>
       </div>
     </div>
   );

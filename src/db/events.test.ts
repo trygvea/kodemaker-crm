@@ -6,12 +6,14 @@ vi.mock("@/db/client", () => {
     db: {
       insert: vi.fn(() => ({
         values: () => ({
-          returning: () => [{
-            id: 1,
-            entity: "contact",
-            entityId: 2,
-            description: "desc",
-          }],
+          returning: () => [
+            {
+              id: 1,
+              entity: "contact",
+              entityId: 2,
+              description: "desc",
+            },
+          ],
         }),
       })),
     },

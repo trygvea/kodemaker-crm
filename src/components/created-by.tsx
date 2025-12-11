@@ -9,15 +9,12 @@ type CreatedByProps = {
 
 export function CreatedBy({ createdAt, createdBy, className }: CreatedByProps) {
   const fullName =
-    [createdBy?.firstName, createdBy?.lastName].filter(Boolean).join(" ")
-      .trim() || null;
+    [createdBy?.firstName, createdBy?.lastName].filter(Boolean).join(" ").trim() || null;
   const ts = new Date(createdAt);
   const formatted = formatDateTimeWithoutSeconds(ts);
   return (
     <div className={className ?? "text-xs text-muted-foreground mt-4"}>
-      {fullName
-        ? `Opprettet av ${fullName} ${formatted}`
-        : `Opprettet ${formatted}`}
+      {fullName ? `Opprettet av ${fullName} ${formatted}` : `Opprettet ${formatted}`}
     </div>
   );
 }

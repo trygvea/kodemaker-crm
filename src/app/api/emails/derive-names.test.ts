@@ -1,7 +1,4 @@
-import {
-  capitalizeNamePart,
-  deriveNamesFromEmailLocalPart,
-} from "./name-utils";
+import { capitalizeNamePart, deriveNamesFromEmailLocalPart } from "./name-utils";
 import { describe, expect, it } from "vitest";
 
 describe("name derivation", () => {

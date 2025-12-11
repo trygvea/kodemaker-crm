@@ -1,7 +1,5 @@
 type EntityReferenceProps = {
-  contact?:
-    | { id: number; firstName: string | null; lastName: string | null }
-    | null;
+  contact?: { id: number; firstName: string | null; lastName: string | null } | null;
   company?: { id: number; name: string } | null;
   lead?: { id: number; description: string } | null;
   contactEndDate?: string | null;
@@ -11,7 +9,7 @@ type EntityReferenceProps = {
 function formatEntityReference(
   contact: EntityReferenceProps["contact"],
   company: EntityReferenceProps["company"],
-  lead: EntityReferenceProps["lead"],
+  lead: EntityReferenceProps["lead"]
 ): string {
   const parts: string[] = [];
   if (lead) {
@@ -39,10 +37,7 @@ export function EntityReference({
   }
 
   // Only show "(sluttet)" when both contact and company exist
-  const hasSluttet = contact &&
-    company &&
-    contactEndDate !== null &&
-    contactEndDate !== undefined;
+  const hasSluttet = contact && company && contactEndDate !== null && contactEndDate !== undefined;
 
   if (entityLinks) {
     const parts: React.ReactNode[] = [];
@@ -54,10 +49,8 @@ export function EntityReference({
           href={`/leads/${lead.id}`}
           onClick={(e) => e.stopPropagation()}
         >
-          {lead.description.length > 50
-            ? `${lead.description.slice(0, 50)}…`
-            : lead.description}
-        </a>,
+          {lead.description.length > 50 ? `${lead.description.slice(0, 50)}…` : lead.description}
+        </a>
       );
     }
     if (lead && (contact || company)) {
@@ -72,7 +65,7 @@ export function EntityReference({
           onClick={(e) => e.stopPropagation()}
         >
           {(contact.firstName ?? "") + " " + (contact.lastName ?? "")}
-        </a>,
+        </a>
       );
     }
     if (contact && company) {
@@ -87,7 +80,7 @@ export function EntityReference({
           onClick={(e) => e.stopPropagation()}
         >
           {company.name}
-        </a>,
+        </a>
       );
     }
     return (

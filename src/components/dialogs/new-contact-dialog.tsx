@@ -12,11 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -58,19 +54,16 @@ export function NewContactDialog({
   open,
   onOpenChange,
 }: NewContactDialogProps) {
-  const schema = z
-    .object({
-      firstName: z.string().min(1),
-      lastName: z.string().min(1),
-      email: z.email({ error: "Ugyldig epost" }).optional().or(
-        z.literal(""),
-      ),
-      phone: z.string().optional(),
-      linkedInUrl: z.url({ error: "Ugyldig URL" }).optional().or(z.literal("")),
-      description: z.string().optional(),
-      companyId: z.number().optional(),
-      role: z.string().optional(),
-    });
+  const schema = z.object({
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    email: z.email({ error: "Ugyldig epost" }).optional().or(z.literal("")),
+    phone: z.string().optional(),
+    linkedInUrl: z.url({ error: "Ugyldig URL" }).optional().or(z.literal("")),
+    description: z.string().optional(),
+    companyId: z.number().optional(),
+    role: z.string().optional(),
+  });
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -90,17 +83,13 @@ export function NewContactDialog({
   const dialogOpen = isControlled ? open : internalOpen;
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companyQuery, setCompanyQuery] = useState("");
-  const [selectedCompany, setSelectedCompany] = useState<
-    {
-      id: number;
-      name: string;
-      emailDomain?: string | null;
-    } | null
-  >(null);
+  const [selectedCompany, setSelectedCompany] = useState<{
+    id: number;
+    name: string;
+    emailDomain?: string | null;
+  } | null>(null);
   const { data: companyOptions } = useSWR<Company[]>(
-    companyQuery
-      ? `/api/companies?q=${encodeURIComponent(companyQuery)}`
-      : null,
+    companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null
   );
   const { mutate: globalMutate } = useSWRConfig();
   const [emailManuallyEdited, setEmailManuallyEdited] = useState(false);
@@ -119,7 +108,7 @@ export function NewContactDialog({
   function buildEmailSuggestion(
     firstName: string,
     lastName: string,
-    domain: string | null | undefined,
+    domain: string | null | undefined
   ): string | undefined {
     if (!domain) return undefined;
     const cleanDomain = domain.replace(/^@/, "");
@@ -146,11 +135,7 @@ export function NewContactDialog({
 
   useEffect(() => {
     if (!domainFromSelection || emailManuallyEdited) return;
-    const suggestion = buildEmailSuggestion(
-      firstNameValue,
-      lastNameValue,
-      domainFromSelection,
-    );
+    const suggestion = buildEmailSuggestion(firstNameValue, lastNameValue, domainFromSelection);
     if (suggestion) {
       form.setValue("email", suggestion, { shouldDirty: true });
     }
@@ -192,10 +177,7 @@ export function NewContactDialog({
           <DialogTitle>Ny kontakt</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-3"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
             <FormField
               control={form.control}
               name="firstName"
@@ -240,9 +222,7 @@ export function NewContactDialog({
                           if (e.key.length === 1) {
                             setCompanyOpen(true);
                             setCompanyQuery(e.key);
-                          } else if (
-                            e.key === "Backspace" || e.key === "Delete"
-                          ) {
+                          } else if (e.key === "Backspace" || e.key === "Delete") {
                             setCompanyOpen(true);
                             setCompanyQuery("");
                           }
@@ -345,10 +325,7 @@ export function NewContactDialog({
                 <FormItem>
                   <FormLabel>LinkedIn</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://linkedin.com/in/..."
-                      {...field}
-                    />
+                    <Input placeholder="https://linkedin.com/in/..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -361,21 +338,14 @@ export function NewContactDialog({
                 <FormItem className="col-span-2">
                   <FormLabel>Beskrivelse</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Beskrivelse..."
-                      rows={3}
-                      {...field}
-                    />
+                    <Textarea placeholder="Beskrivelse..." rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="col-span-2 flex justify-end mt-6">
-              <Button
-                type="submit"
-                className="inline-flex items-center gap-1.5"
-              >
+              <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>

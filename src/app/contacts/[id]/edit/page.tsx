@@ -3,11 +3,7 @@ import useSWR from "swr";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -17,16 +13,7 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  CalendarIcon,
-  Check,
-  Edit2,
-  GitMerge,
-  Plus,
-  Save,
-  Trash2,
-  X,
-} from "lucide-react";
+import { CalendarIcon, Check, Edit2, GitMerge, Plus, Save, Trash2, X } from "lucide-react";
 import { MergeContactsDialog } from "@/components/merge-contacts-dialog";
 import { formatDate } from "@/lib/utils";
 
@@ -75,9 +62,7 @@ export default function EditContactPage() {
     Record<number, { startOpen?: boolean; endOpen?: boolean }>
   >({});
   const { data: companyOptions } = useSWR<Company[]>(
-    companyQuery
-      ? `/api/companies?q=${encodeURIComponent(companyQuery)}`
-      : null,
+    companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null
   );
   const [firstName, setFirstName] = useState(contact?.firstName || "");
   const [lastName, setLastName] = useState(contact?.lastName || "");
@@ -250,112 +235,93 @@ export default function EditContactPage() {
           <label className="block text-sm mb-1">E-postadresser</label>
           <div className="space-y-2">
             {emails.map((emailItem) => (
-              <div
-                key={emailItem.id}
-                className="flex items-center gap-2 p-2 border rounded"
-              >
-                {editingEmailId === emailItem.id
-                  ? (
-                    <>
-                      <input
-                        className="flex-1 border rounded p-1 text-sm"
-                        value={editingEmailAddress}
-                        onChange={(e) => setEditingEmailAddress(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            updateEmail(
-                              emailItem.id,
-                              editingEmailAddress,
-                              emailItem.active,
-                            );
-                          } else if (e.key === "Escape") {
-                            setEditingEmailId(null);
-                            setEditingEmailAddress("");
-                          }
-                        }}
-                        autoFocus
-                      />
-                      <label className="flex items-center text-sm">
-                        <input
-                          type="checkbox"
-                          checked={emailItem.active}
-                          onChange={(e) =>
-                            updateEmail(
-                              emailItem.id,
-                              editingEmailAddress,
-                              e.target.checked,
-                            )}
-                          className="mr-1"
-                        />
-                        Aktiv
-                      </label>
-                      <button
-                        onClick={() =>
-                          updateEmail(
-                            emailItem.id,
-                            editingEmailAddress,
-                            emailItem.active,
-                          )}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        <Check className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {
+              <div key={emailItem.id} className="flex items-center gap-2 p-2 border rounded">
+                {editingEmailId === emailItem.id ? (
+                  <>
+                    <input
+                      className="flex-1 border rounded p-1 text-sm"
+                      value={editingEmailAddress}
+                      onChange={(e) => setEditingEmailAddress(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          updateEmail(emailItem.id, editingEmailAddress, emailItem.active);
+                        } else if (e.key === "Escape") {
                           setEditingEmailId(null);
                           setEditingEmailAddress("");
-                        }}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </>
-                  )
-                  : (
-                    <>
-                      <span className="flex-1 text-sm">{emailItem.email}</span>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded ${
-                          emailItem.active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {emailItem.active ? "Aktiv" : "Inaktiv"}
-                      </span>
-                      <button
-                        onClick={() => {
-                          setEditingEmailId(emailItem.id);
-                          setEditingEmailAddress(emailItem.email);
-                        }}
-                        className="text-blue-600 hover:text-blue-700"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={async () => {
-                          await updateEmail(
-                            emailItem.id,
-                            emailItem.email,
-                            !emailItem.active,
-                          );
-                        }}
-                        className={`text-sm px-2 py-1 rounded ${
-                          emailItem.active
-                            ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            : "bg-green-200 text-green-700 hover:bg-green-300"
-                        }`}
-                      >
-                        {emailItem.active ? "Deaktiver" : "Aktiver"}
-                      </button>
-                      <button
-                        onClick={() => deleteEmail(emailItem.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </>
-                  )}
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <label className="flex items-center text-sm">
+                      <input
+                        type="checkbox"
+                        checked={emailItem.active}
+                        onChange={(e) =>
+                          updateEmail(emailItem.id, editingEmailAddress, e.target.checked)
+                        }
+                        className="mr-1"
+                      />
+                      Aktiv
+                    </label>
+                    <button
+                      onClick={() =>
+                        updateEmail(emailItem.id, editingEmailAddress, emailItem.active)
+                      }
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingEmailId(null);
+                        setEditingEmailAddress("");
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-sm">{emailItem.email}</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded ${
+                        emailItem.active
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {emailItem.active ? "Aktiv" : "Inaktiv"}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setEditingEmailId(emailItem.id);
+                        setEditingEmailAddress(emailItem.email);
+                      }}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await updateEmail(emailItem.id, emailItem.email, !emailItem.active);
+                      }}
+                      className={`text-sm px-2 py-1 rounded ${
+                        emailItem.active
+                          ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          : "bg-green-200 text-green-700 hover:bg-green-300"
+                      }`}
+                    >
+                      {emailItem.active ? "Deaktiver" : "Aktiver"}
+                    </button>
+                    <button
+                      onClick={() => deleteEmail(emailItem.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
               </div>
             ))}
             <div className="flex items-center gap-2">
@@ -460,193 +426,160 @@ export default function EditContactPage() {
         />
       )}
 
-      <div className="text-sm text-muted-foreground">
-        Endring av firmatilknytninger kommer her.
-      </div>
+      <div className="text-sm text-muted-foreground">Endring av firmatilknytninger kommer her.</div>
       <section className="space-y-2">
         <h3 className="text-sm font-medium">Firmatilknytninger</h3>
         <div className="border rounded divide-y">
-          {history.length
-            ? (
-              history.map((h) => (
-                <div
-                  key={h.id}
-                  className="p-3 grid grid-cols-6 gap-2 items-end"
-                >
-                  <div className="col-span-2">
-                    <div className="font-medium">{h.company.name}</div>
-                  </div>
-                  <div>
-                    <label className="block text-xs mb-1">Rolle</label>
-                    <input
-                      className="w-full border rounded p-2 text-sm"
-                      defaultValue={h.role || ""}
-                      placeholder="Rolle"
-                      onBlur={async (e) => {
-                        const v = e.currentTarget.value;
-                        if (v !== (h.role || "")) {
-                          const res = await fetch(
-                            `/api/contact-company-history/${h.id}`,
-                            {
-                              method: "PATCH",
-                              body: JSON.stringify({ role: v || null }),
-                            },
-                          );
-                          if (res.ok) {
-                            mutate();
-                          } else {
-                            const error = await res.json();
-                            alert(error.error || "Kunne ikke oppdatere rolle");
-                          }
+          {history.length ? (
+            history.map((h) => (
+              <div key={h.id} className="p-3 grid grid-cols-6 gap-2 items-end">
+                <div className="col-span-2">
+                  <div className="font-medium">{h.company.name}</div>
+                </div>
+                <div>
+                  <label className="block text-xs mb-1">Rolle</label>
+                  <input
+                    className="w-full border rounded p-2 text-sm"
+                    defaultValue={h.role || ""}
+                    placeholder="Rolle"
+                    onBlur={async (e) => {
+                      const v = e.currentTarget.value;
+                      if (v !== (h.role || "")) {
+                        const res = await fetch(`/api/contact-company-history/${h.id}`, {
+                          method: "PATCH",
+                          body: JSON.stringify({ role: v || null }),
+                        });
+                        if (res.ok) {
+                          mutate();
+                        } else {
+                          const error = await res.json();
+                          alert(error.error || "Kunne ikke oppdatere rolle");
                         }
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs mb-1">Start</label>
-                    <Popover
-                      open={historyDatePickers[h.id]?.startOpen || false}
-                      onOpenChange={(open) =>
-                        setHistoryDatePickers((prev) => ({
-                          ...prev,
-                          [h.id]: { ...prev[h.id], startOpen: open },
-                        }))}
-                    >
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal h-10 text-sm"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {h.startDate ? formatDate(h.startDate) : "Velg dato"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={h.startDate
-                            ? new Date(h.startDate)
-                            : undefined}
-                          onSelect={async (date) => {
-                            if (date) {
-                              const v = date.toISOString().slice(0, 10);
-                              if (v !== h.startDate) {
-                                const res = await fetch(
-                                  `/api/contact-company-history/${h.id}`,
-                                  {
-                                    method: "PATCH",
-                                    body: JSON.stringify({ startDate: v }),
-                                  },
-                                );
-                                if (res.ok) {
-                                  mutate();
-                                  setHistoryDatePickers((prev) => ({
-                                    ...prev,
-                                    [h.id]: { ...prev[h.id], startOpen: false },
-                                  }));
-                                } else {
-                                  const error = await res.json();
-                                  alert(
-                                    error.error ||
-                                      "Kunne ikke oppdatere startdato",
-                                  );
-                                }
+                      }
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs mb-1">Start</label>
+                  <Popover
+                    open={historyDatePickers[h.id]?.startOpen || false}
+                    onOpenChange={(open) =>
+                      setHistoryDatePickers((prev) => ({
+                        ...prev,
+                        [h.id]: { ...prev[h.id], startOpen: open },
+                      }))
+                    }
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-10 text-sm"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {h.startDate ? formatDate(h.startDate) : "Velg dato"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={h.startDate ? new Date(h.startDate) : undefined}
+                        onSelect={async (date) => {
+                          if (date) {
+                            const v = date.toISOString().slice(0, 10);
+                            if (v !== h.startDate) {
+                              const res = await fetch(`/api/contact-company-history/${h.id}`, {
+                                method: "PATCH",
+                                body: JSON.stringify({ startDate: v }),
+                              });
+                              if (res.ok) {
+                                mutate();
+                                setHistoryDatePickers((prev) => ({
+                                  ...prev,
+                                  [h.id]: { ...prev[h.id], startOpen: false },
+                                }));
+                              } else {
+                                const error = await res.json();
+                                alert(error.error || "Kunne ikke oppdatere startdato");
                               }
                             }
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div>
-                    <label className="block text-xs mb-1">Slutt</label>
-                    <Popover
-                      open={historyDatePickers[h.id]?.endOpen || false}
-                      onOpenChange={(open) =>
-                        setHistoryDatePickers((prev) => ({
-                          ...prev,
-                          [h.id]: { ...prev[h.id], endOpen: open },
-                        }))}
-                    >
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal h-10 text-sm"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {h.endDate ? formatDate(h.endDate) : "pågående"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={h.endDate ? new Date(h.endDate) : undefined}
-                          onSelect={async (date) => {
-                            const v = date
-                              ? date.toISOString().slice(0, 10)
-                              : "";
-                            const res = await fetch(
-                              `/api/contact-company-history/${h.id}`,
-                              {
-                                method: "PATCH",
-                                body: JSON.stringify({ endDate: v || null }),
-                              },
-                            );
-                            if (res.ok) {
-                              mutate();
-                              setHistoryDatePickers((prev) => ({
-                                ...prev,
-                                [h.id]: { ...prev[h.id], endOpen: false },
-                              }));
-                            } else {
-                              const error = await res.json();
-                              alert(
-                                error.error || "Kunne ikke oppdatere sluttdato",
-                              );
-                            }
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="text-right">
-                    {!h.endDate || h.endDate === ""
-                      ? (
-                        <button
-                          className="px-2 py-1 text-xs border rounded"
-                          onClick={async () => {
-                            const today = new Date().toISOString().slice(0, 10);
-                            const res = await fetch(
-                              `/api/contact-company-history/${h.id}`,
-                              {
-                                method: "PATCH",
-                                body: JSON.stringify({ endDate: today }),
-                              },
-                            );
-                            if (res.ok) {
-                              mutate();
-                            } else {
-                              const error = await res.json();
-                              alert(
-                                error.error ||
-                                  "Kunne ikke avslutte tilknytning",
-                              );
-                            }
-                          }}
-                        >
-                          Avslutt i dag
-                        </button>
-                      )
-                      : null}
-                  </div>
+                          }
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              ))
-            )
-            : (
-              <div className="p-3 text-sm text-muted-foreground">
-                Ingen tilknytninger
+                <div>
+                  <label className="block text-xs mb-1">Slutt</label>
+                  <Popover
+                    open={historyDatePickers[h.id]?.endOpen || false}
+                    onOpenChange={(open) =>
+                      setHistoryDatePickers((prev) => ({
+                        ...prev,
+                        [h.id]: { ...prev[h.id], endOpen: open },
+                      }))
+                    }
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-10 text-sm"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {h.endDate ? formatDate(h.endDate) : "pågående"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={h.endDate ? new Date(h.endDate) : undefined}
+                        onSelect={async (date) => {
+                          const v = date ? date.toISOString().slice(0, 10) : "";
+                          const res = await fetch(`/api/contact-company-history/${h.id}`, {
+                            method: "PATCH",
+                            body: JSON.stringify({ endDate: v || null }),
+                          });
+                          if (res.ok) {
+                            mutate();
+                            setHistoryDatePickers((prev) => ({
+                              ...prev,
+                              [h.id]: { ...prev[h.id], endOpen: false },
+                            }));
+                          } else {
+                            const error = await res.json();
+                            alert(error.error || "Kunne ikke oppdatere sluttdato");
+                          }
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="text-right">
+                  {!h.endDate || h.endDate === "" ? (
+                    <button
+                      className="px-2 py-1 text-xs border rounded"
+                      onClick={async () => {
+                        const today = new Date().toISOString().slice(0, 10);
+                        const res = await fetch(`/api/contact-company-history/${h.id}`, {
+                          method: "PATCH",
+                          body: JSON.stringify({ endDate: today }),
+                        });
+                        if (res.ok) {
+                          mutate();
+                        } else {
+                          const error = await res.json();
+                          alert(error.error || "Kunne ikke avslutte tilknytning");
+                        }
+                      }}
+                    >
+                      Avslutt i dag
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            )}
+            ))
+          ) : (
+            <div className="p-3 text-sm text-muted-foreground">Ingen tilknytninger</div>
+          )}
         </div>
         <div className="grid grid-cols-6 gap-2 items-end mt-3">
           <div className="col-span-2">
@@ -723,17 +656,11 @@ export default function EditContactPage() {
                   className="w-full justify-start text-left font-normal h-10 text-sm"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {newStartDate
-                    ? formatDate(newStartDate.toISOString())
-                    : "Velg dato"}
+                  {newStartDate ? formatDate(newStartDate.toISOString()) : "Velg dato"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={newStartDate}
-                  onSelect={setNewStartDate}
-                />
+                <Calendar mode="single" selected={newStartDate} onSelect={setNewStartDate} />
               </PopoverContent>
             </Popover>
           </div>
@@ -750,11 +677,7 @@ export default function EditContactPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={newEndDate}
-                  onSelect={setNewEndDate}
-                />
+                <Calendar mode="single" selected={newEndDate} onSelect={setNewEndDate} />
               </PopoverContent>
             </Popover>
           </div>

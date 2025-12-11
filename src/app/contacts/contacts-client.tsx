@@ -9,9 +9,7 @@ import type { ListContactsItem } from "@/types/api";
 export function ContactsClient() {
   const [q, setQ] = useState("");
   const query = q.trim();
-  const url = query.length >= 1
-    ? `/api/contacts?q=${encodeURIComponent(query)}`
-    : `/api/contacts`;
+  const url = query.length >= 1 ? `/api/contacts?q=${encodeURIComponent(query)}` : `/api/contacts`;
   const { data } = useSWR<ListContactsItem[]>(url);
   const rows = useMemo(() => data || [], [data]);
   const router = useRouter();
@@ -29,9 +27,9 @@ export function ContactsClient() {
         />
       </div>
       <div className="border rounded divide-y">
-        {rows.length === 0
-          ? <div className="p-3 text-sm text-muted-foreground">Ingen treff</div>
-          : null}
+        {rows.length === 0 ? (
+          <div className="p-3 text-sm text-muted-foreground">Ingen treff</div>
+        ) : null}
         {rows.map((r) => (
           <div
             key={r.id}
@@ -51,21 +49,17 @@ export function ContactsClient() {
                 <div className="font-medium">
                   {r.firstName} {r.lastName}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {r.role ?? ""}
-                </div>
+                <div className="text-xs text-muted-foreground">{r.role ?? ""}</div>
               </div>
-              {r.company
-                ? (
-                  <a
-                    href={`/customers/${r.company.id}`}
-                    className="text-sm underline"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {r.company.name}
-                  </a>
-                )
-                : null}
+              {r.company ? (
+                <a
+                  href={`/customers/${r.company.id}`}
+                  className="text-sm underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {r.company.name}
+                </a>
+              ) : null}
             </div>
           </div>
         ))}

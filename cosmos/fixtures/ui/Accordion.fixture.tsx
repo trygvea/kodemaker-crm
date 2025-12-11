@@ -1,4 +1,9 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default {
   default: (
@@ -13,6 +18,4 @@ export default {
       </AccordionItem>
     </Accordion>
   ),
-}
-
-
+};

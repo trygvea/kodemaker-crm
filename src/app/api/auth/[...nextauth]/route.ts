@@ -10,19 +10,19 @@ import { logger } from "@/lib/logger";
 if (!process.env.NEXTAUTH_SECRET) {
   logger.error(
     { route: "/api/auth" },
-    "NEXTAUTH_SECRET is not set. Authentication will not work properly.",
+    "NEXTAUTH_SECRET is not set. Authentication will not work properly."
   );
 }
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   logger.warn(
     { route: "/api/auth" },
-    "GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is not set. Google OAuth will not work.",
+    "GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is not set. Google OAuth will not work."
   );
 }
 if (!process.env.NEXTAUTH_URL && process.env.NODE_ENV === "production") {
   logger.warn(
     { route: "/api/auth" },
-    "NEXTAUTH_URL is not set in production. OAuth callbacks may fail.",
+    "NEXTAUTH_URL is not set in production. OAuth callbacks may fail."
   );
 }
 
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         if (!email) {
           logger.warn(
             { route: "/api/auth/signin" },
-            "Google OAuth sign-in attempted without email",
+            "Google OAuth sign-in attempted without email"
           );
           return false;
         }
@@ -54,13 +54,11 @@ export const authOptions: NextAuthOptions = {
         if (domain !== "kodemaker.no") {
           logger.warn(
             { route: "/api/auth/signin", email },
-            "Sign-in attempted with non-kodemaker.no email",
+            "Sign-in attempted with non-kodemaker.no email"
           );
           return false;
         }
-        const [existing] = await db.select().from(users).where(
-          eq(users.email, email),
-        ).limit(1);
+        const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
         if (!existing) {
           const name =
             profile && typeof profile === "object" && "name" in profile
@@ -86,24 +84,19 @@ export const authOptions: NextAuthOptions = {
           });
           logger.info(
             { route: "/api/auth/signin", email },
-            "Auto-provisioned new user during sign-in",
+            "Auto-provisioned new user during sign-in"
           );
         }
         return true;
       } catch (error) {
-        logger.error(
-          { route: "/api/auth/signin", error },
-          "Error in signIn callback",
-        );
+        logger.error({ route: "/api/auth/signin", error }, "Error in signIn callback");
         return false;
       }
     },
     async jwt({ token }) {
       try {
         if (token.email) {
-          const [u] = await db.select().from(users).where(
-            eq(users.email, token.email),
-          ).limit(1);
+          const [u] = await db.select().from(users).where(eq(users.email, token.email)).limit(1);
           if (u) {
             token.id = String(u.id);
             token.role = u.role;
@@ -111,10 +104,7 @@ export const authOptions: NextAuthOptions = {
         }
         return token;
       } catch (error) {
-        logger.error(
-          { route: "/api/auth/jwt", error },
-          "Error in jwt callback",
-        );
+        logger.error({ route: "/api/auth/jwt", error }, "Error in jwt callback");
         return token;
       }
     },

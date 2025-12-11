@@ -1,5 +1,5 @@
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export default {
   default: <Textarea placeholder="Skriv en kommentar..." />,
@@ -10,6 +10,4 @@ export default {
     </div>
   ),
   disabled: <Textarea placeholder="Kan ikke redigeres" disabled />,
-}
-
-
+};

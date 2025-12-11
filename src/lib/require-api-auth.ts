@@ -16,9 +16,7 @@ type AuthenticatedSession = Session & { user: NonNullable<Session["user"]> };
  * const userId = Number(session.user.id);
  * ```
  */
-export async function requireApiAuth(): Promise<
-  AuthenticatedSession | NextResponse
-> {
+export async function requireApiAuth(): Promise<AuthenticatedSession | NextResponse> {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -58,12 +58,8 @@
           "name": "comments_company_id_companies_id_fk",
           "tableFrom": "comments",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -71,12 +67,8 @@
           "name": "comments_contact_id_contacts_id_fk",
           "tableFrom": "comments",
           "tableTo": "contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -84,12 +76,8 @@
           "name": "comments_lead_id_leads_id_fk",
           "tableFrom": "comments",
           "tableTo": "leads",
-          "columnsFrom": [
-            "lead_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lead_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -97,12 +85,8 @@
           "name": "comments_created_by_user_id_users_id_fk",
           "tableFrom": "comments",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -173,12 +157,8 @@
           "name": "companies_created_by_user_id_users_id_fk",
           "tableFrom": "companies",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -230,12 +210,8 @@
           "name": "contact_company_history_contact_id_contacts_id_fk",
           "tableFrom": "contact_company_history",
           "tableTo": "contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -243,12 +219,8 @@
           "name": "contact_company_history_company_id_companies_id_fk",
           "tableFrom": "contact_company_history",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -302,12 +274,8 @@
           "name": "contact_emails_contact_id_contacts_id_fk",
           "tableFrom": "contact_emails",
           "tableTo": "contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -378,12 +346,8 @@
           "name": "contacts_created_by_user_id_users_id_fk",
           "tableFrom": "contacts",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -455,12 +419,8 @@
           "name": "emails_recipient_company_id_companies_id_fk",
           "tableFrom": "emails",
           "tableTo": "companies",
-          "columnsFrom": [
-            "recipient_company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recipient_company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -468,12 +428,8 @@
           "name": "emails_recipient_contact_id_contacts_id_fk",
           "tableFrom": "emails",
           "tableTo": "contacts",
-          "columnsFrom": [
-            "recipient_contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recipient_contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -481,12 +437,8 @@
           "name": "emails_source_user_id_users_id_fk",
           "tableFrom": "emails",
           "tableTo": "users",
-          "columnsFrom": [
-            "source_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -608,12 +560,8 @@
           "name": "followups_company_id_companies_id_fk",
           "tableFrom": "followups",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -621,12 +569,8 @@
           "name": "followups_contact_id_contacts_id_fk",
           "tableFrom": "followups",
           "tableTo": "contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -634,12 +578,8 @@
           "name": "followups_lead_id_leads_id_fk",
           "tableFrom": "followups",
           "tableTo": "leads",
-          "columnsFrom": [
-            "lead_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lead_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -647,12 +587,8 @@
           "name": "followups_created_by_user_id_users_id_fk",
           "tableFrom": "followups",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -726,12 +662,8 @@
           "name": "leads_company_id_companies_id_fk",
           "tableFrom": "leads",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -739,12 +671,8 @@
           "name": "leads_contact_id_contacts_id_fk",
           "tableFrom": "leads",
           "tableTo": "contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -752,12 +680,8 @@
           "name": "leads_created_by_user_id_users_id_fk",
           "tableFrom": "leads",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -831,9 +755,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -845,37 +767,22 @@
     "public.email_mode": {
       "name": "email_mode",
       "schema": "public",
-      "values": [
-        "FORWARDED",
-        "BCC"
-      ]
+      "values": ["FORWARDED", "BCC"]
     },
     "public.event_entity": {
       "name": "event_entity",
       "schema": "public",
-      "values": [
-        "company",
-        "contact",
-        "lead"
-      ]
+      "values": ["company", "contact", "lead"]
     },
     "public.lead_status": {
       "name": "lead_status",
       "schema": "public",
-      "values": [
-        "NEW",
-        "IN_PROGRESS",
-        "LOST",
-        "WON"
-      ]
+      "values": ["NEW", "IN_PROGRESS", "LOST", "WON"]
     },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "admin",
-        "user"
-      ]
+      "values": ["admin", "user"]
     }
   },
   "schemas": {},

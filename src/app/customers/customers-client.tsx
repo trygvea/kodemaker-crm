@@ -23,11 +23,8 @@ export function CustomersClient() {
   const { data } = useSWR<Company[]>(`/api/companies`);
   const [search, setSearch] = useState("");
   const filtered = useMemo(
-    () =>
-      (data || []).filter((c) =>
-        c.name.toLowerCase().includes(search.toLowerCase())
-      ),
-    [data, search],
+    () => (data || []).filter((c) => c.name.toLowerCase().includes(search.toLowerCase())),
+    [data, search]
   );
   const router = useRouter();
 
@@ -45,8 +42,7 @@ export function CustomersClient() {
       </div>
       <div className="divide-y border rounded">
         {filtered.map((c) => {
-          const newOrInProgress = (c.leadCounts?.NEW ?? 0) +
-            (c.leadCounts?.IN_PROGRESS ?? 0);
+          const newOrInProgress = (c.leadCounts?.NEW ?? 0) + (c.leadCounts?.IN_PROGRESS ?? 0);
           const showActiveLead = newOrInProgress > 1;
 
           return (
@@ -65,11 +61,7 @@ export function CustomersClient() {
             >
               <div className="font-medium">{c.name}</div>
               <div className="flex items-center gap-2">
-                {showActiveLead && (
-                  <Badge variant="secondary">
-                    Aktiv lead
-                  </Badge>
-                )}
+                {showActiveLead && <Badge variant="secondary">Aktiv lead</Badge>}
               </div>
             </div>
           );

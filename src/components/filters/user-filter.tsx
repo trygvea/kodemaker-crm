@@ -4,11 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { Check, Filter, Loader2, User, UserMinus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -59,11 +55,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
 
   // Reset to "mine" if the selected user no longer exists (e.g., was deleted)
   useEffect(() => {
-    if (
-      typeof value === "number" &&
-      users &&
-      !users.some((u) => u.id === value)
-    ) {
+    if (typeof value === "number" && users && !users.some((u) => u.id === value)) {
       onChange("mine");
     }
   }, [value, users, onChange]);
@@ -109,10 +101,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
           )}
         >
           <Filter
-            className={cn(
-              "h-4 w-4",
-              isFiltered ? "text-primary" : "text-muted-foreground"
-            )}
+            className={cn("h-4 w-4", isFiltered ? "text-primary" : "text-muted-foreground")}
             aria-hidden="true"
           />
           <span>{displayText}</span>
@@ -121,11 +110,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
       </PopoverTrigger>
       <PopoverContent className="w-[220px] p-0" align="end">
         <Command>
-          <CommandInput
-            placeholder="Søk bruker..."
-            value={query}
-            onValueChange={setQuery}
-          />
+          <CommandInput placeholder="Søk bruker..." value={query} onValueChange={setQuery} />
           <CommandList>
             <CommandEmpty>Ingen treff</CommandEmpty>
             <CommandGroup>
@@ -140,10 +125,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
                 <User className="mr-2 h-4 w-4" />
                 Mine
                 <Check
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    value === "mine" ? "opacity-100" : "opacity-0"
-                  )}
+                  className={cn("ml-auto h-4 w-4", value === "mine" ? "opacity-100" : "opacity-0")}
                 />
               </CommandItem>
               <CommandItem
@@ -157,10 +139,7 @@ export function UserFilter({ value, onChange, className }: UserFilterProps) {
                 <Users className="mr-2 h-4 w-4" />
                 Alle
                 <Check
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    value === "all" ? "opacity-100" : "opacity-0"
-                  )}
+                  className={cn("ml-auto h-4 w-4", value === "all" ? "opacity-100" : "opacity-0")}
                 />
               </CommandItem>
               <CommandItem

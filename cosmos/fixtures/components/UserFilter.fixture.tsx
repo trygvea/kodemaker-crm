@@ -1,26 +1,16 @@
 import { useState } from "react";
 import { delay, http, HttpResponse } from "msw";
-import {
-  UserFilter,
-  type UserFilterValue,
-} from "@/components/filters/user-filter";
+import { UserFilter, type UserFilterValue } from "@/components/filters/user-filter";
 import { useFixtureHandlers } from "../../mocks/msw-worker";
 
-function InteractiveUserFilter({
-  initialValue = "mine",
-}: {
-  initialValue?: UserFilterValue;
-}) {
+function InteractiveUserFilter({ initialValue = "mine" }: { initialValue?: UserFilterValue }) {
   const [value, setValue] = useState<UserFilterValue>(initialValue);
 
   return (
     <div className="space-y-4">
       <UserFilter value={value} onChange={setValue} />
       <div className="text-sm text-muted-foreground">
-        Current value:{" "}
-        <code className="bg-muted px-1 py-0.5 rounded">
-          {JSON.stringify(value)}
-        </code>
+        Current value: <code className="bg-muted px-1 py-0.5 rounded">{JSON.stringify(value)}</code>
       </div>
     </div>
   );
@@ -58,9 +48,7 @@ function SelectedUserFilter() {
   return (
     <div className="space-y-4">
       <UserFilter value={value} onChange={setValue} />
-      <p className="text-sm text-muted-foreground">
-        A specific user is selected (Per Hansen)
-      </p>
+      <p className="text-sm text-muted-foreground">A specific user is selected (Per Hansen)</p>
     </div>
   );
 }
@@ -72,8 +60,7 @@ function DeletedUserFilter() {
     <div className="space-y-4">
       <UserFilter value={value} onChange={setValue} />
       <p className="text-sm text-muted-foreground">
-        Selected user (id: 999) doesn&apos;t exist - will auto-reset to
-        &quot;Mine&quot;
+        Selected user (id: 999) doesn&apos;t exist - will auto-reset to &quot;Mine&quot;
       </p>
     </div>
   );
@@ -86,8 +73,7 @@ function ExcludeMineFilter() {
     <div className="space-y-4">
       <UserFilter value={value} onChange={setValue} />
       <p className="text-sm text-muted-foreground">
-        &quot;Uten mine&quot; - shows all followups except those assigned to
-        current user
+        &quot;Uten mine&quot; - shows all followups except those assigned to current user
       </p>
     </div>
   );

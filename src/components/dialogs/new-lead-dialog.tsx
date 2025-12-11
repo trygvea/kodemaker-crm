@@ -19,11 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -92,12 +88,10 @@ export function NewLeadDialog({
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const { data: companies } = useSWR<Company[]>(
-    companyQuery
-      ? `/api/companies?q=${encodeURIComponent(companyQuery)}`
-      : null,
+    companyQuery ? `/api/companies?q=${encodeURIComponent(companyQuery)}` : null
   );
   const { data: contacts } = useSWR<Contact[]>(
-    contactQuery ? `/api/contacts?q=${encodeURIComponent(contactQuery)}` : null,
+    contactQuery ? `/api/contacts?q=${encodeURIComponent(contactQuery)}` : null
   );
   const { data: selectedContactDetails } = useSWR<{
     currentCompany: { id: number; name: string } | null;
@@ -159,12 +153,8 @@ export function NewLeadDialog({
     const refreshContactId = selectedContact?.id ?? contactId;
     await Promise.all([
       globalMutate("/api/companies"),
-      refreshCompanyId
-        ? globalMutate(`/api/companies/${refreshCompanyId}`)
-        : Promise.resolve(),
-      refreshContactId
-        ? globalMutate(`/api/contacts/${refreshContactId}`)
-        : Promise.resolve(),
+      refreshCompanyId ? globalMutate(`/api/companies/${refreshCompanyId}`) : Promise.resolve(),
+      refreshContactId ? globalMutate(`/api/contacts/${refreshContactId}`) : Promise.resolve(),
     ]);
     handleOpenChange(false);
   }
@@ -242,9 +232,7 @@ export function NewLeadDialog({
                             if (e.key.length === 1) {
                               setKOpen(true);
                               setContactQuery(e.key);
-                            } else if (
-                              e.key === "Backspace" || e.key === "Delete"
-                            ) {
+                            } else if (e.key === "Backspace" || e.key === "Delete") {
                               setKOpen(true);
                               setContactQuery("");
                             }
@@ -310,16 +298,13 @@ export function NewLeadDialog({
                             if (e.key.length === 1) {
                               setCOpen(true);
                               setCompanyQuery(e.key);
-                            } else if (
-                              e.key === "Backspace" || e.key === "Delete"
-                            ) {
+                            } else if (e.key === "Backspace" || e.key === "Delete") {
                               setCOpen(true);
                               setCompanyQuery("");
                             }
                           }}
                         >
-                          {selectedCompany?.name || companyName ||
-                            "Velg organisasjon"}
+                          {selectedCompany?.name || companyName || "Velg organisasjon"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
@@ -361,10 +346,7 @@ export function NewLeadDialog({
             </div>
 
             <div className="flex justify-end mt-6">
-              <Button
-                type="submit"
-                className="inline-flex items-center gap-1.5"
-              >
+              <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>

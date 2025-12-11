@@ -28,16 +28,10 @@ export default {
       </TabsList>
       <TabsContent value="tab1">
         <div className="p-4 space-y-3">
-          <textarea
-            rows={3}
-            className="w-full border rounded p-2 text-sm"
-            placeholder="Notat…"
-          />
+          <textarea rows={3} className="w-full border rounded p-2 text-sm" placeholder="Notat…" />
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-muted-foreground mb-1">
-                Frist
-              </label>
+              <label className="block text-xs text-muted-foreground mb-1">Frist</label>
               <DatePicker placeholder="Velg dato" />
             </div>
           </div>

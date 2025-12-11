@@ -1,5 +1,5 @@
-'use client'
-import Link from 'next/link'
+"use client";
+import Link from "next/link";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,13 +7,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Fragment } from 'react'
+} from "@/components/ui/breadcrumb";
+import { Fragment } from "react";
 
-type Crumb = { label: string; href?: string }
+type Crumb = { label: string; href?: string };
 
 export function PageBreadcrumbs({ items }: { items: Crumb[] }) {
-  if (!items?.length) return null
+  if (!items?.length) return null;
   return (
     <div className="mx-auto max-w-6xl px-0 py-2">
       <Breadcrumb>
@@ -35,5 +35,5 @@ export function PageBreadcrumbs({ items }: { items: Crumb[] }) {
         </BreadcrumbList>
       </Breadcrumb>
     </div>
-  )
+  );
 }

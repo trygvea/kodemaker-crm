@@ -43,9 +43,7 @@ export type ApiEmail = {
   content: string;
   createdAt: string;
   sourceUser?: { firstName?: string | null; lastName?: string | null } | null;
-  recipientContact?:
-    | { firstName?: string | null; lastName?: string | null }
-    | null;
+  recipientContact?: { firstName?: string | null; lastName?: string | null } | null;
 };
 
 export type ApiContactEmail = {

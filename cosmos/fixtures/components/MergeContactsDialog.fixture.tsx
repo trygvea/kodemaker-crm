@@ -1,10 +1,10 @@
-import { MergeContactsDialog } from '@/components/merge-contacts-dialog'
+import { MergeContactsDialog } from "@/components/merge-contacts-dialog";
 
 const SOURCE_CONTACT = {
   id: 1,
-  firstName: 'Kari',
-  lastName: 'Nordmann',
-}
+  firstName: "Kari",
+  lastName: "Nordmann",
+};
 
 const COUNTS = {
   emailAddresses: 2,
@@ -13,7 +13,7 @@ const COUNTS = {
   comments: 3,
   events: 4,
   followups: 2,
-}
+};
 
 export default {
   open: (
@@ -25,6 +25,4 @@ export default {
       onMerge={async () => undefined}
     />
   ),
-}
-
-
+};

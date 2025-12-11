@@ -37,12 +37,12 @@ Example:
 
 ```tsx
 // cosmos/fixtures/ui/Button.fixture.tsx
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
 export default {
   default: <Button>Standard</Button>,
   destructive: <Button variant="destructive">Slett</Button>,
-}
+};
 ```
 
 Keep fixtures small and focused: 3–6 variants that reflect real usage in the
@@ -55,19 +55,19 @@ These should use realistic props and Norwegian copy.
 
 ```tsx
 // cosmos/fixtures/components/PageBreadcrumbs.fixture.tsx
-import { PageBreadcrumbs } from '@/components/page-breadcrumbs'
+import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
 
 export default {
   customer: (
     <PageBreadcrumbs
       items={[
-        { label: 'Organisasjoner', href: '/customers' },
-        { label: 'Kodemaker', href: '/customers/1' },
-        { label: 'Detaljer' },
+        { label: "Organisasjoner", href: "/customers" },
+        { label: "Kodemaker", href: "/customers/1" },
+        { label: "Detaljer" },
       ]}
     />
   ),
-}
+};
 ```
 
 ## Mock Modules
@@ -92,12 +92,12 @@ their normal imports.
   `cosmos/mocks/msw-worker`:
 
 ```tsx
-import { http, HttpResponse } from 'msw'
-import { useFixtureHandlers } from '../mocks/msw-worker'
+import { http, HttpResponse } from "msw";
+import { useFixtureHandlers } from "../mocks/msw-worker";
 
 function LoadingFixture() {
-  useFixtureHandlers([http.get('/api/followups', () => HttpResponse.json([]))])
-  return <YourComponent />
+  useFixtureHandlers([http.get("/api/followups", () => HttpResponse.json([]))]);
+  return <YourComponent />;
 }
 ```
 

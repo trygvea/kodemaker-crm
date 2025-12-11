@@ -1,4 +1,10 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default {
   default: (
@@ -18,6 +24,4 @@ export default {
       </BreadcrumbList>
     </Breadcrumb>
   ),
-}
-
-
+};

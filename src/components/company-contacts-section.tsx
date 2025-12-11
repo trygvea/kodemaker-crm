@@ -9,9 +9,7 @@ type CompanyContactsSectionProps = {
   contacts: GetCompanyDetailResponse["contacts"];
 };
 
-export function CompanyContactsSection(
-  { company, contacts }: CompanyContactsSectionProps,
-) {
+export function CompanyContactsSection({ company, contacts }: CompanyContactsSectionProps) {
   const router = useRouter();
 
   return (
@@ -21,40 +19,40 @@ export function CompanyContactsSection(
         <NewContactDialog companyId={company.id} companyName={company.name} />
       </div>
       <div className="divide-y rounded border">
-        {contacts.length
-          ? (
-            contacts.map((c) => (
-              <div
-                key={c.id}
-                className="flex cursor-pointer items-center justify-between p-3 hover:bg-muted"
-                role="button"
-                tabIndex={0}
-                onClick={() => router.push(`/contacts/${c.id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    router.push(`/contacts/${c.id}`);
-                  }
-                }}
-              >
-                <div>
-                  <div className="font-medium">
-                    {c.firstName} {c.lastName}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {c.role ?? ""}
-                    {c.endDate && (
-                      <>
-                        {c.role ? " · " : ""}
-                        Sluttet: {formatDate(c.endDate)}
-                      </>
-                    )}
-                  </div>
+        {contacts.length ? (
+          contacts.map((c) => (
+            <div
+              key={c.id}
+              className="flex cursor-pointer items-center justify-between p-3 hover:bg-muted"
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push(`/contacts/${c.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push(`/contacts/${c.id}`);
+                }
+              }}
+            >
+              <div>
+                <div className="font-medium">
+                  {c.firstName} {c.lastName}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {c.role ?? ""}
+                  {c.endDate && (
+                    <>
+                      {c.role ? " · " : ""}
+                      Sluttet: {formatDate(c.endDate)}
+                    </>
+                  )}
                 </div>
               </div>
-            ))
-          )
-          : <div className="p-3 text-sm text-muted-foreground">Ingen</div>}
+            </div>
+          ))
+        ) : (
+          <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+        )}
       </div>
     </section>
   );

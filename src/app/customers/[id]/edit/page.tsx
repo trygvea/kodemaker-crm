@@ -18,9 +18,7 @@ export default function EditCompanyPage() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
   const router = useRouter();
-  const { data, mutate } = useSWR<{ company: Company }>(
-    id ? `/api/companies/${id}` : null,
-  );
+  const { data, mutate } = useSWR<{ company: Company }>(id ? `/api/companies/${id}` : null);
   const company = data?.company;
   const [name, setName] = useState(company?.name || "");
   const [websiteUrl, setWebsiteUrl] = useState(company?.websiteUrl || "");
@@ -107,10 +105,7 @@ export default function EditCompanyPage() {
             <Trash2 className="h-4 w-4" /> Slett
           </Button>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/customers/${id}`)}
-            >
+            <Button variant="outline" onClick={() => router.push(`/customers/${id}`)}>
               <X className="h-4 w-4" /> Avbryt
             </Button>
             <Button onClick={save}>

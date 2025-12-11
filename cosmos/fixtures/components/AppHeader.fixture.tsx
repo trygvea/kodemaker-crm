@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header'
+import { AppHeader } from "@/components/app-header";
 
 export default {
   authenticated: <AppHeader />,
-}
+};

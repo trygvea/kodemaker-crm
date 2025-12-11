@@ -30,8 +30,7 @@ describe("parsePostmarkInboundEmail", () => {
           MailboxHash: "",
         },
       ],
-      OriginalRecipient:
-        "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+      OriginalRecipient: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
       Subject: "Viktig melding",
       MessageID: "bbd76670-8726-4670-9dc7-af593d1608b6",
       ReplyTo: "",

@@ -86,9 +86,7 @@ export function NewCompanyDialog({
   return (
     <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       {trigger !== null && (
-        <DialogTrigger asChild>
-          {trigger ?? <Button>Ny organisasjon</Button>}
-        </DialogTrigger>
+        <DialogTrigger asChild>{trigger ?? <Button>Ny organisasjon</Button>}</DialogTrigger>
       )}
       <DialogContent>
         <DialogHeader>
@@ -116,10 +114,7 @@ export function NewCompanyDialog({
                 <FormItem>
                   <FormLabel>Webadresse</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://example.com"
-                      {...field}
-                    />
+                    <Input placeholder="https://example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,10 +127,7 @@ export function NewCompanyDialog({
                 <FormItem>
                   <FormLabel>E-post-domene</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="example.com"
-                      {...field}
-                    />
+                    <Input placeholder="example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,21 +140,14 @@ export function NewCompanyDialog({
                 <FormItem>
                   <FormLabel>Beskrivelse</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Beskrivelse..."
-                      rows={3}
-                      {...field}
-                    />
+                    <Textarea placeholder="Beskrivelse..." rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end mt-6">
-              <Button
-                type="submit"
-                className="inline-flex items-center gap-1.5"
-              >
+              <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>

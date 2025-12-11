@@ -27,24 +27,22 @@ export function CompletionCheckbox({
         completed
           ? "border-green-600 bg-green-600"
           : "border-muted-foreground/40 bg-transparent hover:border-muted-foreground",
-        className,
+        className
       )}
       style={{ width: "22px", height: "22px", minWidth: "22px" }}
       aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
       aria-checked={completed}
       role="checkbox"
     >
-      {completed
-        ? <Check className="h-4 w-4 text-white" strokeWidth={3} />
-        : (
-          <Check
-            className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity peer-hover:opacity-100"
-            strokeWidth={2.5}
-          />
-        )}
-      <span className="sr-only">
-        {completed ? "Mark as incomplete" : "Mark as complete"}
-      </span>
+      {completed ? (
+        <Check className="h-4 w-4 text-white" strokeWidth={3} />
+      ) : (
+        <Check
+          className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity peer-hover:opacity-100"
+          strokeWidth={2.5}
+        />
+      )}
+      <span className="sr-only">{completed ? "Mark as incomplete" : "Mark as complete"}</span>
     </button>
   );
 }

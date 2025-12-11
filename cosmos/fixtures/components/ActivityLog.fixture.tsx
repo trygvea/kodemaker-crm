@@ -14,12 +14,6 @@ function EmptyActivityLog() {
 }
 
 export default {
-  default: (
-    <ActivityLog
-      contactId={1}
-      companyId={1}
-      initialEmails={INITIAL_MOCK_STATE.emails}
-    />
-  ),
+  default: <ActivityLog contactId={1} companyId={1} initialEmails={INITIAL_MOCK_STATE.emails} />,
   empty: <EmptyActivityLog />,
 };

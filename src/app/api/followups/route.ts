@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/client";
-import {
-  companies,
-  contactCompanyHistory,
-  contacts,
-  followups,
-  users,
-} from "@/db/schema";
+import { companies, contactCompanyHistory, contacts, followups, users } from "@/db/schema";
 import { z } from "zod";
 import { requireApiAuth } from "@/lib/require-api-auth";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  inArray,
-  isNotNull,
-  isNull,
-  ne,
-} from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, ne } from "drizzle-orm";
 import { createEventFollowupCreated } from "@/db/events";
 import { logger } from "@/lib/logger";
 import { authOptions } from "../auth/[...nextauth]/route";
@@ -35,29 +20,50 @@ const createFollowupSchema = z.object({
 });
 
 const queryParamsSchema = z.object({
-  all: z.string().optional().transform((val) => val === "1"),
-  excludeMine: z.string().optional().transform((val) => val === "1"),
-  completed: z.string().optional().transform((val) => val === "1"),
-  contactId: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const num = Number(val);
-    return isNaN(num) || num <= 0 ? undefined : num;
-  }),
-  companyId: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const num = Number(val);
-    return isNaN(num) || num <= 0 ? undefined : num;
-  }),
-  leadId: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const num = Number(val);
-    return isNaN(num) || num <= 0 ? undefined : num;
-  }),
-  userId: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const num = Number(val);
-    return isNaN(num) || num <= 0 ? undefined : num;
-  }),
+  all: z
+    .string()
+    .optional()
+    .transform((val) => val === "1"),
+  excludeMine: z
+    .string()
+    .optional()
+    .transform((val) => val === "1"),
+  completed: z
+    .string()
+    .optional()
+    .transform((val) => val === "1"),
+  contactId: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const num = Number(val);
+      return isNaN(num) || num <= 0 ? undefined : num;
+    }),
+  companyId: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const num = Number(val);
+      return isNaN(num) || num <= 0 ? undefined : num;
+    }),
+  leadId: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const num = Number(val);
+      return isNaN(num) || num <= 0 ? undefined : num;
+    }),
+  userId: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const num = Number(val);
+      return isNaN(num) || num <= 0 ? undefined : num;
+    }),
 });
 
 export async function GET(req: NextRequest) {
@@ -79,9 +85,12 @@ export async function GET(req: NextRequest) {
     });
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid query parameters" }, {
-        status: 400,
-      });
+      return NextResponse.json(
+        { error: "Invalid query parameters" },
+        {
+          status: 400,
+        }
+      );
     }
 
     const {
@@ -100,10 +109,10 @@ export async function GET(req: NextRequest) {
     const scope = contactId
       ? eq(followups.contactId, contactId)
       : companyId
-      ? eq(followups.companyId, companyId)
-      : leadId
-      ? eq(followups.leadId, leadId)
-      : undefined;
+        ? eq(followups.companyId, companyId)
+        : leadId
+          ? eq(followups.leadId, leadId)
+          : undefined;
 
     // Determine user filter based on assignedToUserId (who the task is delegated to)
     // - filterUserId: show followups assigned to a specific user
@@ -113,16 +122,12 @@ export async function GET(req: NextRequest) {
     const userFilter = filterUserId
       ? eq(followups.assignedToUserId, filterUserId)
       : excludeMine
-      ? ne(followups.assignedToUserId, userId!)
-      : all
-      ? undefined
-      : eq(followups.assignedToUserId, userId!);
+        ? ne(followups.assignedToUserId, userId!)
+        : all
+          ? undefined
+          : eq(followups.assignedToUserId, userId!);
 
-    const where = and(
-      baseCondition,
-      scope,
-      userFilter,
-    );
+    const where = and(baseCondition, scope, userFilter);
 
     const rows = await db
       .select({
@@ -140,10 +145,7 @@ export async function GET(req: NextRequest) {
       .from(followups)
       .leftJoin(users, eq(users.id, followups.createdByUserId))
       .where(where)
-      .orderBy(
-        completed ? desc(followups.completedAt) : asc(followups.dueAt),
-        asc(followups.id),
-      )
+      .orderBy(completed ? desc(followups.completedAt) : asc(followups.dueAt), asc(followups.id))
       .limit(200);
 
     // Collect company and contact IDs directly from followups
@@ -155,12 +157,10 @@ export async function GET(req: NextRequest) {
     }
 
     const assignedToUserIds = Array.from(
-      new Set(rows.map((r) => r.assignedToUserId).filter(Boolean)),
+      new Set(rows.map((r) => r.assignedToUserId).filter(Boolean))
     ) as number[];
-    let assignedToUsersById: Record<
-      number,
-      { id: number; firstName: string; lastName: string }
-    > = {};
+    let assignedToUsersById: Record<number, { id: number; firstName: string; lastName: string }> =
+      {};
     if (assignedToUserIds.length) {
       const assignedRows = await db
         .select({
@@ -170,9 +170,7 @@ export async function GET(req: NextRequest) {
         })
         .from(users)
         .where(inArray(users.id, assignedToUserIds));
-      assignedToUsersById = Object.fromEntries(
-        assignedRows.map((u) => [u.id, u]),
-      );
+      assignedToUsersById = Object.fromEntries(assignedRows.map((u) => [u.id, u]));
     }
 
     let companiesById: Record<number, { id: number; name: string }> = {};
@@ -200,8 +198,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch contact-company endDate relationships for "sluttet" status
-    const contactCompanyPairs: Array<{ contactId: number; companyId: number }> =
-      [];
+    const contactCompanyPairs: Array<{ contactId: number; companyId: number }> = [];
     for (const r of rows) {
       if (r.contactId && r.companyId) {
         contactCompanyPairs.push({
@@ -211,15 +208,10 @@ export async function GET(req: NextRequest) {
       }
     }
     const uniquePairs = Array.from(
-      new Map(
-        contactCompanyPairs.map((p) => [`${p.contactId}-${p.companyId}`, p]),
-      ).values(),
+      new Map(contactCompanyPairs.map((p) => [`${p.contactId}-${p.companyId}`, p])).values()
     );
 
-    const contactCompanyEndDates: Record<
-      string,
-      string | null
-    > = {};
+    const contactCompanyEndDates: Record<string, string | null> = {};
     if (uniquePairs.length > 0) {
       // Fetch all history entries for all contact-company pairs at once
       const pairContactIds = uniquePairs.map((p) => p.contactId);
@@ -235,18 +227,17 @@ export async function GET(req: NextRequest) {
         .where(
           and(
             inArray(contactCompanyHistory.contactId, pairContactIds),
-            inArray(contactCompanyHistory.companyId, pairCompanyIds),
-          ),
+            inArray(contactCompanyHistory.companyId, pairCompanyIds)
+          )
         )
         .orderBy(
           contactCompanyHistory.contactId,
           contactCompanyHistory.companyId,
-          desc(contactCompanyHistory.startDate),
+          desc(contactCompanyHistory.startDate)
         );
 
       // Group by contact-company pair and take the most recent entry
-      const historyByPair: Record<string, Array<typeof allHistoryEntries[0]>> =
-        {};
+      const historyByPair: Record<string, Array<(typeof allHistoryEntries)[0]>> = {};
       for (const entry of allHistoryEntries) {
         const key = `${entry.contactId}-${entry.companyId}`;
         if (!historyByPair[key]) {
@@ -281,9 +272,7 @@ export async function GET(req: NextRequest) {
         completedAt: r.completedAt,
         createdAt: r.createdAt,
         createdBy: r.createdBy,
-        assignedTo: r.assignedToUserId
-          ? (assignedToUsersById[r.assignedToUserId] ?? null)
-          : null,
+        assignedTo: r.assignedToUserId ? (assignedToUsersById[r.assignedToUserId] ?? null) : null,
         company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
         contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
         lead: null,
@@ -293,14 +282,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    logger.error(
-      { route: "/api/followups", method: "GET", error },
-      "Error fetching followups",
-    );
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.error({ route: "/api/followups", method: "GET", error }, "Error fetching followups");
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -317,9 +300,12 @@ export async function POST(req: NextRequest) {
     const json = await req.json();
     const parsed = createFollowupSchema.safeParse(json);
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, {
-        status: 400,
-      });
+      return NextResponse.json(
+        { error: parsed.error.flatten() },
+        {
+          status: 400,
+        }
+      );
     }
     const [created] = await db
       .insert(followups)
@@ -334,27 +320,17 @@ export async function POST(req: NextRequest) {
         assignedToUserId: parsed.data.assignedToUserId ?? userId,
       })
       .returning();
-    const entity = parsed.data.leadId
-      ? "lead"
-      : parsed.data.companyId
-      ? "company"
-      : "contact";
+    const entity = parsed.data.leadId ? "lead" : parsed.data.companyId ? "company" : "contact";
     await createEventFollowupCreated(
       entity,
       (parsed.data.leadId || parsed.data.companyId || parsed.data.contactId)!,
       parsed.data.companyId,
       parsed.data.contactId,
-      created.note,
+      created.note
     );
     return NextResponse.json(created);
   } catch (error) {
-    logger.error(
-      { route: "/api/followups", method: "POST", error },
-      "Error creating followup",
-    );
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.error({ route: "/api/followups", method: "POST", error }, "Error creating followup");
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

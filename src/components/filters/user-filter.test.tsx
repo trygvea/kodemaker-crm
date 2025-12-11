@@ -21,9 +21,7 @@ function renderWithSWR(
       value={{
         fetcher: () => {
           if (delay > 0) {
-            return new Promise((resolve) =>
-              setTimeout(() => resolve(users), delay)
-            );
+            return new Promise((resolve) => setTimeout(() => resolve(users), delay));
           }
           return Promise.resolve(users);
         },
@@ -112,9 +110,7 @@ describe("UserFilter", () => {
 
     // Find the "Alle" option in the dropdown (not the trigger button text)
     const alleOptions = screen.getAllByText("Alle");
-    const alleOption = alleOptions.find(
-      (el) => el.closest('[data-slot="command-item"]') !== null
-    );
+    const alleOption = alleOptions.find((el) => el.closest('[data-slot="command-item"]') !== null);
     await user.click(alleOption!);
 
     expect(onChange).toHaveBeenCalledWith("all");
@@ -161,9 +157,7 @@ describe("UserFilter", () => {
 
   it("shows visual feedback when filter is active (not 'mine')", async () => {
     const onChange = vi.fn();
-    const { rerender } = renderWithSWR(
-      <UserFilter value="mine" onChange={onChange} />
-    );
+    const { rerender } = renderWithSWR(<UserFilter value="mine" onChange={onChange} />);
 
     const trigger = screen.getByRole("combobox");
 
@@ -189,10 +183,9 @@ describe("UserFilter", () => {
 
   it("resets to 'mine' when selected user no longer exists", async () => {
     const onChange = vi.fn();
-    const { rerender } = renderWithSWR(
-      <UserFilter value={999} onChange={onChange} />,
-      { users: MOCK_USERS }
-    );
+    const { rerender } = renderWithSWR(<UserFilter value={999} onChange={onChange} />, {
+      users: MOCK_USERS,
+    });
 
     // Wait for effect to run and detect non-existent user
     await waitFor(() => {

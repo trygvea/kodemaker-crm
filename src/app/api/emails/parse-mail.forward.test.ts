@@ -24,8 +24,7 @@ describe("parsePostmarkInboundEmail", () => {
       CcFull: [],
       Bcc: "",
       BccFull: [],
-      OriginalRecipient:
-        "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+      OriginalRecipient: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
       Subject: "Fwd: Viktig melding",
       MessageID: "1356bdc5-004c-42b0-8f18-8fd5052dea65",
       ReplyTo: "",
@@ -44,8 +43,7 @@ To: trygve <trygve@kodemaker.no>
 Viktig melding (original body)
 `,
       HtmlBody: '<div">Not used in this test</div>',
-      StrippedTextReply:
-        "(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------",
+      StrippedTextReply: "(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------",
     };
 
     const parsed = parsePostmarkInboundEmail(postMarkMail);
@@ -86,8 +84,7 @@ Viktig melding (original body)
       CcFull: [],
       Bcc: "",
       BccFull: [],
-      OriginalRecipient:
-        "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
+      OriginalRecipient: "4bd2bba8259b7bf7fda7a600175ce1b3@inbound.postmarkapp.com",
       Subject: "Fwd: Viktig melding",
       MessageID: "1356bdc5-004c-42b0-8f18-8fd5052dea65",
       ReplyTo: "",
@@ -106,8 +103,7 @@ To: Kunde Knutsen <kunde.knutsen@gmail.com>
 Viktig melding (original body)
 `,
       HtmlBody: '<div">Not used in this test</div>',
-      StrippedTextReply:
-        "(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------",
+      StrippedTextReply: "(Body lagt på ved forwarding)\n\n---------- Forwarded message ---------",
     };
 
     const parsed = parsePostmarkInboundEmail(postMarkMail);

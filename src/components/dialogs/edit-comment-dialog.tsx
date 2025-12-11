@@ -2,12 +2,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Save, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -36,11 +31,7 @@ export interface EditCommentDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function EditCommentDialog({
-  comment,
-  open,
-  onOpenChange,
-}: EditCommentDialogProps) {
+export function EditCommentDialog({ comment, open, onOpenChange }: EditCommentDialogProps) {
   const schema = z.object({
     content: z.string().min(1, "Innhold er påkrevd"),
   });
@@ -79,20 +70,14 @@ export function EditCommentDialog({
 
     toast.success("Kommentar oppdatert");
     // Invalidate all comment-related cache keys
-    await globalMutate(
-      (key) => typeof key === "string" && key.startsWith("/api/comments"),
-    );
+    await globalMutate((key) => typeof key === "string" && key.startsWith("/api/comments"));
     onOpenChange(false);
   }
 
   async function handleDelete() {
     if (!comment) return;
 
-    if (
-      !confirm(
-        "Er du sikker på at du vil slette denne kommentaren? Dette kan ikke angres.",
-      )
-    ) {
+    if (!confirm("Er du sikker på at du vil slette denne kommentaren? Dette kan ikke angres.")) {
       return;
     }
 
@@ -109,9 +94,7 @@ export function EditCommentDialog({
 
     toast.success("Kommentar slettet");
     // Invalidate all comment-related cache keys
-    await globalMutate(
-      (key) => typeof key === "string" && key.startsWith("/api/comments"),
-    );
+    await globalMutate((key) => typeof key === "string" && key.startsWith("/api/comments"));
     setIsDeleting(false);
     onOpenChange(false);
   }
@@ -155,10 +138,7 @@ export function EditCommentDialog({
               >
                 <Trash2 className="h-4 w-4" /> Slett
               </Button>
-              <Button
-                type="submit"
-                className="inline-flex items-center gap-1.5"
-              >
+              <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>

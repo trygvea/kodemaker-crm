@@ -19,13 +19,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const statusParam = searchParams.get("status");
-  const allowedStatuses = new Set([
-    "NEW",
-    "IN_PROGRESS",
-    "LOST",
-    "WON",
-    "BORTFALT",
-  ]);
+  const allowedStatuses = new Set(["NEW", "IN_PROGRESS", "LOST", "WON", "BORTFALT"]);
 
   const filters: Array<ReturnType<typeof inArray>> = [];
   if (statusParam) {
@@ -33,8 +27,8 @@ export async function GET(req: NextRequest) {
       .split(",")
       .map((s) => s.trim().toUpperCase())
       .filter((s) => allowedStatuses.has(s)) as Array<
-        "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT"
-      >;
+      "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT"
+    >;
     if (statuses.length > 0) {
       filters.push(inArray(leads.status, statuses));
     }
@@ -74,13 +68,17 @@ export async function POST(req: NextRequest) {
   const json = await req.json();
   const parsed = createLeadSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      {
+        status: 400,
+      }
+    );
   }
-  const [company] = await db.select().from(companies).where(
-    eq(companies.id, parsed.data.companyId),
-  );
+  const [company] = await db
+    .select()
+    .from(companies)
+    .where(eq(companies.id, parsed.data.companyId));
   const [created] = await db
     .insert(leads)
     .values({ ...parsed.data, createdByUserId: userId })
@@ -89,7 +87,7 @@ export async function POST(req: NextRequest) {
     created.id,
     company.id,
     parsed.data.contactId,
-    parsed.data.description,
+    parsed.data.description
   );
   return NextResponse.json(created);
 }

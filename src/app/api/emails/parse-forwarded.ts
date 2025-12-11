@@ -17,7 +17,8 @@ export function parseForwardedMessages(bodyText: string): ForwardedMessage[] {
   // Pre-process with email-reply-parser to normalize content (drop signatures/hidden quoted noise)
   try {
     const mail = new EmailReplyParser().read(bodyText);
-    const visible = mail.getFragments()
+    const visible = mail
+      .getFragments()
       .filter((f) => !f.isHidden())
       .map((f) => f.getContent())
       .join("\n");
@@ -54,9 +55,7 @@ export function parseForwardedMessages(bodyText: string): ForwardedMessage[] {
   } else {
     for (let i = 0; i < uniqueStarts.length; i++) {
       const start = uniqueStarts[i];
-      const end = i + 1 < uniqueStarts.length
-        ? uniqueStarts[i + 1]
-        : bodyText.length;
+      const end = i + 1 < uniqueStarts.length ? uniqueStarts[i + 1] : bodyText.length;
       blocks.push(bodyText.slice(start, end));
     }
   }

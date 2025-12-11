@@ -1,10 +1,10 @@
-import { z } from 'zod'
-import { parseForwardedMessages } from './parse-forwarded'
+import { z } from "zod";
+import { parseForwardedMessages } from "./parse-forwarded";
 
 const postmarkEmailAddressSchema = z.object({
   Email: z.string().email(),
   Name: z.string().optional().nullable(),
-})
+});
 
 export const postmarkInboundSchema = z.object({
   From: z.string().optional(),
@@ -17,69 +17,69 @@ export const postmarkInboundSchema = z.object({
   StrippedTextReply: z.string().optional(),
   TextBody: z.string().optional(),
   HtmlBody: z.string().optional(),
-})
+});
 
-type Mode = 'FORWARDED' | 'BCC'
+type Mode = "FORWARDED" | "BCC";
 
 export type ParsedMail = {
-  mode: Mode
-  crmUser?: string // The crm user doing the BCC or FORWARD
-  contactEmail?: string // customer email address. BCC: will be the mail TO-address, FORWARDED: parsed from Forwarded section
-  date?: string // created-date
-  subject?: string
-  body?: string
-  forwardComment?: string // The body text that the forwarding user adds, will be handled as a comment in the CRM.
-}
+  mode: Mode;
+  crmUser?: string; // The crm user doing the BCC or FORWARD
+  contactEmail?: string; // customer email address. BCC: will be the mail TO-address, FORWARDED: parsed from Forwarded section
+  date?: string; // created-date
+  subject?: string;
+  body?: string;
+  forwardComment?: string; // The body text that the forwarding user adds, will be handled as a comment in the CRM.
+};
 
 export type ParseError = {
-  mode: 'ERROR'
-  error: string
-}
+  mode: "ERROR";
+  error: string;
+};
 
 function extractFirstEmailFromAddressList(value?: string): string | undefined {
-  if (!value) return undefined
-  const first = value.split(',')[0]
-  const m = first.match(/<([^>]+)>/)
-  return (m ? m[1] : first).trim()
+  if (!value) return undefined;
+  const first = value.split(",")[0];
+  const m = first.match(/<([^>]+)>/);
+  return (m ? m[1] : first).trim();
 }
 
 export function parsePostmarkInboundEmail(
   mail: z.infer<typeof postmarkInboundSchema>
 ): ParsedMail | ParseError {
-  const mode = mail.Bcc && mail.Bcc.trim().length > 0 ? 'BCC' : 'FORWARDED'
-  const crmUser = mail.FromFull?.Email || extractFirstEmailFromAddressList(mail.From)
-  const date = mail.Date
-  const subject = mail.Subject
-  const body = mail.TextBody || mail.HtmlBody || ''
+  const mode = mail.Bcc && mail.Bcc.trim().length > 0 ? "BCC" : "FORWARDED";
+  const crmUser = mail.FromFull?.Email || extractFirstEmailFromAddressList(mail.From);
+  const date = mail.Date;
+  const subject = mail.Subject;
+  const body = mail.TextBody || mail.HtmlBody || "";
 
-  if (mode === 'FORWARDED') {
-    const forwarded = parseForwardedMessages(body)
+  if (mode === "FORWARDED") {
+    const forwarded = parseForwardedMessages(body);
     if (!forwarded || forwarded.length === 0) {
       return {
-        mode: 'ERROR',
-        error: 'No forwarded messages found',
-      }
+        mode: "ERROR",
+        error: "No forwarded messages found",
+      };
     }
-    const forwardFrom = extractFirstEmailFromAddressList(forwarded[0].headers.from)
-    const forwardTo = extractFirstEmailFromAddressList(forwarded[0].headers.to)
-    const contactEmail = forwardFrom?.endsWith('@kodemaker.no') ? forwardTo : forwardFrom
+    const forwardFrom = extractFirstEmailFromAddressList(forwarded[0].headers.from);
+    const forwardTo = extractFirstEmailFromAddressList(forwarded[0].headers.to);
+    const contactEmail = forwardFrom?.endsWith("@kodemaker.no") ? forwardTo : forwardFrom;
     return {
-      mode: 'FORWARDED',
+      mode: "FORWARDED",
       crmUser,
       contactEmail,
       date,
       subject,
       body: forwarded[0].body,
-      forwardComment: mail.StrippedTextReply?.split('\n').slice(0, -1).join('\n').trimEnd(),
-    }
+      forwardComment: mail.StrippedTextReply?.split("\n").slice(0, -1).join("\n").trimEnd(),
+    };
   } else {
     return {
-      mode: 'BCC',
+      mode: "BCC",
       crmUser,
       contactEmail: mail.ToFull?.[0]?.Email || extractFirstEmailFromAddressList(mail.To),
       date,
       subject,
-      body: mail.TextBody || mail.HtmlBody || '',
-    }
+      body: mail.TextBody || mail.HtmlBody || "",
+    };
   }
 }

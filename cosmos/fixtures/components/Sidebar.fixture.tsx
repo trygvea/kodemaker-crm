@@ -1,4 +1,4 @@
-import { Sidebar } from '@/components/sidebar'
+import { Sidebar } from "@/components/sidebar";
 
 export default {
   default: (
@@ -7,6 +7,4 @@ export default {
       <div className="flex-1 p-4">Innholdsområde</div>
     </div>
   ),
-}
-
-
+};

@@ -26,5 +26,3 @@ volumes:
 networks:
   web:
     name: crm3-net
-
-

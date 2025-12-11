@@ -19,9 +19,7 @@ export function FollowupsList({
 }) {
   const { data, mutate } = useSWR<FollowupItemData[]>(endpoint);
   const { mutate: globalMutate } = useSWRConfig();
-  const [selectedFollowup, setSelectedFollowup] = useState<
-    FollowupItemData | null
-  >(null);
+  const [selectedFollowup, setSelectedFollowup] = useState<FollowupItemData | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   if (!data) {
@@ -31,43 +29,43 @@ export function FollowupsList({
   return (
     <>
       <div className="border rounded divide-y mt-3">
-        {data.length
-          ? (
-            data.map((f) => (
-              <FollowupItemComponent
-                key={f.id}
-                followup={f}
-                variant={variant}
-                showBadge={false}
-                entityLinks={true}
-                onComplete={variant === "action"
+        {data.length ? (
+          data.map((f) => (
+            <FollowupItemComponent
+              key={f.id}
+              followup={f}
+              variant={variant}
+              showBadge={false}
+              entityLinks={true}
+              onComplete={
+                variant === "action"
                   ? async (id: number) => {
-                    const res = await fetch(`/api/followups/${id}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        completedAt: new Date().toISOString(),
-                      }),
-                    });
-                    if (res.ok) {
-                      await mutate();
-                      await globalMutate(
-                        (key) =>
-                          typeof key === "string" &&
-                          key.startsWith("/api/followups"),
-                      );
-                      onCompleted?.();
+                      const res = await fetch(`/api/followups/${id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          completedAt: new Date().toISOString(),
+                        }),
+                      });
+                      if (res.ok) {
+                        await mutate();
+                        await globalMutate(
+                          (key) => typeof key === "string" && key.startsWith("/api/followups")
+                        );
+                        onCompleted?.();
+                      }
                     }
-                  }
-                  : undefined}
-                onClick={() => {
-                  setSelectedFollowup(f);
-                  setEditDialogOpen(true);
-                }}
-              />
-            ))
-          )
-          : <div className="p-3 text-sm text-muted-foreground">Ingen</div>}
+                  : undefined
+              }
+              onClick={() => {
+                setSelectedFollowup(f);
+                setEditDialogOpen(true);
+              }}
+            />
+          ))
+        ) : (
+          <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+        )}
       </div>
       <EditFollowupDialog
         followup={selectedFollowup}
@@ -78,11 +76,7 @@ export function FollowupsList({
             setSelectedFollowup(null);
           } else {
             mutate();
-            globalMutate(
-              (key) =>
-                typeof key === "string" &&
-                key.startsWith("/api/followups"),
-            );
+            globalMutate((key) => typeof key === "string" && key.startsWith("/api/followups"));
           }
         }}
       />

@@ -109,7 +109,7 @@ describe("GET /api/contacts de-dup", () => {
             company: { id: 12, name: "Y" },
           },
           { id: 2, firstName: "C", lastName: "D", company: null },
-        ]),
+        ])
     );
     const req = { url: "https://x.local/api/contacts" };
     const res = await GET(req as any);

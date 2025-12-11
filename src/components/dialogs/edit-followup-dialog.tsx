@@ -3,12 +3,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronsUpDown, Save, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,11 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -55,11 +46,7 @@ function parseDate(dateString: string): Date | null {
   return isNaN(date.getTime()) ? null : date;
 }
 
-export function EditFollowupDialog({
-  followup,
-  open,
-  onOpenChange,
-}: EditFollowupDialogProps) {
+export function EditFollowupDialog({ followup, open, onOpenChange }: EditFollowupDialogProps) {
   const schema = z.object({
     note: z.string().min(1, "Notat er påkrevd"),
     dueAt: z.date({ message: "Frist er påkrevd" }),
@@ -85,15 +72,14 @@ export function EditFollowupDialog({
 
   const { data: users } = useSWR<User[]>(`/api/users`);
 
-  const filteredUsers = users?.filter(
-    (u) =>
-      !userQuery ||
-      u.firstName.toLowerCase().includes(userQuery.toLowerCase()) ||
-      u.lastName.toLowerCase().includes(userQuery.toLowerCase()) ||
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(
-        userQuery.toLowerCase(),
-      ),
-  ) ?? [];
+  const filteredUsers =
+    users?.filter(
+      (u) =>
+        !userQuery ||
+        u.firstName.toLowerCase().includes(userQuery.toLowerCase()) ||
+        u.lastName.toLowerCase().includes(userQuery.toLowerCase()) ||
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(userQuery.toLowerCase())
+    ) ?? [];
 
   useEffect(() => {
     if (followup && open) {
@@ -107,11 +93,11 @@ export function EditFollowupDialog({
       setSelectedUser(
         followup.assignedTo
           ? {
-            id: followup.assignedTo.id,
-            firstName: followup.assignedTo.firstName,
-            lastName: followup.assignedTo.lastName,
-          }
-          : null,
+              id: followup.assignedTo.id,
+              firstName: followup.assignedTo.firstName,
+              lastName: followup.assignedTo.lastName,
+            }
+          : null
       );
     }
   }, [followup, open, form]);
@@ -139,20 +125,14 @@ export function EditFollowupDialog({
 
     toast.success("Oppfølging oppdatert");
     // Invalidate all followup-related cache keys
-    await globalMutate(
-      (key) => typeof key === "string" && key.startsWith("/api/followups"),
-    );
+    await globalMutate((key) => typeof key === "string" && key.startsWith("/api/followups"));
     onOpenChange(false);
   }
 
   async function handleDelete() {
     if (!followup) return;
 
-    if (
-      !confirm(
-        "Er du sikker på at du vil slette denne oppfølgingen? Dette kan ikke angres.",
-      )
-    ) {
+    if (!confirm("Er du sikker på at du vil slette denne oppfølgingen? Dette kan ikke angres.")) {
       return;
     }
 
@@ -169,9 +149,7 @@ export function EditFollowupDialog({
 
     toast.success("Oppfølging slettet");
     // Invalidate all followup-related cache keys
-    await globalMutate(
-      (key) => typeof key === "string" && key.startsWith("/api/followups"),
-    );
+    await globalMutate((key) => typeof key === "string" && key.startsWith("/api/followups"));
     setIsDeleting(false);
     onOpenChange(false);
   }
@@ -229,16 +207,9 @@ export function EditFollowupDialog({
               render={() => (
                 <FormItem>
                   <FormLabel>Tildel</FormLabel>
-                  <Popover
-                    open={userPopoverOpen}
-                    onOpenChange={setUserPopoverOpen}
-                  >
+                  <Popover open={userPopoverOpen} onOpenChange={setUserPopoverOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full justify-between"
-                      >
+                      <Button type="button" variant="outline" className="w-full justify-between">
                         {selectedUser
                           ? `${selectedUser.firstName} ${selectedUser.lastName}`
                           : "Velg bruker..."}
@@ -295,10 +266,7 @@ export function EditFollowupDialog({
                   <div className="flex items-center gap-3">
                     <FormLabel>Fullført</FormLabel>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                   </div>
                   <FormMessage />
@@ -316,10 +284,7 @@ export function EditFollowupDialog({
               >
                 <Trash2 className="h-4 w-4" /> Slett
               </Button>
-              <Button
-                type="submit"
-                className="inline-flex items-center gap-1.5"
-              >
+              <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>

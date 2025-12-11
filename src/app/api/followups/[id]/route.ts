@@ -17,10 +17,7 @@ const updateFollowupSchema = z.object({
   completedAt: z.coerce.date().optional().nullable(),
 });
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await requireApiAuth();
   if (authResult instanceof NextResponse) return authResult;
 
@@ -28,17 +25,19 @@ export async function PATCH(
   const id = Number(idStr);
   if (!id) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const rows = await db.select().from(followups).where(eq(followups.id, id))
-    .limit(1);
+  const rows = await db.select().from(followups).where(eq(followups.id, id)).limit(1);
   const row = rows[0];
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const json = await req.json();
   const parsed = updateFollowupSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      {
+        status: 400,
+      }
+    );
   }
 
   const updateValues: Record<string, unknown> = {};
@@ -66,15 +65,13 @@ export async function PATCH(
   const entityId = row.leadId || row.companyId || row.contactId;
   if (entityId) {
     // If completing, use the completed event
-    if (
-      parsed.data.completedAt !== undefined && parsed.data.completedAt !== null
-    ) {
+    if (parsed.data.completedAt !== undefined && parsed.data.completedAt !== null) {
       await createEventFollowupCompleted(
         entity as "lead" | "company" | "contact",
         entityId,
         row.companyId ?? undefined,
         row.contactId ?? undefined,
-        updated.note,
+        updated.note
       );
     } else {
       // Otherwise, use the updated event
@@ -83,7 +80,7 @@ export async function PATCH(
         entityId,
         row.companyId ?? undefined,
         row.contactId ?? undefined,
-        updated.note,
+        updated.note
       );
     }
   }
@@ -91,10 +88,7 @@ export async function PATCH(
   return NextResponse.json(updated);
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await requireApiAuth();
   if (authResult instanceof NextResponse) return authResult;
 
@@ -102,8 +96,7 @@ export async function DELETE(
   const id = Number(idStr);
   if (!id) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const rows = await db.select().from(followups).where(eq(followups.id, id))
-    .limit(1);
+  const rows = await db.select().from(followups).where(eq(followups.id, id)).limit(1);
   const row = rows[0];
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -117,7 +110,7 @@ export async function DELETE(
       entityId,
       row.companyId ?? undefined,
       row.contactId ?? undefined,
-      row.note,
+      row.note
     );
   }
 

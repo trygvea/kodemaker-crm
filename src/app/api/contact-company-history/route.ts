@@ -19,9 +19,12 @@ export async function POST(req: NextRequest) {
   const json = await req.json();
   const parsed = createSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      {
+        status: 400,
+      }
+    );
   }
   const values = {
     contactId: parsed.data.contactId,
@@ -30,7 +33,6 @@ export async function POST(req: NextRequest) {
     endDate: parsed.data.endDate ? parsed.data.endDate : null,
     role: parsed.data.role || null,
   };
-  const [row] = await db.insert(contactCompanyHistory).values(values)
-    .returning();
+  const [row] = await db.insert(contactCompanyHistory).values(values).returning();
   return NextResponse.json(row);
 }

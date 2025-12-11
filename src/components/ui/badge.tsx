@@ -9,26 +9,21 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary/10 text-primary [a&]:hover:bg-primary/20",
-        primary:
-          "border-transparent bg-chart-2/20 text-chart-2 [a&]:hover:bg-chart-2/30",
+        default: "border-transparent bg-primary/10 text-primary [a&]:hover:bg-primary/20",
+        primary: "border-transparent bg-chart-2/20 text-chart-2 [a&]:hover:bg-chart-2/30",
         secondary:
           "border-transparent bg-secondary-green/10 text-secondary-green [a&]:hover:bg-secondary-green/20",
-        tertiary:
-          "border-transparent bg-tertiary/20 text-tertiary [a&]:hover:bg-tertiary/30",
+        tertiary: "border-transparent bg-tertiary/20 text-tertiary [a&]:hover:bg-tertiary/30",
         destructive:
           "border-transparent bg-destructive/10 text-destructive [a&]:hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
-        outline:
-          "text-foreground [a&]:hover:bg-accent/10 [a&]:hover:text-accent-foreground",
-        bortfalt:
-          "border-transparent bg-muted/60 text-muted-foreground [a&]:hover:bg-muted",
+        outline: "text-foreground [a&]:hover:bg-accent/10 [a&]:hover:text-accent-foreground",
+        bortfalt: "border-transparent bg-muted/60 text-muted-foreground [a&]:hover:bg-muted",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  },
+  }
 );
 
 function Badge({
@@ -36,18 +31,11 @@ function Badge({
   variant,
   asChild = false,
   ...props
-}:
-  & React.ComponentProps<"span">
-  & VariantProps<typeof badgeVariants>
-  & { asChild?: boolean }) {
+}: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "span";
 
   return (
-    <Comp
-      data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
-      {...props}
-    />
+    <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
   );
 }
 

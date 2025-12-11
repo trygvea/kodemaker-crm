@@ -18,7 +18,6 @@ describe("CustomersPage", () => {
   it("renders heading and search field", () => {
     render(<CustomersClient />);
     expect(screen.getByText("Organisasjoner")).toBeDefined();
-    expect(screen.getByPlaceholderText("Søk i organisasjoner"))
-      .toBeDefined();
+    expect(screen.getByPlaceholderText("Søk i organisasjoner")).toBeDefined();
   });
 });

@@ -1,5 +1,5 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 export default {
   default: (
@@ -12,6 +12,4 @@ export default {
       </Tooltip>
     </TooltipProvider>
   ),
-}
-
-
+};

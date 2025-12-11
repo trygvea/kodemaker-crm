@@ -11,10 +11,7 @@ const updateSchema = z.object({
   role: z.string().optional(),
 });
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await requireApiAuth();
   if (authResult instanceof NextResponse) return authResult;
 
@@ -24,9 +21,12 @@ export async function PATCH(
   const json = await req.json();
   const parsed = updateSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      {
+        status: 400,
+      }
+    );
   }
   const values: Record<string, unknown> = {};
   if (parsed.data.startDate !== undefined) {

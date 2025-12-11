@@ -20,11 +20,7 @@ export const leadStatusEnum = pgEnum("lead_status", [
   "BORTFALT",
 ]);
 export const emailModeEnum = pgEnum("email_mode", ["FORWARDED", "BCC"]);
-export const eventEntityEnum = pgEnum("event_entity", [
-  "company",
-  "contact",
-  "lead",
-]);
+export const eventEntityEnum = pgEnum("event_entity", ["company", "contact", "lead"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -34,8 +30,7 @@ export const users = pgTable("users", {
   phone: varchar("phone", { length: 50 }),
   passwordHash: text("password_hash").notNull(),
   role: userRoleEnum("role").notNull().default("user"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const companies = pgTable("companies", {
@@ -47,8 +42,7 @@ export const companies = pgTable("companies", {
   createdByUserId: integer("created_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const contacts = pgTable("contacts", {
@@ -61,8 +55,7 @@ export const contacts = pgTable("contacts", {
   createdByUserId: integer("created_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const contactEmails = pgTable("contact_emails", {
@@ -72,8 +65,7 @@ export const contactEmails = pgTable("contact_emails", {
     .references(() => contacts.id, { onDelete: "cascade" }),
   email: varchar("email", { length: 255 }).notNull(),
   active: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const contactCompanyHistory = pgTable("contact_company_history", {
@@ -102,10 +94,8 @@ export const leads = pgTable("leads", {
   createdByUserId: integer("created_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const comments = pgTable("comments", {
@@ -123,32 +113,24 @@ export const comments = pgTable("comments", {
   createdByUserId: integer("created_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const emails = pgTable("emails", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
   subject: text("subject"),
-  recipientCompanyId: integer("recipient_company_id").references(
-    () => companies.id,
-    {
-      onDelete: "cascade",
-    },
-  ),
-  recipientContactId: integer("recipient_contact_id").references(
-    () => contacts.id,
-    {
-      onDelete: "cascade",
-    },
-  ),
+  recipientCompanyId: integer("recipient_company_id").references(() => companies.id, {
+    onDelete: "cascade",
+  }),
+  recipientContactId: integer("recipient_contact_id").references(() => contacts.id, {
+    onDelete: "cascade",
+  }),
   sourceUserId: integer("source_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
   mode: emailModeEnum("mode").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const followups = pgTable("followups", {
@@ -177,8 +159,7 @@ export const followups = pgTable("followups", {
       onDelete: "restrict",
     }),
   completedAt: timestamp("completed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const events = pgTable("events", {
@@ -186,8 +167,7 @@ export const events = pgTable("events", {
   entity: eventEntityEnum("entity").notNull(),
   entityId: integer("entity_id").notNull(),
   description: text("description").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
-    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

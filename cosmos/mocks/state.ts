@@ -9,9 +9,7 @@ type Followup = {
   createdBy?: { firstName?: string | null; lastName?: string | null } | null;
   assignedTo?: { id: number; firstName: string; lastName: string } | null;
   company?: { id: number; name: string } | null;
-  contact?:
-    | { id: number; firstName: string | null; lastName: string | null }
-    | null;
+  contact?: { id: number; firstName: string | null; lastName: string | null } | null;
   lead?: { id: number; description: string } | null;
 };
 
@@ -90,8 +88,7 @@ const initialEmails: ApiEmail[] = [
   {
     id: 1,
     subject: "Re: Prosjektforslag",
-    content:
-      "Hei,\n\nTakk for tilbudet. Vi vil gjerne diskutere dette videre.\n\nMvh,\nKari",
+    content: "Hei,\n\nTakk for tilbudet. Vi vil gjerne diskutere dette videre.\n\nMvh,\nKari",
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -130,7 +127,7 @@ export function getNextId() {
   const maxFollowupId = Math.max(
     ...state.followups.map((f) => f.id),
     ...state.completedFollowups.map((f) => f.id),
-    0,
+    0
   );
   const maxCommentId = Math.max(...state.comments.map((c) => c.id), 0);
   const maxEmailId = Math.max(...state.emails.map((e) => e.id), 0);

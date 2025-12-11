@@ -37,13 +37,15 @@ export async function POST(req: NextRequest) {
   const json = await req.json();
   const parsed = createUserSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      {
+        status: 400,
+      }
+    );
   }
   const { firstName, lastName, email, phone, password, role } = parsed.data;
-  const [existing] = await db.select().from(users).where(eq(users.email, email))
-    .limit(1);
+  const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
   if (existing) {
     return NextResponse.json({ error: "User already exists" }, { status: 409 });
   }

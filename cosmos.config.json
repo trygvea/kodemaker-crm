@@ -2,13 +2,7 @@
   "port": 5002,
   "fixturesDir": "cosmos/fixtures",
   "watchDirs": ["src"],
-  "ignore": [
-    "**/node_modules/**",
-    "**/.next/**",
-    "**/dist/**",
-    "**/*.test.ts",
-    "**/*.test.tsx"
-  ],
+  "ignore": ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/*.test.ts", "**/*.test.tsx"],
   "plugins": ["react-cosmos-plugin-vite"],
   "globalImports": ["./src/app/globals.css"],
   "decorators": ["./cosmos/decorators.tsx"],

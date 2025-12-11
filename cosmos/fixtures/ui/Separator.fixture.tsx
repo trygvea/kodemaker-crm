@@ -1,4 +1,4 @@
-import { Separator } from '@/components/ui/separator'
+import { Separator } from "@/components/ui/separator";
 
 export default {
   horizontal: (
@@ -15,6 +15,4 @@ export default {
       <span>Høyre</span>
     </div>
   ),
-}
-
-
+};

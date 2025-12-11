@@ -32,14 +32,7 @@ const Image = React.forwardRef<
   // The Next.js eslint rule warning is expected and acceptable here.
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img
-      ref={ref}
-      src={src}
-      alt={alt}
-      className={className}
-      style={imgStyle}
-      {...props}
-    />
+    <img ref={ref} src={src} alt={alt} className={className} style={imgStyle} {...props} />
   );
 });
 

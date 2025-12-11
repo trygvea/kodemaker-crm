@@ -19,9 +19,7 @@ const statusBadgeConfig: Record<
   BORTFALT: { label: "Bortfalt", variant: "bortfalt" },
 };
 
-export function LeadsSection(
-  { leads, title = "Leads", headerAction }: LeadsSectionProps,
-) {
+export function LeadsSection({ leads, title = "Leads", headerAction }: LeadsSectionProps) {
   const stats = useMemo(() => {
     const counts = {
       NEW: 0,
@@ -55,24 +53,22 @@ export function LeadsSection(
         </div>
       )}
       <div className="divide-y rounded border">
-        {leads.length
-          ? (
-            leads.map((l) => (
-              <a key={l.id} href={`/leads/${l.id}`} className="block p-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm">
-                    {l.description.length > 100
-                      ? `${l.description.slice(0, 100)}…`
-                      : l.description}
-                  </div>
-                  <Badge variant={statusBadgeConfig[l.status]?.variant}>
-                    {statusBadgeConfig[l.status]?.label ?? l.status}
-                  </Badge>
+        {leads.length ? (
+          leads.map((l) => (
+            <a key={l.id} href={`/leads/${l.id}`} className="block p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm">
+                  {l.description.length > 100 ? `${l.description.slice(0, 100)}…` : l.description}
                 </div>
-              </a>
-            ))
-          )
-          : <div className="p-3 text-sm text-muted-foreground">Ingen</div>}
+                <Badge variant={statusBadgeConfig[l.status]?.variant}>
+                  {statusBadgeConfig[l.status]?.label ?? l.status}
+                </Badge>
+              </div>
+            </a>
+          ))
+        ) : (
+          <div className="p-3 text-sm text-muted-foreground">Ingen</div>
+        )}
       </div>
     </section>
   );

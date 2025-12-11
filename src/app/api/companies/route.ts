@@ -51,12 +51,7 @@ export async function GET(req: NextRequest) {
     byCompany[id] = { NEW: 0, IN_PROGRESS: 0, LOST: 0, WON: 0, BORTFALT: 0 };
   }
   for (const c of counts) {
-    const status = c.status as
-      | "NEW"
-      | "IN_PROGRESS"
-      | "LOST"
-      | "WON"
-      | "BORTFALT";
+    const status = c.status as "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT";
     byCompany[c.companyId][status] = c.count;
   }
 
@@ -77,7 +72,7 @@ export async function POST(req: NextRequest) {
       { error: parsed.error.flatten() },
       {
         status: 400,
-      },
+      }
     );
   }
   const [created] = await db

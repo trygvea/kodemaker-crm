@@ -33,8 +33,7 @@ export function EventsClient() {
     for (const e of live) map.set(e.id, e);
     for (const e of base) if (!map.has(e.id)) map.set(e.id, e);
     const arr = Array.from(map.values()).sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
     // When paused, stop changing the list to avoid UI shifts
     return paused ? arr : arr;
@@ -101,9 +100,7 @@ export function EventsClient() {
           />
           Auto-oppdatering
         </label>
-        <div className="text-sm text-muted-foreground">
-          {paused ? "Av" : "På"}
-        </div>
+        <div className="text-sm text-muted-foreground">{paused ? "Av" : "På"}</div>
       </div>
       <div className="border rounded divide-y">
         {items.map((e) => (
@@ -122,13 +119,9 @@ export function EventsClient() {
             </div>
           </a>
         ))}
-        {!items.length
-          ? (
-            <div className="p-3 text-sm text-muted-foreground">
-              Ingen hendelser
-            </div>
-          )
-          : null}
+        {!items.length ? (
+          <div className="p-3 text-sm text-muted-foreground">Ingen hendelser</div>
+        ) : null}
       </div>
     </div>
   );
