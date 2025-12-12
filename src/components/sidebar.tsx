@@ -54,6 +54,11 @@ type SidebarContext = {
   headerContactName: string | undefined;
 };
 
+type SidebarProps = {
+  /** Used by Cosmos fixture to bypass lg-only visibility for testing */
+  forceVisible?: boolean;
+};
+
 function useSidebarContext(): SidebarContext {
   const pathname = usePathname();
   const companyMatch = pathname?.match(/^\/customers\/(\d+)$/);
@@ -107,12 +112,14 @@ function NavLink({
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ forceVisible = false }: SidebarProps = {}) {
   const { pathname, headerCompanyId, headerCompanyName, headerContactId, headerContactName } =
     useSidebarContext();
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 shrink-0 border-r bg-card">
+    <aside
+      className={`${forceVisible ? "flex" : "hidden lg:flex"} lg:flex-col lg:w-64 shrink-0 border-r bg-card`}
+    >
       <div className="p-3 space-y-3">
         <CreateNewMenu
           companyId={headerCompanyId}
