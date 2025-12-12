@@ -1,15 +1,9 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import {
-  formatDate,
-  formatDateTimeWithoutSeconds,
-  getLeadStatusLabel,
-  truncateText,
-} from "@/lib/utils";
+import { formatDate, formatDateTimeWithoutSeconds } from "@/lib/utils";
 import { EntityReference } from "@/components/activity-log/entity-reference";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { LeadReference } from "@/components/activity-log/lead-reference";
 import type { LeadStatus } from "@/types/api";
-import { useRouter } from "next/navigation";
 
 type CommentItemProps = {
   id: number;
@@ -25,7 +19,6 @@ type CommentItemProps = {
 };
 
 export function CommentItem({
-  id,
   content,
   createdAt,
   createdBy,
@@ -36,11 +29,9 @@ export function CommentItem({
   onClick,
   showTime = true,
 }: CommentItemProps) {
-  const router = useRouter();
   const displayDate = showTime ? formatDateTimeWithoutSeconds(createdAt) : formatDate(createdAt);
   return (
     <div
-      key={`comment-${id}`}
       className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={onClick}
       role="button"
@@ -82,26 +73,7 @@ export function CommentItem({
             </div>
             <Badge>Kommentar</Badge>
           </div>
-          {lead && (
-            <div className="-mt-0.5 mb-2.5 text-xs text-muted-foreground">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className="cursor-pointer hover:underline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/leads/${lead.id}`);
-                    }}
-                  >
-                    {getLeadStatusLabel(lead.status)}: {truncateText(lead.description, 50)}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{lead.description}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )}
+          {lead && <LeadReference lead={lead} />}
           <div className="whitespace-pre-wrap text-sm">{content}</div>
         </div>
       </div>

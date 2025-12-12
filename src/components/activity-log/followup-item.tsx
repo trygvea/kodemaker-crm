@@ -1,19 +1,12 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import {
-  formatDate,
-  formatDateTimeWithoutSeconds,
-  getInitials,
-  useDueBgStyle,
-  getLeadStatusLabel,
-  truncateText,
-} from "@/lib/utils";
+import { formatDate, formatDateTimeWithoutSeconds, getInitials, useDueBgStyle } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CompletionCheckbox } from "@/components/completion-checkbox";
 import { EntityReference } from "@/components/activity-log/entity-reference";
+import { LeadReference } from "@/components/activity-log/lead-reference";
 import type { LeadStatus } from "@/types/api";
-import { useRouter } from "next/navigation";
 
 export type FollowupItemData = {
   id: number;
@@ -46,7 +39,6 @@ export function FollowupItem({
   entityLinks = false,
   onClick,
 }: FollowupItemProps) {
-  const router = useRouter();
   const dueBgStyle = useDueBgStyle();
   const isCompleted = !!followup.completedAt;
   const displayDate =
@@ -109,27 +101,7 @@ export function FollowupItem({
               </div>
               {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
             </div>
-            {followup.lead && (
-              <div className="-mt-0.5 mb-2.5 text-xs text-muted-foreground">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className="cursor-pointer hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/leads/${followup.lead!.id}`);
-                      }}
-                    >
-                      {getLeadStatusLabel(followup.lead.status)}:{" "}
-                      {truncateText(followup.lead.description, 50)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{followup.lead.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            )}
+            {followup.lead && <LeadReference lead={followup.lead} />}
             <div className="whitespace-pre-wrap text-sm">{followup.note}</div>
           </div>
         </div>
@@ -200,27 +172,7 @@ export function FollowupItem({
             </div>
             {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
           </div>
-          {followup.lead && (
-            <div className="-mt-0.5 mb-2.5 text-xs text-muted-foreground">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className="cursor-pointer hover:underline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/leads/${followup.lead!.id}`);
-                    }}
-                  >
-                    {getLeadStatusLabel(followup.lead.status)}:{" "}
-                    {truncateText(followup.lead.description, 50)}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{followup.lead.description}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )}
+          {followup.lead && <LeadReference lead={followup.lead} />}
           <div className="whitespace-pre-wrap text-sm">{followup.note}</div>
         </div>
       </div>

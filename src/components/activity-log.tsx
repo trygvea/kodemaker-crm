@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { CalendarPlus, ChevronsUpDown, MessageSquarePlus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,11 +17,12 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { EmailItem } from "@/components/activity-log/email-item";
 import { CommentItem } from "@/components/activity-log/comment-item";
 import { FollowupItem } from "@/components/activity-log/followup-item";
+import { LeadSelector } from "@/components/activity-log/lead-selector";
 import type { ApiEmail, LeadStatus } from "@/types/api";
 import { EditFollowupDialog } from "@/components/dialogs/edit-followup-dialog";
 import { EditCommentDialog } from "@/components/dialogs/edit-comment-dialog";
 import type { FollowupItemData } from "@/components/activity-log/followup-item";
-import { getDefaultDueDate, truncateText } from "@/lib/utils";
+import { getDefaultDueDate } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
@@ -119,6 +120,7 @@ export function ActivityLog({
   const [selectedFollowup, setSelectedFollowup] = useState<FollowupItemData | null>(null);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
   const { mutate: globalMutate } = useSWRConfig();
+  const hasSetDefaultUser = useRef(false);
 
   const { followupParams, commentParams, emailParams } = buildQueryParams(
     contactId,
@@ -157,15 +159,15 @@ export function ActivityLog({
 
   // Pre-select current user
   useEffect(() => {
-    if (users && session?.user?.id && !selectedUser) {
+    if (users && session?.user?.id && !selectedUser && !hasSetDefaultUser.current) {
       const currentUserId = Number(session.user.id);
       const currentUser = users.find((u) => u.id === currentUserId);
       if (currentUser) {
         setSelectedUser(currentUser);
+        hasSetDefaultUser.current = true;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [users, session?.user?.id]);
+  }, [users, session?.user?.id, selectedUser]);
 
   async function saveComment() {
     const body = {
@@ -376,60 +378,15 @@ export function ActivityLog({
                 </div>
               </div>
               {leadsEndpoint && (
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">Lead</label>
-                  <Popover open={leadPopoverOpen} onOpenChange={setLeadPopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between text-sm font-normal"
-                      >
-                        {selectedLead ? truncateText(selectedLead.description, 60) : "Velg lead…"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
-                      <Command>
-                        <CommandInput
-                          autoFocus
-                          placeholder="Søk lead…"
-                          value={leadQuery}
-                          onValueChange={setLeadQuery}
-                          onKeyDown={(e) => {
-                            if (e.key === "Escape" || e.key === "Tab") {
-                              setLeadPopoverOpen(false);
-                            }
-                          }}
-                        />
-                        <CommandList>
-                          <CommandEmpty>Ingen treff</CommandEmpty>
-                          <CommandItem
-                            value=""
-                            onSelect={() => {
-                              setSelectedLead(null);
-                              setLeadPopoverOpen(false);
-                            }}
-                          >
-                            Ingen
-                          </CommandItem>
-                          {filteredLeads?.map((l) => (
-                            <CommandItem
-                              key={l.id}
-                              value={`${l.id}-${l.description}`}
-                              onSelect={() => {
-                                setSelectedLead(l);
-                                setLeadPopoverOpen(false);
-                              }}
-                            >
-                              {truncateText(l.description, 60)}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <LeadSelector
+                  leads={filteredLeads}
+                  selectedLead={selectedLead}
+                  onSelect={setSelectedLead}
+                  open={leadPopoverOpen}
+                  onOpenChange={setLeadPopoverOpen}
+                  query={leadQuery}
+                  onQueryChange={setLeadQuery}
+                />
               )}
               <div className="flex justify-end">
                 <Button
@@ -452,60 +409,15 @@ export function ActivityLog({
                 onChange={(e) => setNewComment(e.target.value)}
               />
               {leadsEndpoint && (
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">Lead</label>
-                  <Popover open={leadPopoverOpen} onOpenChange={setLeadPopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between text-sm font-normal"
-                      >
-                        {selectedLead ? truncateText(selectedLead.description, 60) : "Velg lead…"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
-                      <Command>
-                        <CommandInput
-                          autoFocus
-                          placeholder="Søk lead…"
-                          value={leadQuery}
-                          onValueChange={setLeadQuery}
-                          onKeyDown={(e) => {
-                            if (e.key === "Escape" || e.key === "Tab") {
-                              setLeadPopoverOpen(false);
-                            }
-                          }}
-                        />
-                        <CommandList>
-                          <CommandEmpty>Ingen treff</CommandEmpty>
-                          <CommandItem
-                            value=""
-                            onSelect={() => {
-                              setSelectedLead(null);
-                              setLeadPopoverOpen(false);
-                            }}
-                          >
-                            Ingen
-                          </CommandItem>
-                          {filteredLeads?.map((l) => (
-                            <CommandItem
-                              key={l.id}
-                              value={`${l.id}-${l.description}`}
-                              onSelect={() => {
-                                setSelectedLead(l);
-                                setLeadPopoverOpen(false);
-                              }}
-                            >
-                              {truncateText(l.description, 60)}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <LeadSelector
+                  leads={filteredLeads}
+                  selectedLead={selectedLead}
+                  onSelect={setSelectedLead}
+                  open={leadPopoverOpen}
+                  onOpenChange={setLeadPopoverOpen}
+                  query={leadQuery}
+                  onQueryChange={setLeadQuery}
+                />
               )}
               <div className="flex justify-end">
                 <Button onClick={saveComment} disabled={!newComment.trim()} size="sm">
