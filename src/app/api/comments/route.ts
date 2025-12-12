@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/client";
-import { comments, companies, contactCompanyHistory, contacts, users } from "@/db/schema";
+import { comments, companies, contactCompanyHistory, contacts, leads, users } from "@/db/schema";
 import { createEventCommentCreated } from "@/db/events";
 import { z } from "zod";
 import { and, desc, eq, inArray } from "drizzle-orm";
@@ -103,18 +103,28 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(comments.createdAt))
       .limit(200);
 
-    // Collect company and contact IDs directly from comments
+    // Collect company, contact, and lead IDs directly from comments
     const companyIds = new Set<number>();
     const contactIds = new Set<number>();
+    const leadIds = new Set<number>();
     for (const r of rows) {
       if (r.companyId) companyIds.add(r.companyId);
       if (r.contactId) contactIds.add(r.contactId);
+      if (r.leadId) leadIds.add(r.leadId);
     }
 
     let companiesById: Record<number, { id: number; name: string }> = {};
     let contactsById: Record<
       number,
       { id: number; firstName: string | null; lastName: string | null }
+    > = {};
+    let leadsById: Record<
+      number,
+      {
+        id: number;
+        description: string;
+        status: "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT";
+      }
     > = {};
     if (companyIds.size) {
       const coRows = await db
@@ -133,6 +143,17 @@ export async function GET(req: NextRequest) {
         .from(contacts)
         .where(inArray(contacts.id, Array.from(contactIds)));
       contactsById = Object.fromEntries(ctRows.map((c) => [c.id, c]));
+    }
+    if (leadIds.size) {
+      const leadRows = await db
+        .select({
+          id: leads.id,
+          description: leads.description,
+          status: leads.status,
+        })
+        .from(leads)
+        .where(inArray(leads.id, Array.from(leadIds)));
+      leadsById = Object.fromEntries(leadRows.map((l) => [l.id, l]));
     }
 
     // Fetch contact-company endDate relationships for "sluttet" status
@@ -210,7 +231,7 @@ export async function GET(req: NextRequest) {
         createdBy: r.createdBy,
         company: r.companyId ? (companiesById[r.companyId] ?? null) : null,
         contact: r.contactId ? (contactsById[r.contactId] ?? null) : null,
-        lead: null,
+        lead: r.leadId ? (leadsById[r.leadId] ?? null) : null,
         contactEndDate,
       };
     });

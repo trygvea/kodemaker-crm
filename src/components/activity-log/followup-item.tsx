@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CompletionCheckbox } from "@/components/completion-checkbox";
 import { EntityReference } from "@/components/activity-log/entity-reference";
+import { LeadReference } from "@/components/activity-log/lead-reference";
+import type { LeadStatus } from "@/types/api";
 
 export type FollowupItemData = {
   id: number;
@@ -16,7 +18,7 @@ export type FollowupItemData = {
   assignedTo?: { id: number; firstName: string; lastName: string } | null;
   company?: { id: number; name: string } | null;
   contact?: { id: number; firstName: string | null; lastName: string | null } | null;
-  lead?: { id: number; description: string } | null;
+  lead?: { id: number; description: string; status: LeadStatus } | null;
   contactEndDate?: string | null;
 };
 
@@ -39,7 +41,10 @@ export function FollowupItem({
 }: FollowupItemProps) {
   const dueBgStyle = useDueBgStyle();
   const isCompleted = !!followup.completedAt;
-  const displayDate = formatDateTimeWithoutSeconds(followup.completedAt || followup.createdAt);
+  const displayDate =
+    variant === "completed"
+      ? formatDate(followup.completedAt || followup.createdAt)
+      : formatDateTimeWithoutSeconds(followup.completedAt || followup.createdAt);
 
   if (variant === "action") {
     return (
@@ -68,7 +73,11 @@ export function FollowupItem({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
+            <div
+              className={`flex items-start justify-between text-xs text-muted-foreground ${
+                followup.lead ? "mb-0.5" : "mb-2.5"
+              }`}
+            >
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className="flex-1 min-w-0">
                   <span className="rounded" style={dueBgStyle(followup.dueAt)}>
@@ -92,6 +101,7 @@ export function FollowupItem({
               </div>
               {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
             </div>
+            {followup.lead && <LeadReference lead={followup.lead} />}
             <div className="whitespace-pre-wrap text-sm">{followup.note}</div>
           </div>
         </div>
@@ -134,7 +144,11 @@ export function FollowupItem({
           <CompletionCheckbox completed={true} disabled={true} onClick={() => {}} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
+          <div
+            className={`flex items-start justify-between text-xs text-muted-foreground ${
+              followup.lead ? "mb-0.5" : "mb-2.5"
+            }`}
+          >
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-muted-foreground">
@@ -158,6 +172,7 @@ export function FollowupItem({
             </div>
             {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
           </div>
+          {followup.lead && <LeadReference lead={followup.lead} />}
           <div className="whitespace-pre-wrap text-sm">{followup.note}</div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { CalendarPlus, ChevronsUpDown, MessageSquarePlus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,11 +17,14 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { EmailItem } from "@/components/activity-log/email-item";
 import { CommentItem } from "@/components/activity-log/comment-item";
 import { FollowupItem } from "@/components/activity-log/followup-item";
-import type { ApiEmail } from "@/types/api";
+import { LeadSelector } from "@/components/activity-log/lead-selector";
+import type { ApiEmail, LeadStatus } from "@/types/api";
 import { EditFollowupDialog } from "@/components/dialogs/edit-followup-dialog";
 import { EditCommentDialog } from "@/components/dialogs/edit-comment-dialog";
 import type { FollowupItemData } from "@/components/activity-log/followup-item";
 import { getDefaultDueDate } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 type FollowupItemType = {
   id: number;
@@ -33,7 +36,7 @@ type FollowupItemType = {
   assignedTo?: { id: number; firstName: string; lastName: string } | null;
   company?: { id: number; name: string } | null;
   contact?: { id: number; firstName: string | null; lastName: string | null } | null;
-  lead?: { id: number; description: string } | null;
+  lead?: { id: number; description: string; status: LeadStatus } | null;
   contactEndDate?: string | null;
 };
 
@@ -44,7 +47,7 @@ type CommentItem = {
   createdBy?: { firstName?: string | null; lastName?: string | null } | null;
   company?: { id: number; name: string } | null;
   contact?: { id: number; firstName: string | null; lastName: string | null } | null;
-  lead?: { id: number; description: string } | null;
+  lead?: { id: number; description: string; status: LeadStatus } | null;
   contactEndDate?: string | null;
 };
 
@@ -64,6 +67,12 @@ type User = {
   id: number;
   firstName: string;
   lastName: string;
+};
+
+type Lead = {
+  id: number;
+  description: string;
+  status: LeadStatus;
 };
 
 function buildQueryParams(contactId?: number, companyId?: number, contactIds?: number[]) {
@@ -103,11 +112,15 @@ export function ActivityLog({
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userPopoverOpen, setUserPopoverOpen] = useState(false);
   const [userQuery, setUserQuery] = useState("");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [leadPopoverOpen, setLeadPopoverOpen] = useState(false);
+  const [leadQuery, setLeadQuery] = useState("");
   const [editFollowupOpen, setEditFollowupOpen] = useState(false);
   const [editCommentOpen, setEditCommentOpen] = useState(false);
   const [selectedFollowup, setSelectedFollowup] = useState<FollowupItemData | null>(null);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
   const { mutate: globalMutate } = useSWRConfig();
+  const hasSetDefaultUser = useRef(false);
 
   const { followupParams, commentParams, emailParams } = buildQueryParams(
     contactId,
@@ -133,14 +146,35 @@ export function ActivityLog({
   );
 
   const { data: users } = useSWR<User[]>(`/api/users`);
+  const { data: session } = useSession();
+
+  const leadsEndpoint = contactId
+    ? `/api/leads?contactId=${contactId}`
+    : companyId
+      ? `/api/leads?companyId=${companyId}`
+      : null;
+  const { data: leads } = useSWR<Lead[]>(leadsEndpoint);
 
   const emails = fetchedEmails ?? initialEmails;
+
+  // Pre-select current user
+  useEffect(() => {
+    if (users && session?.user?.id && !selectedUser && !hasSetDefaultUser.current) {
+      const currentUserId = Number(session.user.id);
+      const currentUser = users.find((u) => u.id === currentUserId);
+      if (currentUser) {
+        setSelectedUser(currentUser);
+        hasSetDefaultUser.current = true;
+      }
+    }
+  }, [users, session?.user?.id, selectedUser]);
 
   async function saveComment() {
     const body = {
       content: newComment,
       ...(contactId ? { contactId } : {}),
       ...(companyId ? { companyId } : {}),
+      ...(selectedLead ? { leadId: selectedLead.id } : {}),
     };
     const res = await fetch("/api/comments", {
       method: "POST",
@@ -149,6 +183,7 @@ export function ActivityLog({
     });
     if (res.ok) {
       setNewComment("");
+      setSelectedLead(null);
       if (commentParams) {
         await mutateComments(undefined, { revalidate: true });
         await globalMutate(`/api/comments?${commentParams}`);
@@ -167,6 +202,7 @@ export function ActivityLog({
       ...(contactId ? { contactId } : {}),
       ...(companyId ? { companyId } : {}),
       ...(selectedUser ? { assignedToUserId: selectedUser.id } : {}),
+      ...(selectedLead ? { leadId: selectedLead.id } : {}),
     };
     const res = await fetch("/api/followups", {
       method: "POST",
@@ -177,6 +213,7 @@ export function ActivityLog({
       setNewFollowupNote("");
       setNewFollowupDue(getDefaultDueDate());
       setSelectedUser(null);
+      setSelectedLead(null);
       await mutateOpenFollowups(undefined, { revalidate: true });
       await globalMutate(`/api/followups?${followupParams}`);
       if (emailParams) {
@@ -250,6 +287,12 @@ export function ActivityLog({
         `${u.firstName} ${u.lastName}`.toLowerCase().includes(query)
     );
   }, [users, userQuery]);
+
+  const filteredLeads = useMemo(() => {
+    if (!leads || !leadQuery) return leads ?? [];
+    const query = leadQuery.toLowerCase();
+    return leads.filter((l) => l.description.toLowerCase().includes(query));
+  }, [leads, leadQuery]);
 
   return (
     <section className="bg-muted rounded-lg p-4">
@@ -334,6 +377,17 @@ export function ActivityLog({
                   </Popover>
                 </div>
               </div>
+              {leadsEndpoint && (
+                <LeadSelector
+                  leads={filteredLeads}
+                  selectedLead={selectedLead}
+                  onSelect={setSelectedLead}
+                  open={leadPopoverOpen}
+                  onOpenChange={setLeadPopoverOpen}
+                  query={leadQuery}
+                  onQueryChange={setLeadQuery}
+                />
+              )}
               <div className="flex justify-end">
                 <Button
                   onClick={saveFollowup}
@@ -354,6 +408,17 @@ export function ActivityLog({
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
               />
+              {leadsEndpoint && (
+                <LeadSelector
+                  leads={filteredLeads}
+                  selectedLead={selectedLead}
+                  onSelect={setSelectedLead}
+                  open={leadPopoverOpen}
+                  onOpenChange={setLeadPopoverOpen}
+                  query={leadQuery}
+                  onQueryChange={setLeadQuery}
+                />
+              )}
               <div className="flex justify-end">
                 <Button onClick={saveComment} disabled={!newComment.trim()} size="sm">
                   <MessageSquarePlus className="h-4 w-4 mr-1.5" />
@@ -409,6 +474,7 @@ export function ActivityLog({
                       contact={item.data.contact}
                       lead={item.data.lead}
                       contactEndDate={item.data.contactEndDate}
+                      showTime={false}
                       onClick={() => {
                         setSelectedComment(item.data);
                         setEditCommentOpen(true);

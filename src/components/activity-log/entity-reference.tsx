@@ -1,7 +1,9 @@
+import type { LeadStatus } from "@/types/api";
+
 type EntityReferenceProps = {
   contact?: { id: number; firstName: string | null; lastName: string | null } | null;
   company?: { id: number; name: string } | null;
-  lead?: { id: number; description: string } | null;
+  lead?: { id: number; description: string; status: LeadStatus } | null;
   contactEndDate?: string | null;
   entityLinks?: boolean;
 };

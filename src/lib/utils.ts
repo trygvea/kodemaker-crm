@@ -84,3 +84,27 @@ export function getDefaultDueDate(): Date {
   d.setHours(9, 0, 0, 0);
   return d;
 }
+
+/**
+ * Returns Norwegian label for lead status.
+ */
+export function getLeadStatusLabel(
+  status: "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT"
+): string {
+  const labels: Record<"NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT", string> = {
+    NEW: "Ny lead",
+    IN_PROGRESS: "Lead under arbeid",
+    LOST: "Tapt lead",
+    WON: "Vunnet lead",
+    BORTFALT: "Bortfalt lead",
+  };
+  return labels[status] ?? status;
+}
+
+/**
+ * Truncates text to a maximum length, appending ellipsis if truncated.
+ */
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength)}…`;
+}
