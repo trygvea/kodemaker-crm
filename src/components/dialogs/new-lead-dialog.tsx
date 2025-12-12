@@ -27,13 +27,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { LeadStatusSelect } from "@/components/lead-status-select";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -196,18 +190,10 @@ export function NewLeadDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Velg status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NEW">Ny</SelectItem>
-                      <SelectItem value="IN_PROGRESS">Under arbeid</SelectItem>
-                      <SelectItem value="LOST">Tapt</SelectItem>
-                      <SelectItem value="WON">Vunnet</SelectItem>
-                      <SelectItem value="BORTFALT">Bortfalt</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <LeadStatusSelect
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
                   <FormMessage />
                 </FormItem>
               )}

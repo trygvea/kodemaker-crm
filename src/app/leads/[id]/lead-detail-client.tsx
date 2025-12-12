@@ -1,9 +1,8 @@
 "use client";
+
 import useSWR, { useSWRConfig } from "swr";
-import { useState } from "react";
 import { PageBreadcrumbs } from "@/components/page-breadcrumbs";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { CreatedBy } from "@/components/created-by";
 import {
   Form,
@@ -14,54 +13,62 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
-import { CalendarPlus, MessageSquarePlus, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { LeadHeader } from "@/components/entity-summary-header";
-import { FollowupsList } from "@/components/followups-list";
-import { getDefaultDueDate } from "@/lib/utils";
+import { LeadStatusSelect, type LeadStatus } from "@/components/lead-status-select";
 
 const schema = z.object({
   description: z.string().min(1),
   status: z.enum(["NEW", "IN_PROGRESS", "LOST", "WON", "BORTFALT"]),
 });
 
+type LeadData = {
+  id: number;
+  description: string;
+  status: LeadStatus;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: { firstName?: string | null; lastName?: string | null } | null;
+  company?: { id: number; name: string } | null;
+  contact?: { id: number; firstName: string; lastName: string } | null;
+};
+
 export function LeadDetailClient() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
-  const { data } = useSWR<{
-    id: number;
-    description: string;
-    status: "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT";
-    createdAt: string;
-    updatedAt: string;
-    createdBy?: { firstName?: string | null; lastName?: string | null } | null;
-    company?: { id: number; name: string } | null;
-    contact?: { id: number; firstName: string; lastName: string } | null;
-    comments: Array<{ id: number; content: string; createdAt: string }>;
-  }>(id ? `/api/leads/${id}` : null);
+  const { data } = useSWR<LeadData>(id ? `/api/leads/${id}` : null);
   const { mutate } = useSWRConfig();
   const router = useRouter();
-  const [newComment, setNewComment] = useState("");
-  const [newFollowupNote, setNewFollowupNote] = useState("");
-  const [newFollowupDue, setNewFollowupDue] = useState<Date | null>(getDefaultDueDate());
 
+  if (!data) {
+    return <div className="flex items-center justify-center h-64">Laster...</div>;
+  }
+
+  return <LeadForm data={data} id={id} mutate={mutate} router={router} />;
+}
+
+function LeadForm({
+  data,
+  id,
+  mutate,
+  router,
+}: {
+  data: LeadData;
+  id: number;
+  mutate: ReturnType<typeof useSWRConfig>["mutate"];
+  router: ReturnType<typeof useRouter>;
+}) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    values: data
-      ? { description: data.description, status: data.status }
-      : { description: "", status: "NEW" },
+    defaultValues: {
+      description: data.description,
+      status: data.status,
+    },
   });
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -72,49 +79,19 @@ export function LeadDetailClient() {
     if (!res.ok) return toast.error("Kunne ikke oppdatere lead");
     toast.success("Lead oppdatert");
     await mutate(`/api/leads/${id}`);
-    const target = data?.contact
+    const target = data.contact
       ? `/contacts/${data.contact.id}`
-      : data?.company
+      : data.company
         ? `/customers/${data.company.id}`
         : "/customers";
     router.push(target);
   }
 
-  async function saveComment() {
-    const body = { content: newComment, leadId: id };
-    const res = await fetch("/api/comments", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) return toast.error("Kunne ikke lagre kommentar");
-    setNewComment("");
-    await mutate(`/api/leads/${id}`);
-  }
-
-  async function saveFollowup() {
-    if (!newFollowupDue) return;
-    const body = {
-      note: newFollowupNote,
-      dueAt: newFollowupDue.toISOString(),
-      leadId: id,
-      contactId: data?.contact?.id,
-      companyId: data?.company?.id,
-    };
-    const res = await fetch("/api/followups", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) return toast.error("Kunne ikke lagre oppfølgning");
-    toast.success("Oppfølgning opprettet");
-    setNewFollowupNote("");
-    setNewFollowupDue(getDefaultDueDate());
-    await mutate(`/api/followups?leadId=${id}`);
-  }
-
-  if (!data) return <div className="p-6">Laster...</div>;
   const crumbs = [
     { label: "Organisasjoner", href: "/customers" },
-    ...(data.company ? [{ label: data.company.name, href: `/customers/${data.company.id}` }] : []),
+    ...(data.company
+      ? [{ label: data.company.name, href: `/customers/${data.company.id}` }]
+      : []),
     ...(data.contact
       ? [
           {
@@ -125,22 +102,26 @@ export function LeadDetailClient() {
       : []),
     { label: "Lead" },
   ];
+
   return (
     <div className="p-6 space-y-6">
       <PageBreadcrumbs items={crumbs} />
-      <LeadHeader company={data.company ?? null} contact={data.contact ?? null} />
+      <LeadHeader
+        company={data.company ?? null}
+        contact={data.contact ?? null}
+      />
 
-      <section>
+      <section className="bg-muted rounded-lg p-4">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3 max-w-2xl">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem className="col-span-2">
+                <FormItem>
                   <FormLabel>Beskrivelse</FormLabel>
                   <FormControl>
-                    <Textarea rows={10} className="resize-y" {...field} />
+                    <Textarea rows={5} className="resize-y bg-background" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,101 +131,24 @@ export function LeadDetailClient() {
               control={form.control}
               name="status"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="max-w-xs">
                   <FormLabel>Status</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Velg status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NEW">Ny</SelectItem>
-                      <SelectItem value="IN_PROGRESS">Under arbeid</SelectItem>
-                      <SelectItem value="LOST">Tapt</SelectItem>
-                      <SelectItem value="WON">Vunnet</SelectItem>
-                      <SelectItem value="BORTFALT">Bortfalt</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <LeadStatusSelect
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    className="bg-background"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="col-span-2 flex justify-end">
+            <div className="flex justify-end pt-2">
               <Button type="submit" className="inline-flex items-center gap-1.5">
                 <Save className="h-4 w-4" /> Lagre
               </Button>
             </div>
-            <div className="col-span-2">
-              <h3 className="text-sm font-medium mb-1">Kommentarer</h3>
-              <div className="space-y-2">
-                <Textarea
-                  rows={3}
-                  className="resize-y"
-                  placeholder="Skriv en kommentar…"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                />
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    disabled={!newComment.trim()}
-                    onClick={saveComment}
-                    className="inline-flex items-center gap-1.5"
-                  >
-                    <MessageSquarePlus className="h-4 w-4" /> Lagre kommentar
-                  </Button>
-                </div>
-              </div>
-              <div className="border rounded divide-y mt-3">
-                {data.comments?.length ? (
-                  data.comments.map((c) => (
-                    <div key={c.id} className="p-3">
-                      <div className="text-xs text-muted-foreground mb-1">
-                        {new Date(c.createdAt).toLocaleString()}
-                      </div>
-                      <div className="whitespace-pre-wrap text-sm">{c.content}</div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-3 text-sm text-muted-foreground">Ingen</div>
-                )}
-              </div>
-            </div>
           </form>
         </Form>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-medium mb-2">Oppfølgninger</h2>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <textarea
-              rows={3}
-              className="w-full border rounded p-2 text-sm resize-y"
-              placeholder="Notat…"
-              value={newFollowupNote}
-              onChange={(e) => setNewFollowupNote(e.target.value)}
-            />
-          </div>
-          <div className="w-48">
-            <label className="block text-xs text-muted-foreground mb-1">Frist</label>
-            <DatePicker
-              value={newFollowupDue}
-              onValueChange={(date) => setNewFollowupDue(date ?? null)}
-              placeholder="Velg dato"
-            />
-          </div>
-        </div>
-        <div className="flex justify-end mt-2">
-          <button
-            className="inline-flex items-center rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm disabled:opacity-50"
-            disabled={!newFollowupNote.trim() || !newFollowupDue}
-            onClick={saveFollowup}
-          >
-            <CalendarPlus className="h-4 w-4 mr-1.5" />
-            Lagre oppfølgning
-          </button>
-        </div>
-        <FollowupsList endpoint={`/api/followups?leadId=${id}`} />
       </section>
 
       <CreatedBy createdAt={data.createdAt} createdBy={data.createdBy} />
