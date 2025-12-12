@@ -21,28 +21,35 @@ export function CompletionCheckbox({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "peer relative flex items-center justify-center rounded-full border-2 transition-all cursor-pointer",
+        "group relative flex items-center justify-center rounded-full transition-all",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        "disabled:cursor-not-allowed disabled:opacity-50",
+        disabled
+          ? "cursor-default"
+          : "cursor-pointer",
         completed
-          ? "border-green-600 bg-green-600"
-          : "border-muted-foreground/40 bg-transparent hover:border-muted-foreground",
+          ? "bg-secondary-green/10"
+          : "border-2 border-muted-foreground/40 bg-transparent",
+        !disabled && !completed && "hover:border-secondary-green/40 hover:bg-secondary-green/10",
+        !disabled && completed && "hover:ring-2 hover:ring-secondary-green/40",
         className
       )}
       style={{ width: "22px", height: "22px", minWidth: "22px" }}
-      aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
+      aria-label={completed ? "Completed" : "Mark as complete"}
       aria-checked={completed}
       role="checkbox"
     >
       {completed ? (
-        <Check className="h-4 w-4 text-white" strokeWidth={3} />
+        <Check className="h-4 w-4 text-secondary-green" strokeWidth={3} />
       ) : (
         <Check
-          className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity peer-hover:opacity-100"
+          className={cn(
+            "h-4 w-4 text-secondary-green opacity-0 transition-opacity",
+            !disabled && "group-hover:opacity-100"
+          )}
           strokeWidth={2.5}
         />
       )}
-      <span className="sr-only">{completed ? "Mark as incomplete" : "Mark as complete"}</span>
+      <span className="sr-only">{completed ? "Completed" : "Mark as complete"}</span>
     </button>
   );
 }
