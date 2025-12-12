@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { type SetupWorker, setupWorker } from "msw/browser";
 import type { HttpHandler } from "msw";
 import { handlers, resetHandlersState } from "./handlers";
 
 let worker: SetupWorker | null = null;
-let started = false;
+let startPromise: Promise<SetupWorker> | null = null;
 
 function getWorker() {
   if (!worker) {
@@ -14,14 +14,14 @@ function getWorker() {
 }
 
 export async function startMockWorker() {
-  const w = getWorker();
-  if (!started) {
-    await w.start({ onUnhandledRequest: "bypass" });
-    started = true;
+  // Return existing promise if already starting/started
+  if (startPromise) {
+    return startPromise;
   }
-  resetHandlersState();
-  w.resetHandlers(...handlers);
-  return w;
+
+  const w = getWorker();
+  startPromise = w.start({ onUnhandledRequest: "bypass" }).then(() => w);
+  return startPromise;
 }
 
 export function resetMockHandlers() {
@@ -29,14 +29,36 @@ export function resetMockHandlers() {
   getWorker().resetHandlers(...handlers);
 }
 
-export function useFixtureHandlers(extraHandlers: HttpHandler[]) {
-  useEffect(() => {
+/**
+ * Hook to register fixture-specific MSW handlers.
+ * Returns true when handlers are registered and children can be rendered.
+ *
+ * Usage:
+ * function MyFixture() {
+ *   const ready = useFixtureHandlers([...handlers]);
+ *   if (!ready) return null;
+ *   return <MyComponent />;
+ * }
+ */
+export function useFixtureHandlers(extraHandlers: HttpHandler[]): boolean {
+  const [ready, setReady] = useState(false);
+
+  // Use useLayoutEffect to register handlers synchronously before paint
+  // This runs before useEffect and before the browser paints
+  useLayoutEffect(() => {
     const w = getWorker();
+    // Reset to remove any previous fixture handlers, keeping initial ones
+    w.resetHandlers();
+    // Prepend fixture-specific handlers (they take priority over initial handlers)
     w.use(...extraHandlers);
+    setReady(true);
+
     return () => {
-      resetMockHandlers();
+      // Cleanup: reset to default handlers when fixture unmounts
+      w.resetHandlers();
     };
-    // Handlers are static per fixture - no need to re-run on changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  return ready;
 }

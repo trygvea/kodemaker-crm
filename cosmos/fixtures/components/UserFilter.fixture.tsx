@@ -17,16 +17,25 @@ function InteractiveUserFilter({ initialValue = "mine" }: { initialValue?: UserF
 }
 
 function LoadingUserFilter() {
+  // Default value is "mine" - this is what the filter shows while loading users
   const [value, setValue] = useState<UserFilterValue>("mine");
 
-  useFixtureHandlers([
+  const ready = useFixtureHandlers([
     http.get("/api/users", async () => {
       await delay("infinite");
       return HttpResponse.json([]);
     }),
   ]);
 
-  return <UserFilter value={value} onChange={setValue} />;
+  if (!ready) return null;
+  return (
+    <div className="space-y-4">
+      <UserFilter value={value} onChange={setValue} />
+      <p className="text-sm text-muted-foreground">
+        Loading users... Filter defaults to &quot;Mine&quot; while loading.
+      </p>
+    </div>
+  );
 }
 
 function FilteredStateUserFilter() {

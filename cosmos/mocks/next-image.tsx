@@ -21,8 +21,10 @@ const Image = React.forwardRef<
     width?: number;
     height?: number;
     unoptimized?: boolean;
+    priority?: boolean;
   }
->(({ src, alt, fill, width, height, className, style, ...props }, ref) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+>(({ src, alt, fill, width, height, className, style, priority, ...props }, ref) => {
   const imgStyle: React.CSSProperties = fill
     ? { ...style, width: "100%", height: "100%", objectFit: "cover" }
     : { ...style, width, height };
