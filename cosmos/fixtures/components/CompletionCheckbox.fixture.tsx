@@ -11,15 +11,6 @@ function CompletedCheckbox() {
   return <CompletionCheckbox completed={completed} onClick={() => setCompleted(!completed)} />;
 }
 
-function DisabledCheckbox() {
-  return (
-    <div className="flex flex-col gap-4">
-      <CompletionCheckbox completed={false} onClick={() => {}} disabled={true} />
-      <CompletionCheckbox completed={true} onClick={() => {}} disabled={true} />
-    </div>
-  );
-}
-
 function InteractiveCheckbox() {
   const [completed, setCompleted] = useState(false);
   return (
@@ -39,18 +30,18 @@ function AllStates() {
     <div className="flex flex-col gap-6 p-4">
       <div className="flex items-center gap-4">
         <CompletionCheckbox completed={state1} onClick={() => setState1(!state1)} />
-        <span className="text-sm">Uncompleted (hover to see gray checkmark)</span>
+        <span className="text-sm">Uncompleted (hover to see checkmark)</span>
       </div>
       <div className="flex items-center gap-4">
         <CompletionCheckbox completed={state2} onClick={() => setState2(!state2)} />
-        <span className="text-sm">Completed (green checkmark)</span>
+        <span className="text-sm">Completed - clickable (click to toggle)</span>
       </div>
       <div className="flex items-center gap-4">
-        <CompletionCheckbox completed={false} onClick={() => {}} disabled={true} />
+        <CompletionCheckbox completed={false} disabled={true} onClick={() => {}} />
         <span className="text-sm text-muted-foreground">Disabled uncompleted</span>
       </div>
       <div className="flex items-center gap-4">
-        <CompletionCheckbox completed={true} onClick={() => {}} disabled={true} />
+        <CompletionCheckbox completed={true} disabled={true} onClick={() => {}} />
         <span className="text-sm text-muted-foreground">Disabled completed</span>
       </div>
     </div>
@@ -60,7 +51,6 @@ function AllStates() {
 export default {
   uncompleted: <UncompletedCheckbox />,
   completed: <CompletedCheckbox />,
-  disabled: <DisabledCheckbox />,
   interactive: <InteractiveCheckbox />,
   allStates: <AllStates />,
 };

@@ -59,12 +59,12 @@ export function FollowupItem({
           <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
             <CompletionCheckbox
               completed={isCompleted}
+              disabled={isCompleted}
               onClick={() => {
                 if (!isCompleted) {
                   onComplete?.(followup.id);
                 }
               }}
-              disabled={isCompleted}
             />
           </div>
           <div className="flex-1 min-w-0">
@@ -131,7 +131,7 @@ export function FollowupItem({
     >
       <div className="flex items-start gap-3">
         <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
-          <CompletionCheckbox completed={true} onClick={() => {}} disabled={true} />
+          <CompletionCheckbox completed={true} disabled={true} onClick={() => {}} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
