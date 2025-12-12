@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -12,9 +13,15 @@ import { Menu } from "lucide-react";
 export function AppHeader() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const [sheetOpen, setSheetOpen] = useState(false);
   const email = session?.user?.email || "";
   const avatarInitial = (email.trim()[0]?.toUpperCase() || "?") as string;
   const isLoginPage = pathname === "/login";
+
+  // Close sheet when pathname changes (navigation occurred)
+  useEffect(() => {
+    setSheetOpen(false);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-primary text-primary-foreground">
@@ -22,7 +29,7 @@ export function AppHeader() {
         <div className="flex items-center gap-3">
           {!isLoginPage && (
             <div className="lg:hidden">
-              <Sheet>
+              <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
                   <button
                     className="p-2 rounded bg-white/15 hover:bg-white/25"
@@ -31,7 +38,7 @@ export function AppHeader() {
                     <Menu className="h-5 w-5" />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-72">
+                <SheetContent side="left" className="p-0 w-72" aria-describedby={undefined}>
                   <SheetTitle className="sr-only">Meny</SheetTitle>
                   <SidebarSheetContent />
                 </SheetContent>
@@ -43,6 +50,7 @@ export function AppHeader() {
               src="/kodemaker-hvit-logo.svg"
               alt="Logo"
               fill
+              priority
               className="drop-shadow object-contain"
             />
           </div>
