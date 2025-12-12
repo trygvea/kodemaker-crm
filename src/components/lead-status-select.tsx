@@ -7,8 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { LeadStatus } from "@/types/api";
 
-export type LeadStatus = "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT";
+export type { LeadStatus };
 
 const statusOptions: { value: LeadStatus; label: string }[] = [
   { value: "NEW", label: "Ny" },
@@ -24,11 +25,7 @@ interface LeadStatusSelectProps {
   className?: string;
 }
 
-export function LeadStatusSelect({
-  value,
-  onValueChange,
-  className,
-}: LeadStatusSelectProps) {
+export function LeadStatusSelect({ value, onValueChange, className }: LeadStatusSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger className={className}>

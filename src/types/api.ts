@@ -31,10 +31,12 @@ export type ApiFollowup = {
   createdBy?: { firstName?: string | null; lastName?: string | null } | null;
 };
 
+export type LeadStatus = "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT";
+
 export type ApiLead = {
   id: number;
   description: string;
-  status: "NEW" | "IN_PROGRESS" | "LOST" | "WON" | "BORTFALT";
+  status: LeadStatus;
 };
 
 export type ApiEmail = {

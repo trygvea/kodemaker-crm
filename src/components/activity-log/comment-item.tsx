@@ -1,7 +1,15 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { formatDateTimeWithoutSeconds } from "@/lib/utils";
+import {
+  formatDate,
+  formatDateTimeWithoutSeconds,
+  getLeadStatusLabel,
+  truncateText,
+} from "@/lib/utils";
 import { EntityReference } from "@/components/activity-log/entity-reference";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import type { LeadStatus } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 type CommentItemProps = {
   id: number;
@@ -10,9 +18,10 @@ type CommentItemProps = {
   createdBy?: { firstName?: string | null; lastName?: string | null } | null;
   company?: { id: number; name: string } | null;
   contact?: { id: number; firstName: string | null; lastName: string | null } | null;
-  lead?: { id: number; description: string } | null;
+  lead?: { id: number; description: string; status: LeadStatus } | null;
   contactEndDate?: string | null;
   onClick?: () => void;
+  showTime?: boolean;
 };
 
 export function CommentItem({
@@ -25,7 +34,10 @@ export function CommentItem({
   lead,
   contactEndDate,
   onClick,
+  showTime = true,
 }: CommentItemProps) {
+  const router = useRouter();
+  const displayDate = showTime ? formatDateTimeWithoutSeconds(createdAt) : formatDate(createdAt);
   return (
     <div
       key={`comment-${id}`}
@@ -43,11 +55,15 @@ export function CommentItem({
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0" style={{ width: "22px" }} />
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
+          <div
+            className={`flex items-start justify-between text-xs text-muted-foreground ${
+              lead ? "mb-0.5" : "mb-2.5"
+            }`}
+          >
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-muted-foreground">
-                  {formatDateTimeWithoutSeconds(createdAt)}
+                  {displayDate}
                   {createdBy && (
                     <>
                       {" "}
@@ -66,6 +82,26 @@ export function CommentItem({
             </div>
             <Badge>Kommentar</Badge>
           </div>
+          {lead && (
+            <div className="-mt-0.5 mb-2.5 text-xs text-muted-foreground">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="cursor-pointer hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/leads/${lead.id}`);
+                    }}
+                  >
+                    {getLeadStatusLabel(lead.status)}: {truncateText(lead.description, 50)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{lead.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          )}
           <div className="whitespace-pre-wrap text-sm">{content}</div>
         </div>
       </div>

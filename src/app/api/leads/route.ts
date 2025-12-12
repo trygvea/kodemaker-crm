@@ -19,9 +19,11 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const statusParam = searchParams.get("status");
+  const companyIdParam = searchParams.get("companyId");
+  const contactIdParam = searchParams.get("contactId");
   const allowedStatuses = new Set(["NEW", "IN_PROGRESS", "LOST", "WON", "BORTFALT"]);
 
-  const filters: Array<ReturnType<typeof inArray>> = [];
+  const filters: Array<ReturnType<typeof eq> | ReturnType<typeof inArray>> = [];
   if (statusParam) {
     const statuses = statusParam
       .split(",")
@@ -31,6 +33,18 @@ export async function GET(req: NextRequest) {
     >;
     if (statuses.length > 0) {
       filters.push(inArray(leads.status, statuses));
+    }
+  }
+  if (companyIdParam) {
+    const companyId = Number(companyIdParam);
+    if (!isNaN(companyId) && companyId > 0) {
+      filters.push(eq(leads.companyId, companyId));
+    }
+  }
+  if (contactIdParam) {
+    const contactId = Number(contactIdParam);
+    if (!isNaN(contactId) && contactId > 0) {
+      filters.push(eq(leads.contactId, contactId));
     }
   }
 

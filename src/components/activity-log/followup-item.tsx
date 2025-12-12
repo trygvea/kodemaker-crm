@@ -1,10 +1,19 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatDateTimeWithoutSeconds, getInitials, useDueBgStyle } from "@/lib/utils";
+import {
+  formatDate,
+  formatDateTimeWithoutSeconds,
+  getInitials,
+  useDueBgStyle,
+  getLeadStatusLabel,
+  truncateText,
+} from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CompletionCheckbox } from "@/components/completion-checkbox";
 import { EntityReference } from "@/components/activity-log/entity-reference";
+import type { LeadStatus } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 export type FollowupItemData = {
   id: number;
@@ -16,7 +25,7 @@ export type FollowupItemData = {
   assignedTo?: { id: number; firstName: string; lastName: string } | null;
   company?: { id: number; name: string } | null;
   contact?: { id: number; firstName: string | null; lastName: string | null } | null;
-  lead?: { id: number; description: string } | null;
+  lead?: { id: number; description: string; status: LeadStatus } | null;
   contactEndDate?: string | null;
 };
 
@@ -37,9 +46,13 @@ export function FollowupItem({
   entityLinks = false,
   onClick,
 }: FollowupItemProps) {
+  const router = useRouter();
   const dueBgStyle = useDueBgStyle();
   const isCompleted = !!followup.completedAt;
-  const displayDate = formatDateTimeWithoutSeconds(followup.completedAt || followup.createdAt);
+  const displayDate =
+    variant === "completed"
+      ? formatDate(followup.completedAt || followup.createdAt)
+      : formatDateTimeWithoutSeconds(followup.completedAt || followup.createdAt);
 
   if (variant === "action") {
     return (
@@ -68,7 +81,11 @@ export function FollowupItem({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
+            <div
+              className={`flex items-start justify-between text-xs text-muted-foreground ${
+                followup.lead ? "mb-0.5" : "mb-2.5"
+              }`}
+            >
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className="flex-1 min-w-0">
                   <span className="rounded" style={dueBgStyle(followup.dueAt)}>
@@ -92,6 +109,27 @@ export function FollowupItem({
               </div>
               {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
             </div>
+            {followup.lead && (
+              <div className="-mt-0.5 mb-2.5 text-xs text-muted-foreground">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="cursor-pointer hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/leads/${followup.lead!.id}`);
+                      }}
+                    >
+                      {getLeadStatusLabel(followup.lead.status)}:{" "}
+                      {truncateText(followup.lead.description, 50)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{followup.lead.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
             <div className="whitespace-pre-wrap text-sm">{followup.note}</div>
           </div>
         </div>
@@ -134,7 +172,11 @@ export function FollowupItem({
           <CompletionCheckbox completed={true} disabled={true} onClick={() => {}} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2.5 text-xs text-muted-foreground">
+          <div
+            className={`flex items-start justify-between text-xs text-muted-foreground ${
+              followup.lead ? "mb-0.5" : "mb-2.5"
+            }`}
+          >
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-muted-foreground">
@@ -158,6 +200,27 @@ export function FollowupItem({
             </div>
             {showBadge && <Badge variant="secondary">Oppfølging</Badge>}
           </div>
+          {followup.lead && (
+            <div className="-mt-0.5 mb-2.5 text-xs text-muted-foreground">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="cursor-pointer hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/leads/${followup.lead!.id}`);
+                    }}
+                  >
+                    {getLeadStatusLabel(followup.lead.status)}:{" "}
+                    {truncateText(followup.lead.description, 50)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{followup.lead.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          )}
           <div className="whitespace-pre-wrap text-sm">{followup.note}</div>
         </div>
       </div>
